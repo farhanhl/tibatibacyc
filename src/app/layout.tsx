@@ -25,7 +25,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://www.tibatibacyc.my.id"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://www.tibatibacyc.my.id"),
   title: `${profile.site.name} — Komunitas Sepeda di Bekasi`,
   description: `${profile.site.description} Berdiri sejak ${profile.site.founded}. ${profile.brand.tagline}`,
   keywords: [
@@ -44,21 +44,36 @@ export const metadata: Metadata = {
     "Komunitas Gowes",
     "Kota Patriot",
   ],
-  authors: [{ name: profile.site.name, url: "http://www.tibatibacyc.my.id" }],
+  authors: [{ name: profile.site.name, url: "https://www.tibatibacyc.my.id" }],
   creator: profile.site.name,
   publisher: profile.site.name,
   openGraph: {
     type: "website",
     locale: "id_ID",
-    url: "http://www.tibatibacyc.my.id/",
+    url: "https://www.tibatibacyc.my.id/",
     siteName: profile.site.name,
     title: `${profile.site.name} — Komunitas Sepeda di Bekasi`,
     description: `${profile.brand.tagline} ${profile.brand.heroDescription}`,
     images: [
       {
-        url: "/images/brand/og-image.jpg",
-        width: 1200,
-        height: 630,
+        url: "/images/logo.png",
+        width: 1024,
+        height: 1024,
+        type: "image/png",
+        alt: `${profile.site.name} Bekasi`,
+      },
+      {
+        url: "/images/logo.webp",
+        width: 1024,
+        height: 1024,
+        type: "image/webp",
+        alt: `${profile.site.name} Bekasi`,
+      },
+      {
+        url: "/images/logo.jpg",
+        width: 1024,
+        height: 1024,
+        type: "image/jpeg",
         alt: `${profile.site.name} Bekasi`,
       },
     ],
@@ -67,14 +82,21 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${profile.site.name} — Komunitas Sepeda di Bekasi`,
     description: profile.brand.tagline,
-    images: ["/images/brand/og-image.jpg"],
+    images: ["/images/logo.png"],
   },
   alternates: {
-    canonical: "http://www.tibatibacyc.my.id/",
+    canonical: "https://www.tibatibacyc.my.id/",
   },
   icons: {
-    icon: "/images/logo.webp",
-    apple: "/images/logo.webp",
+    icon: [
+      { url: "/images/logo.webp", type: "image/webp" },
+      { url: "/images/logo.png", type: "image/png", sizes: "512x512" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: [
+      { url: "/images/logo.png", sizes: "180x180", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
   },
 };
 
@@ -89,12 +111,12 @@ export default function RootLayout({
     "@graph": [
       {
         "@type": "SportsClub",
-        "@id": "http://www.tibatibacyc.my.id/#organization",
+        "@id": "https://www.tibatibacyc.my.id/#organization",
         "name": profile.site.name,
         "alternateName": "Tiba-Tiba Cycling Bekasi",
-        "url": "http://www.tibatibacyc.my.id",
-        "logo": "http://www.tibatibacyc.my.id/images/logo.webp",
-        "image": "http://www.tibatibacyc.my.id/images/background/hero-bg.webp",
+        "url": "https://www.tibatibacyc.my.id",
+        "logo": "https://www.tibatibacyc.my.id/images/logo.png",
+        "image": "https://www.tibatibacyc.my.id/images/logo.png",
         "description": profile.site.description,
         "slogan": profile.brand.tagline,
         "foundingDate": "2026-07-01",
@@ -126,18 +148,18 @@ export default function RootLayout({
       },
       {
         "@type": "WebSite",
-        "@id": "http://www.tibatibacyc.my.id/#website",
-        "url": "http://www.tibatibacyc.my.id",
+        "@id": "https://www.tibatibacyc.my.id/#website",
+        "url": "https://www.tibatibacyc.my.id",
         "name": profile.site.name,
         "description": profile.site.description,
         "publisher": {
-          "@id": "http://www.tibatibacyc.my.id/#organization"
+          "@id": "https://www.tibatibacyc.my.id/#organization"
         },
         "inLanguage": "id-ID"
       },
       {
         "@type": "FAQPage",
-        "@id": "http://www.tibatibacyc.my.id/#faq",
+        "@id": "https://www.tibatibacyc.my.id/#faq",
         "mainEntity": [
           {
             "@type": "Question",
@@ -194,7 +216,7 @@ export default function RootLayout({
             },
             "sport": "Cycling",
             "organizer": {
-              "@id": "http://www.tibatibacyc.my.id/#organization"
+              "@id": "https://www.tibatibacyc.my.id/#organization"
             }
           }
         }))

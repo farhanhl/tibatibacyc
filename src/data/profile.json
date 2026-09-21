@@ -2,7 +2,7 @@
   "site": {
     "name": "Tiba-Tiba Cycling",
     "shortName": "Tiba-Tiba Cycling",
-    "url": "http://www.tibatibacyc.my.id",
+    "url": "https://www.tibatibacyc.my.id",
     "founded": "Juli 2026",
     "location": "Bekasi, Indonesia",
     "description": "Komunitas sepeda di Bekasi yang rutin gowes bersama di akhir pekan. Semua jenis sepeda boleh ikut.",
@@ -90,7 +90,7 @@
       "startLocation": "Metropolitan Mall Bekasi",
       "bikePolicy": "Semua jenis sepeda boleh ikut",
       "photos": [
-        "/images/events/icm-agustus-2026/icm.webp",
+        "/images/events/icm-agustus-2026/icm1.webp",
         "/images/events/icm-agustus-2026/icm2.webp",
         "/images/events/icm-agustus-2026/icm3.webp"
       ],

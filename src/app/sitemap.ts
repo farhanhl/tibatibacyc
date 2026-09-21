@@ -2,7 +2,7 @@ import { MetadataRoute } from "next";
 import profile from "@/data/profile.json";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://www.tibatibacyc.my.id";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.tibatibacyc.my.id";
 
   return [
     {

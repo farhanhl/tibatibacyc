@@ -81,7 +81,7 @@ export default function AboutSection({ profile }: AboutSectionProps) {
             {/* Peloton Action Image */}
             <div className="relative w-full h-64 sm:h-72 bg-black overflow-hidden">
               <Image
-                src="/images/gallery/01.jpg"
+                src="/images/events/icm-agustus-2026/icm1.webp"
                 alt="Peloton Tiba-Tiba Cycling Bekasi"
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
