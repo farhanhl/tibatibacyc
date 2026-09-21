@@ -74,13 +74,13 @@ export default function EventsSection({
             className="mb-0"
           />
 
-          <div className="flex flex-wrap items-center gap-3 self-start md:self-start md:pt-1 shrink-0">
+          <div className="flex flex-wrap items-center justify-between sm:justify-start w-full md:w-auto gap-3 self-start md:self-start md:pt-1 shrink-0">
             {/* Filter Tabs */}
-            <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md p-1.5 rounded-md border border-white/15">
+            <div className="flex items-center gap-1.5 sm:gap-2 bg-black/60 backdrop-blur-md p-1.5 rounded-md border border-white/15">
               <button
                 type="button"
                 onClick={() => setActiveFilter("all")}
-                className={`cursor-pointer px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider rounded-sm transition-all ${
+                className={`cursor-pointer px-2.5 sm:px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider rounded-sm transition-all ${
                   activeFilter === "all"
                     ? "bg-[#C44341] text-white shadow-xs"
                     : "text-[#868B96] hover:text-white hover:bg-white/5"
@@ -92,7 +92,7 @@ export default function EventsSection({
               <button
                 type="button"
                 onClick={() => setActiveFilter("upcoming")}
-                className={`cursor-pointer px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider rounded-sm transition-all ${
+                className={`cursor-pointer px-2.5 sm:px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider rounded-sm transition-all ${
                   activeFilter === "upcoming"
                     ? "bg-[#C44341] text-white shadow-xs"
                     : "text-[#868B96] hover:text-white hover:bg-white/5"
@@ -104,7 +104,7 @@ export default function EventsSection({
               <button
                 type="button"
                 onClick={() => setActiveFilter("completed")}
-                className={`cursor-pointer px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider rounded-sm transition-all ${
+                className={`cursor-pointer px-2.5 sm:px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider rounded-sm transition-all ${
                   activeFilter === "completed"
                     ? "bg-[#C44341] text-white shadow-xs"
                     : "text-[#868B96] hover:text-white hover:bg-white/5"
@@ -115,16 +115,16 @@ export default function EventsSection({
               </button>
             </div>
 
-            {/* Slider Arrow Controls */}
+            {/* Slider Arrow Controls (Visible on mobile and desktop) */}
             {filteredEvents.length > 1 && (
-              <div className="hidden sm:flex items-center gap-2 bg-black/60 backdrop-blur-md p-1.5 rounded-md border border-white/15">
+              <div className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md p-1.5 rounded-md border border-white/15">
                 <button
                   type="button"
                   onClick={handleScrollLeft}
                   aria-label="Geser ke kiri"
-                  className="cursor-pointer p-1.5 text-white hover:text-[#C44341] hover:bg-white/10 rounded-sm transition-colors"
+                  className="cursor-pointer p-1.5 text-white hover:text-[#C44341] hover:bg-white/10 rounded-sm transition-colors active:scale-95"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
@@ -132,9 +132,9 @@ export default function EventsSection({
                   type="button"
                   onClick={handleScrollRight}
                   aria-label="Geser ke kanan"
-                  className="cursor-pointer p-1.5 text-white hover:text-[#C44341] hover:bg-white/10 rounded-sm transition-colors"
+                  className="cursor-pointer p-1.5 text-white hover:text-[#C44341] hover:bg-white/10 rounded-sm transition-colors active:scale-95"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -143,17 +143,17 @@ export default function EventsSection({
           </div>
         </div>
 
-        {/* 1-Row Events Horizontal Slider */}
+        {/* 1-Row Events Horizontal Slider with centered snapping on mobile */}
         {filteredEvents.length > 0 ? (
           <div className="relative group/slider">
             <div
               ref={sliderRef}
-              className="flex gap-6 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-2 -mx-4 px-4 sm:mx-0 sm:px-0 items-stretch"
+              className="flex gap-4 sm:gap-6 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-2 -mx-4 px-[7.5vw] sm:mx-0 sm:px-0 items-stretch"
             >
               {filteredEvents.map((event) => (
                 <div
                   key={event.id}
-                  className="snap-start shrink-0 w-[85vw] sm:w-[350px] md:w-[380px] lg:w-[400px] flex"
+                  className="snap-center sm:snap-start shrink-0 w-[85vw] sm:w-[350px] md:w-[380px] lg:w-[400px] flex"
                 >
                   <div className="w-full flex">
                     <EventCard
