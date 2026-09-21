@@ -1,0 +1,136 @@
+{
+  "site": {
+    "name": "Tiba-Tiba Cycling",
+    "shortName": "Tiba-Tiba Cycling",
+    "url": "http://www.tibatibacyc.my.id",
+    "founded": "Juli 2026",
+    "location": "Bekasi, Indonesia",
+    "description": "Komunitas sepeda di Bekasi yang rutin gowes bersama di akhir pekan. Semua jenis sepeda boleh ikut.",
+    "areas": [
+      "Bekasi Timur",
+      "Bekasi Barat",
+      "Bekasi Selatan"
+    ]
+  },
+  "brand": {
+    "tagline": "Tiba-Tiba Gowes, Tiba-Tiba Ngopi.",
+    "heroTitle": "TIBA-TIBA CYCLING",
+    "heroSubtitle": "Komunitas sepeda di Bekasi.",
+    "heroDescription": "Wadah bagi pesepeda di Bekasi untuk menikmati jalanan pagi di akhir pekan. Santai, seru, dan terbuka untuk semua jenis sepeda.",
+    "quote": "Gowes bareng, ketemu orang baru, lalu kadang... tiba-tiba ngopi.",
+    "bikePolicy": "Semua jenis sepeda boleh ikut."
+  },
+  "about": {
+    "title": "Tentang Tiba-Tiba Cycling",
+    "lead": "Komunitas sepeda di Bekasi yang berdiri pada Juli 2026.",
+    "description": "Tiba Tiba Cycling adalah komunitas sepeda di Bekasi yang berdiri pada Juli 2026. Komunitas ini menjadi wadah bagi berbagai jenis pesepeda untuk menikmati kegiatan bersepeda bersama, terutama pada akhir pekan. Anggota Tiba Tiba Cycling berasal dari berbagai wilayah di Bekasi, termasuk Bekasi Timur, Bekasi Barat, dan Bekasi Selatan.",
+    "extended": "Bagi kami, bersepeda bukan sekadar kayuhan pedal dan jarak tempuh, tapi juga tentang kebersamaan di aspal pagi Bekasi, obrolan santai di lampu merah, dan istirahat hangat di kedai kopi favorit seusai gowes.",
+    "pillars": [
+      {
+        "title": "Semua Sepeda Boleh Ikut",
+        "description": "Road bike, sepeda lipat, gravel, MTB, fixie, hingga sepeda harian. Yang penting niat gowes dan saling jaga."
+      },
+      {
+        "title": "Eksplor Bekasi Bersama",
+        "description": "Menjelajahi rute-rute ramah pesepeda dari Bekasi Timur, Bekasi Barat, hingga Bekasi Selatan."
+      },
+      {
+        "title": "Weekend Rides & Ngopi",
+        "description": "Gowes santai akhir pekan yang diakhiri dengan sarapan dan ngopi bareng kawan baru."
+      }
+    ]
+  },
+  "social": {
+    "instagram": {
+      "username": "@tibatiba.cyc",
+      "url": "https://www.instagram.com/tibatiba.cyc/"
+    },
+    "tiktok": {
+      "username": "@tibatiba.cyc",
+      "url": "https://www.tiktok.com/@tibatiba.cyc"
+    }
+  },
+  "community": {
+    "heading": "Mau Gowes Bareng?",
+    "tagline": "Tiba-Tiba Gowes, Tiba-Tiba Ngopi.",
+    "description": "Kalau kamu suka sepeda dan mau ikut gowes bareng, yuk gabung! Ga perlu repot syarat, cukup bawa sepedamu dan helm.",
+    "joinLabel": "Join Tiba-Tiba Cycling",
+    "joinUrl": "https://chat.whatsapp.com/Iec3x7imtTKI9DMXaJzP9z",
+    "guidelines": [
+      "Gunakan helm dan perlengkapan keselamatan standar.",
+      "Patuhi rambu lalu lintas dan hormati sesama pengguna jalan.",
+      "Jaga ritme dan keselamatan barisan (group ride safety).",
+      "Semua jenis sepeda dan tingkat kebugaran diterima dengan hangat."
+    ]
+  },
+  "events": [
+    {
+      "id": "tiba-tiba-ke-susy-garden",
+      "slug": "tiba-tiba-ke-susy-garden",
+      "name": "Tiba-Tiba ke Susy Garden",
+      "date": "2026-09-06",
+      "time": "05:30 WIB",
+      "startLocation": "Alfamidi depan Tol Bekasi Timur",
+      "bikePolicy": "Semua jenis sepeda boleh ikut",
+      "photos": [
+        "/images/events/susy-garden-jatimurni/susy-garden1.webp",
+        "/images/events/susy-garden-jatimurni/susy-garden2.webp",
+        "/images/events/susy-garden-jatimurni/susy-garden3.webp"
+      ],
+      "instastoryImage": "/images/events/susy-garden-jatimurni/story.webp",
+      "status": "completed",
+      "badge": "Selesai"
+    },
+    {
+      "id": "tiba-tiba-critical-mass-bekasi",
+      "slug": "tiba-tiba-critical-mass-bekasi",
+      "name": "Tiba-Tiba Critical Mass Bekasi",
+      "date": "2026-08-28",
+      "time": "20:00 WIB",
+      "startLocation": "Metropolitan Mall Bekasi",
+      "bikePolicy": "Semua jenis sepeda boleh ikut",
+      "photos": [
+        "/images/events/icm-agustus-2026/icm.webp",
+        "/images/events/icm-agustus-2026/icm2.webp",
+        "/images/events/icm-agustus-2026/icm3.webp"
+      ],
+      "instastoryImage": "/images/events/icm-agustus-2026/story.webp",
+      "status": "completed",
+      "badge": "Selesai"
+    },
+    {
+      "id": "tiba-tiba-ke-kopitagram-vida",
+      "slug": "tiba-tiba-ke-kopitagram-vida",
+      "name": "Tiba-Tiba ke Kopitagram Vida",
+      "date": "2026-08-23",
+      "time": "05:30 WIB",
+      "startLocation": "Alfamidi depan Tol Bekasi Timur",
+      "bikePolicy": "Semua jenis sepeda boleh ikut",
+      "photos": [
+        "/images/events/kopitagram-vida/kopitagram1.webp",
+        "/images/events/kopitagram-vida/kopitagram2.webp",
+        "/images/events/kopitagram-vida/kopitagram3.webp"
+      ],
+      "instastoryImage": "/images/events/kopitagram-vida/story.webp",
+      "status": "completed",
+      "badge": "Selesai"
+    },
+    {
+      "id": "tiba-tiba-ke-kopi-tuku-vida",
+      "slug": "tiba-tiba-ke-kopi-tuku-vida",
+      "name": "Tiba-Tiba ke Kopi Tuku Vida",
+      "date": "2026-08-02",
+      "time": "05:30 WIB",
+      "startLocation": "Alfamidi depan Tol Bekasi Timur",
+      "bikePolicy": "Semua jenis sepeda boleh ikut",
+      "photos": [
+        "/images/events/tuku-vida/vida1.webp",
+        "/images/events/tuku-vida/vida2.webp",
+        "/images/events/tuku-vida/vida3.webp"
+      ],
+      "instastoryImage": "/images/events/tuku-vida/story.webp",
+      "status": "completed",
+      "badge": "Selesai"
+    }
+  ]
+}
