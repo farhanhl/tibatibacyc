@@ -11,6 +11,7 @@ import EventsSection from "@/components/sections/EventsSection";
 import JoinSection from "@/components/sections/JoinSection";
 import Lightbox, { LightboxImage } from "@/components/gallery/Lightbox";
 import EventStoryModal from "@/components/events/EventStoryModal";
+import ScrollCyclistProgress from "@/components/ui/ScrollCyclistProgress";
 
 const profile = profileData as ProfileData;
 
@@ -51,6 +52,9 @@ export default function HomePage() {
     <>
       {/* Top Header Navigation */}
       <Header profile={profile} />
+
+      {/* Interactive Scroll Cyclist Progress Tracker */}
+      <ScrollCyclistProgress />
 
       {/* Main Single Page Sections */}
       <main className="flex-1 w-full">

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
+import LoadingImage from "@/components/ui/LoadingImage";
 import { EventItem } from "@/types/profile";
 import Badge from "@/components/ui/Badge";
 
@@ -22,13 +22,13 @@ export default function EventCard({
   return (
     <article className="bg-black/45 backdrop-blur-md border border-white/20 rounded-xl overflow-hidden transition-all duration-300 hover:border-[#C44341] hover:shadow-2xl flex flex-col justify-between group text-white shadow-2xl">
       <div>
-        {/* Top Image Preview */}
+        {/* Top Image Preview with Loading Animation */}
         {mainPhoto && (
           <div
             className="relative w-full h-52 sm:h-60 bg-black overflow-hidden cursor-pointer"
             onClick={() => onOpenPhoto && onOpenPhoto(event.photos, event.name)}
           >
-            <Image
+            <LoadingImage
               src={mainPhoto}
               alt={`Foto kegiatan ${event.name}`}
               fill
@@ -36,7 +36,7 @@ export default function EventCard({
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               loading="lazy"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none z-10" />
 
             {/* Top Badges */}
             <div className="absolute top-3 left-3 flex items-center z-10">

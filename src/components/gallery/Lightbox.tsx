@@ -2,10 +2,11 @@
 
 import React, { useEffect, useCallback } from "react";
 import Image from "next/image";
+import LoadingImage from "@/components/ui/LoadingImage";
 
 export interface LightboxImage {
   src: string;
-  alt: string;
+  alt?: string;
   title?: string;
   caption?: string;
   category?: string;
@@ -125,7 +126,7 @@ export default function Lightbox({
       {/* Main Image Container (Forced 3:4 Aspect Ratio with Slider) */}
       <div className="relative w-full max-w-lg flex flex-col items-center justify-center">
         <div className="relative w-full aspect-[3/4] max-h-[70vh] rounded-xl overflow-hidden border border-white/20 shadow-2xl bg-black group">
-          <Image
+          <LoadingImage
             src={currentImage.src}
             alt={currentImage.alt || currentImage.title || "Tiba-Tiba Cycling Gallery"}
             fill
@@ -192,12 +193,13 @@ export default function Lightbox({
                     : "border border-white/20 opacity-60 hover:opacity-100 hover:border-white/50"
                 }`}
               >
-                <Image
+                <LoadingImage
                   src={img.src}
                   alt={`Thumbnail ${idx + 1}`}
                   fill
                   className="object-cover"
                   sizes="48px"
+                  spinnerSize="sm"
                 />
               </button>
             ))}

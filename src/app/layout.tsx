@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Oswald, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import profile from "@/data/profile.json";
+import VisitorTracker from "@/components/analytics/VisitorTracker";
 
 const oswald = Oswald({
   subsets: ["latin"],
@@ -233,6 +234,7 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-[#000000] text-[#EAE6DD] antialiased min-h-screen flex flex-col font-sans">
+        <VisitorTracker />
         {children}
       </body>
     </html>

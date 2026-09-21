@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import LoadingImage from "@/components/ui/LoadingImage";
 import { ProfileData } from "@/types/profile";
 import SectionHeading from "@/components/ui/SectionHeading";
 
@@ -78,9 +79,9 @@ export default function AboutSection({ profile }: AboutSectionProps) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 mt-8 items-stretch">
           {/* Left Column: Big Peloton Feature Card in Dark Style */}
           <div className="lg:col-span-6 flex flex-col justify-between bg-black/60 backdrop-blur-md rounded-lg border border-white/20 overflow-hidden shadow-2xl group text-white">
-            {/* Peloton Action Image */}
+            {/* Peloton Action Image with Loading Animation */}
             <div className="relative w-full h-64 sm:h-72 bg-black overflow-hidden">
-              <Image
+              <LoadingImage
                 src="/images/events/icm-agustus-2026/icm1.webp"
                 alt="Peloton Tiba-Tiba Cycling Bekasi"
                 fill
@@ -88,7 +89,7 @@ export default function AboutSection({ profile }: AboutSectionProps) {
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 loading="lazy"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none z-10" />
 
               {/* Cycling Badge Overlay */}
               <div className="absolute top-3 left-3 flex items-center gap-2">
@@ -128,7 +129,7 @@ export default function AboutSection({ profile }: AboutSectionProps) {
               {/* Cycling Area Routes Pill Strip */}
               <div className="pt-4 border-t border-white/15">
                 <p className="text-xs font-mono uppercase font-bold text-[#868B96] mb-2.5 tracking-wider">
-                  Wilayah Jelajah Gowes:
+                  Anggota kita tersebar di:
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
                   {site.areas.map((area) => (

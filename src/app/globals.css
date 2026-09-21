@@ -66,6 +66,61 @@ input[type="reset"] {
   scrollbar-width: none;
 }
 
+/* Cyclist Scroll Progress Animation Keyframes */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes spinWheel {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes cyclistBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1.5px);
+  }
+}
+
+@keyframes roadDash {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+@keyframes pedalLeg {
+  0%, 100% {
+    d: path("M28 24 L33 33 L32 44");
+  }
+  50% {
+    d: path("M28 24 L35 30 L32 40");
+  }
+}
+
+.animate-spin-wheel {
+  animation: spinWheel 0.6s linear infinite;
+}
+
+.animate-cyclist-bounce {
+  animation: cyclistBounce 0.4s ease-in-out infinite;
+}
+
+.animate-road-dash {
+  animation: roadDash 0.8s linear infinite;
+}
+
 /* Focus styles for keyboard accessibility */
 :focus-visible {
   outline: 2px solid var(--color-red);

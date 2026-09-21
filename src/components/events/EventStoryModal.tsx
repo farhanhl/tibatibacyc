@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useCallback } from "react";
-import Image from "next/image";
+import LoadingImage from "@/components/ui/LoadingImage";
 
 interface EventStoryModalProps {
   isOpen: boolean;
@@ -77,7 +77,7 @@ export default function EventStoryModal({
       {/* Story Poster Container - Strict 9:16 Aspect Ratio */}
       <div className="relative w-full max-w-[380px] h-[82vh] max-h-[680px] flex flex-col items-center justify-center">
         <div className="relative w-full h-full rounded-md overflow-hidden shadow-2xl border border-white/15 bg-black">
-          <Image
+          <LoadingImage
             src={imageSrc}
             alt={`Poster Instagram Story - ${eventName}`}
             fill
