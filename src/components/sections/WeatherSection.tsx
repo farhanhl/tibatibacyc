@@ -33,7 +33,7 @@ export default function WeatherSection() {
             number="04"
             tag="Prakiraan Cuaca"
             title="Cuaca Gowes Bekasi"
-            subtitle="Prakiraan cuaca pagi akhir pekan (05:30 – 08:30 WIB) di seluruh penjuru Bekasi Timur, Barat, Selatan, dan Utara."
+            subtitle="Prakiraan cuaca pagi akhir pekan (05:30 – 08:30 WIB) di seluruh penjuru Bekasi."
             theme="dark"
             subtitleClassName="text-white font-medium"
             className="mb-0"
