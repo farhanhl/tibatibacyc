@@ -18,6 +18,7 @@ export default function HeroSection({ profile }: HeroSectionProps) {
           src="/images/background/hero-bg.webp"
           alt={`${profile.site.name} Bekasi Background Artwork`}
           fill
+          sizes="100vw"
           className="object-cover object-[83%_65%] md:object-[center_55%]"
           priority
         />

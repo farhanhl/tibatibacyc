@@ -80,6 +80,12 @@ export default function EventCard({
               <span className="font-semibold text-white shrink-0">📍 Titik Start:</span>
               <span className="text-[#EAE6DD]">{event.startLocation}</span>
             </div>
+            {event.distance && (
+              <div className="flex items-start gap-2.5 bg-black/40 backdrop-blur-xs p-2.5 rounded-md border border-white/10 hover:border-[#C44341] transition-colors">
+                <span className="font-semibold text-white shrink-0">📏 Jarak Rute:</span>
+                <span className="text-[#EAE6DD]">{event.distance}</span>
+              </div>
+            )}
             {event.bikePolicy && (
               <div className="flex items-start gap-2.5 bg-black/40 backdrop-blur-xs p-2.5 rounded-md border border-white/10 hover:border-[#C44341] transition-colors">
                 <span className="font-semibold text-white shrink-0">🚲 Ketentuan:</span>

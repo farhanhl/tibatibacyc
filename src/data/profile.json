@@ -65,12 +65,49 @@
   },
   "events": [
     {
+      "id": "tiba-tiba-ke-warkop-beels",
+      "slug": "tiba-tiba-ke-warkop-beels",
+      "name": "Tiba-Tiba ke Warkop Beels",
+      "date": "2026-09-20",
+      "time": "05:30 WIB",
+      "startLocation": "Alfamidi depan Tol Bekasi Timur",
+      "distance": "20 KM",
+      "bikePolicy": "Semua jenis sepeda boleh ikut",
+      "photos": [
+        "/images/events/warkop-beels/warkop1.webp",
+        "/images/events/warkop-beels/warkop2.webp",
+        "/images/events/warkop-beels/warkop3.webp"
+      ],
+      "instastoryImage": "/images/events/warkop-beels/story.webp",
+      "status": "completed",
+      "badge": "Selesai"
+    },
+    {
+      "id": "tiba-tiba-ke-kopi-nako-kota-bintang",
+      "slug": "tiba-tiba-ke-kopi-nako-kota-bintang",
+      "name": "Tiba-Tiba ke Kopi Nako Kota Bintang",
+      "date": "2026-09-13",
+      "time": "05:30 WIB",
+      "startLocation": "Perumnas 3",
+      "distance": "27 KM",
+      "bikePolicy": "Semua jenis sepeda boleh ikut",
+      "photos": [
+        "/images/events/nako-kota-bintang/nako1.webp",
+        "/images/events/nako-kota-bintang/nako2.webp",
+        "/images/events/nako-kota-bintang/nako3.webp"
+      ],
+      "instastoryImage": "/images/events/nako-kota-bintang/story.webp",
+      "status": "completed",
+      "badge": "Selesai"
+    },
+    {
       "id": "tiba-tiba-ke-susy-garden",
       "slug": "tiba-tiba-ke-susy-garden",
       "name": "Tiba-Tiba ke Susy Garden",
       "date": "2026-09-06",
       "time": "05:30 WIB",
       "startLocation": "Alfamidi depan Tol Bekasi Timur",
+      "distance": "50 KM",
       "bikePolicy": "Semua jenis sepeda boleh ikut",
       "photos": [
         "/images/events/susy-garden-jatimurni/susy-garden1.webp",
@@ -78,6 +115,23 @@
         "/images/events/susy-garden-jatimurni/susy-garden3.webp"
       ],
       "instastoryImage": "/images/events/susy-garden-jatimurni/story.webp",
+      "status": "completed",
+      "badge": "Selesai"
+    },
+    {
+      "id": "tiba-tiba-ke-kopi-kalean-kebonjati",
+      "slug": "tiba-tiba-ke-kopi-kalean-kebonjati",
+      "name": "Tiba-Tiba ke Kopi Kalean Kebonjati",
+      "date": "2026-08-30",
+      "time": "05:30 WIB",
+      "startLocation": "Perumnas 3",
+      "bikePolicy": "Semua jenis sepeda boleh ikut",
+      "photos": [
+        "/images/events/kopi-kalean-kebonjati/kalean1.webp",
+        "/images/events/kopi-kalean-kebonjati/kalean2.webp",
+        "/images/events/kopi-kalean-kebonjati/kalean3.webp"
+      ],
+      "instastoryImage": "/images/events/kopi-kalean-kebonjati/story.webp",
       "status": "completed",
       "badge": "Selesai"
     },
@@ -112,6 +166,23 @@
         "/images/events/kopitagram-vida/kopitagram3.webp"
       ],
       "instastoryImage": "/images/events/kopitagram-vida/story.webp",
+      "status": "completed",
+      "badge": "Selesai"
+    },
+    {
+      "id": "tiba-tiba-ke-situ-cibeureum",
+      "slug": "tiba-tiba-ke-situ-cibeureum",
+      "name": "Tiba-Tiba ke Situ Cibeureum",
+      "date": "2026-08-09",
+      "time": "05:30 WIB",
+      "startLocation": "Alfamidi depan Tol Bekasi Timur",
+      "bikePolicy": "Semua jenis sepeda boleh ikut",
+      "photos": [
+        "/images/events/situ-cibeureum/cibeureum1.webp",
+        "/images/events/situ-cibeureum/cibeureum2.webp",
+        "/images/events/situ-cibeureum/cibeureum3.webp"
+      ],
+      "instastoryImage": "/images/events/situ-cibeureum/story.webp",
       "status": "completed",
       "badge": "Selesai"
     },

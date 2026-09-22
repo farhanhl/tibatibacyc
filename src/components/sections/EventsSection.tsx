@@ -43,7 +43,7 @@ export default function EventsSection({
   return (
     <section
       id="events"
-      className="scroll-mt-16 sm:scroll-mt-20 relative py-16 sm:py-24 bg-black overflow-hidden"
+      className="scroll-mt-16 sm:scroll-mt-20 relative py-12 sm:py-16 md:py-20 bg-black overflow-hidden"
     >
       {/* Background Artwork: Activity / Cyclists Gathering */}
       <div className="absolute inset-0 z-0 pointer-events-none">
@@ -51,6 +51,7 @@ export default function EventsSection({
           src="/images/background/activity-bg.webp"
           alt="Kegiatan Tiba-Tiba Cycling Bekasi Community"
           fill
+          sizes="100vw"
           className="object-cover object-[center_60%] md:object-[center_50%]"
           priority
         />
@@ -63,7 +64,7 @@ export default function EventsSection({
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header & Filter controls */}
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-2.5 mb-0">
           <SectionHeading
             number="02"
             tag="Aktivitas & Gowes"
@@ -74,17 +75,16 @@ export default function EventsSection({
             className="mb-0"
           />
 
-          <div className="flex flex-wrap items-center justify-between sm:justify-start w-full md:w-auto gap-3 self-start md:self-start md:pt-1 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 self-start md:self-start shrink-0">
             {/* Filter Tabs */}
-            <div className="flex items-center gap-1.5 sm:gap-2 bg-black/60 backdrop-blur-md p-1.5 rounded-md border border-white/15">
+            <div className="h-9 sm:h-10 flex items-center p-1 bg-black/60 backdrop-blur-md rounded-md border border-white/15">
               <button
                 type="button"
                 onClick={() => setActiveFilter("all")}
-                className={`cursor-pointer px-2.5 sm:px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider rounded-sm transition-all ${
-                  activeFilter === "all"
-                    ? "bg-[#C44341] text-white shadow-xs"
-                    : "text-[#868B96] hover:text-white hover:bg-white/5"
-                }`}
+                className={`cursor-pointer h-full px-2.5 sm:px-3 text-xs font-bold uppercase tracking-wider rounded-xs transition-all flex items-center justify-center ${activeFilter === "all"
+                  ? "bg-[#C44341] text-white shadow-xs"
+                  : "text-[#868B96] hover:text-white hover:bg-white/5"
+                  }`}
                 style={{ fontFamily: "var(--font-display)" }}
               >
                 Semua ({events.length})
@@ -92,11 +92,10 @@ export default function EventsSection({
               <button
                 type="button"
                 onClick={() => setActiveFilter("upcoming")}
-                className={`cursor-pointer px-2.5 sm:px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider rounded-sm transition-all ${
-                  activeFilter === "upcoming"
-                    ? "bg-[#C44341] text-white shadow-xs"
-                    : "text-[#868B96] hover:text-white hover:bg-white/5"
-                }`}
+                className={`cursor-pointer h-full px-2.5 sm:px-3 text-xs font-bold uppercase tracking-wider rounded-xs transition-all flex items-center justify-center ${activeFilter === "upcoming"
+                  ? "bg-[#C44341] text-white shadow-xs"
+                  : "text-[#868B96] hover:text-white hover:bg-white/5"
+                  }`}
                 style={{ fontFamily: "var(--font-display)" }}
               >
                 Akan Datang ({upcomingCount})
@@ -104,11 +103,10 @@ export default function EventsSection({
               <button
                 type="button"
                 onClick={() => setActiveFilter("completed")}
-                className={`cursor-pointer px-2.5 sm:px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider rounded-sm transition-all ${
-                  activeFilter === "completed"
-                    ? "bg-[#C44341] text-white shadow-xs"
-                    : "text-[#868B96] hover:text-white hover:bg-white/5"
-                }`}
+                className={`cursor-pointer h-full px-2.5 sm:px-3 text-xs font-bold uppercase tracking-wider rounded-xs transition-all flex items-center justify-center ${activeFilter === "completed"
+                  ? "bg-[#C44341] text-white shadow-xs"
+                  : "text-[#868B96] hover:text-white hover:bg-white/5"
+                  }`}
                 style={{ fontFamily: "var(--font-display)" }}
               >
                 Selesai ({completedCount})
@@ -117,14 +115,14 @@ export default function EventsSection({
 
             {/* Slider Arrow Controls (Visible on mobile and desktop) */}
             {filteredEvents.length > 1 && (
-              <div className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md p-1.5 rounded-md border border-white/15">
+              <div className="h-9 sm:h-10 flex items-center gap-1 p-1 bg-black/60 backdrop-blur-md rounded-md border border-white/15">
                 <button
                   type="button"
                   onClick={handleScrollLeft}
                   aria-label="Geser ke kiri"
-                  className="cursor-pointer p-1.5 text-white hover:text-[#C44341] hover:bg-white/10 rounded-sm transition-colors active:scale-95"
+                  className="cursor-pointer h-full w-7 sm:w-8 flex items-center justify-center text-white hover:text-[#C44341] hover:bg-white/10 rounded-xs transition-colors active:scale-95"
                 >
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
@@ -132,9 +130,9 @@ export default function EventsSection({
                   type="button"
                   onClick={handleScrollRight}
                   aria-label="Geser ke kanan"
-                  className="cursor-pointer p-1.5 text-white hover:text-[#C44341] hover:bg-white/10 rounded-sm transition-colors active:scale-95"
+                  className="cursor-pointer h-full w-7 sm:w-8 flex items-center justify-center text-white hover:text-[#C44341] hover:bg-white/10 rounded-xs transition-colors active:scale-95"
                 >
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -143,17 +141,17 @@ export default function EventsSection({
           </div>
         </div>
 
-        {/* 1-Row Events Horizontal Slider with centered snapping on mobile */}
+        {/* 1-Row Events Horizontal Slider aligned with header padding */}
         {filteredEvents.length > 0 ? (
           <div className="relative group/slider">
             <div
               ref={sliderRef}
-              className="flex gap-4 sm:gap-6 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-2 -mx-4 px-[7.5vw] sm:mx-0 sm:px-0 items-stretch"
+              className="flex gap-4 sm:gap-6 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory pt-0 pb-1.5 items-stretch"
             >
               {filteredEvents.map((event) => (
                 <div
                   key={event.id}
-                  className="snap-center sm:snap-start shrink-0 w-[85vw] sm:w-[350px] md:w-[380px] lg:w-[400px] flex"
+                  className="snap-start shrink-0 w-[85vw] sm:w-[350px] md:w-[380px] lg:w-[400px] flex"
                 >
                   <div className="w-full flex">
                     <EventCard

@@ -28,6 +28,7 @@ export default function Footer({ profile }: FooterProps) {
                   src="/images/logo.webp"
                   alt={`${profile.site.name} Logo`}
                   fill
+                  sizes="40px"
                   className="object-cover"
                 />
               </div>

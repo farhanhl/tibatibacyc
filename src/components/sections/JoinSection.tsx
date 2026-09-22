@@ -19,6 +19,7 @@ export default function JoinSection({ community, brand }: JoinSectionProps) {
           src="/images/background/join-bg.webp"
           alt="Join Tiba-Tiba Cycling Bekasi Community"
           fill
+          sizes="100vw"
           className="object-cover object-[27%_45%] md:object-[center_40%]"
           priority
         />

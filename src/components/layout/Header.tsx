@@ -60,6 +60,7 @@ export default function Header({ profile }: HeaderProps) {
               src="/images/logo.webp"
               alt={`${profile.site.name} Logo`}
               fill
+              sizes="(max-width: 640px) 36px, 40px"
               className="object-cover"
               priority
             />

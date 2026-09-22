@@ -55,6 +55,7 @@ export default function AboutSection({ profile }: AboutSectionProps) {
           src="/images/background/about-bg.webp"
           alt="Tentang Tiba-Tiba Cycling Bekasi Community"
           fill
+          sizes="100vw"
           className="object-cover object-[center_60%] md:object-[center_50%]"
           priority
         />
