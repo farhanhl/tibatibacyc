@@ -93,6 +93,11 @@ export default function Footer({ profile }: FooterProps) {
                   Gabung Komunitas
                 </a>
               </li>
+              <li>
+                <a href="#cuaca" className="text-[#868B96] hover:text-[#C44341] transition-colors">
+                  Cuaca Gowes
+                </a>
+              </li>
             </ul>
           </div>
 

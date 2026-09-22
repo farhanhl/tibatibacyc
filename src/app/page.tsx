@@ -8,6 +8,7 @@ import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/sections/HeroSection";
 import AboutSection from "@/components/sections/AboutSection";
 import EventsSection from "@/components/sections/EventsSection";
+import WeatherSection from "@/components/sections/WeatherSection";
 import JoinSection from "@/components/sections/JoinSection";
 import Lightbox, { LightboxImage } from "@/components/gallery/Lightbox";
 import EventStoryModal from "@/components/events/EventStoryModal";
@@ -66,6 +67,7 @@ export default function HomePage() {
           onOpenPhoto={handleOpenEventPhoto}
         />
         <JoinSection community={profile.community} brand={profile.brand} />
+        <WeatherSection />
       </main>
 
       {/* Footer */}

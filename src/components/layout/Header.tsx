@@ -25,6 +25,7 @@ export default function Header({ profile }: HeaderProps) {
     { label: "Tentang", href: "#about" },
     { label: "Kegiatan", href: "#events" },
     { label: "Join", href: "#join" },
+    { label: "Cuaca", href: "#cuaca" },
   ];
 
   const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -42,11 +43,10 @@ export default function Header({ profile }: HeaderProps) {
 
   return (
     <header
-      className={`sticky top-0 z-40 w-full transition-all duration-300 ${
-        isScrolled
+      className={`sticky top-0 z-40 w-full transition-all duration-300 ${isScrolled
           ? "bg-black/80 backdrop-blur-md shadow-2xl border-b border-white/10"
           : "bg-black/50 backdrop-blur-md border-b border-white/10"
-      }`}
+        }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
         {/* Brand Logo & Name */}

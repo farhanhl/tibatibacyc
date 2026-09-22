@@ -13,7 +13,7 @@
   --color-brand-text: #111111;
   --color-brand-muted: #666666;
   --color-brand-border: #D8D2D2;
-  
+
   --font-display: var(--font-display), "Oswald", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-sans: var(--font-sans), "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
@@ -61,6 +61,7 @@ input[type="reset"] {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -77,15 +78,19 @@ input[type="reset"] {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
 }
 
 @keyframes cyclistBounce {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-1.5px);
   }
@@ -95,15 +100,19 @@ input[type="reset"] {
   from {
     stroke-dashoffset: 0;
   }
+
   to {
     stroke-dashoffset: -24;
   }
 }
 
 @keyframes pedalLeg {
-  0%, 100% {
+
+  0%,
+  100% {
     d: path("M28 24 L33 33 L32 44");
   }
+
   50% {
     d: path("M28 24 L35 30 L32 40");
   }
@@ -129,7 +138,10 @@ input[type="reset"] {
 
 /* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
+
+  *,
+  ::before,
+  ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
