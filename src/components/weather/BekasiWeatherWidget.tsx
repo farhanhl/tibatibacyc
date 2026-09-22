@@ -65,7 +65,6 @@ export default function BekasiWeatherWidget() {
   const [weekendData, setWeekendData] = useState<WeekendDayWeather[]>([]);
   const [activeDayTab, setActiveDayTab] = useState<0 | 1>(0); // 0 = Sabtu, 1 = Minggu
   const [isLoading, setIsLoading] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState<string>("");
 
   const fetchWeekendWeather = async () => {
     setIsLoading(true);
@@ -75,7 +74,6 @@ export default function BekasiWeatherWidget() {
 
       if (cached && cachedTime && Date.now() - parseInt(cachedTime, 10) < 30 * 60 * 1000) {
         setWeekendData(JSON.parse(cached));
-        setLastUpdated(new Date(parseInt(cachedTime, 10)).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }));
         setIsLoading(false);
         return;
       }
@@ -168,7 +166,6 @@ export default function BekasiWeatherWidget() {
       setWeekendData(processedWeekend);
       sessionStorage.setItem("tibatiba_bekasi_weekend_weather_v2", JSON.stringify(processedWeekend));
       sessionStorage.setItem("tibatiba_bekasi_weekend_weather_time_v2", Date.now().toString());
-      setLastUpdated(new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }));
     } catch {
       // Fallback offline data
       const fallback: WeekendDayWeather[] = [
@@ -200,7 +197,6 @@ export default function BekasiWeatherWidget() {
         },
       ];
       setWeekendData(fallback);
-      setLastUpdated("Offline");
     } finally {
       setIsLoading(false);
     }
@@ -343,7 +339,7 @@ export default function BekasiWeatherWidget() {
                   <span className="font-bold text-white text-xs sm:text-sm tracking-tight">
                     📍 {region.name}
                   </span>
-                  <div className="w-4 h-4 rounded-full bg-white/15" />
+                  <div className="w-5 h-5 rounded-full bg-white/15" />
                 </div>
                 <span className="text-[10px] text-[#868B96] block truncate mt-0.5">
                   {region.landmark}
@@ -357,8 +353,8 @@ export default function BekasiWeatherWidget() {
                   <div className="h-2.5 w-16 bg-white/10 rounded mt-1.5" />
                 </div>
 
-                <div className="flex flex-col items-end gap-1">
-                  <div className="h-3.5 w-12 bg-white/15 rounded" />
+                <div className="flex flex-col items-end gap-1.5">
+                  <div className="w-6 h-6 bg-white/15 rounded" />
                   <div className="h-2.5 w-14 bg-white/10 rounded" />
                 </div>
               </div>
@@ -392,7 +388,7 @@ export default function BekasiWeatherWidget() {
               </span>
             </div>
             <p className="text-[11px] text-[#868B96] mt-0.5">
-              Wilayah Bekasi • {lastUpdated}
+              Wilayah Bekasi
             </p>
           </div>
         </div>
@@ -466,7 +462,7 @@ export default function BekasiWeatherWidget() {
                 <span className="font-bold text-white text-xs sm:text-sm tracking-tight group-hover:text-[#C44341] transition-colors">
                   📍 {region.regionName}
                 </span>
-                {renderWeatherIcon(region.weatherCode, "w-4 h-4 sm:w-5 sm:h-5")}
+                {renderWeatherIcon(region.weatherCode, "w-5 h-5 sm:w-6 sm:h-6")}
               </div>
               <span className="text-[10px] text-[#868B96] block truncate mt-0.5">
                 {region.landmark}
@@ -485,11 +481,10 @@ export default function BekasiWeatherWidget() {
               </div>
 
               <div className="text-right">
-                <span className={`text-xs font-mono font-bold block ${region.rainProb > 30 ? "text-amber-400" : "text-emerald-400"
-                  }`}>
-                  {region.rainProb}% {region.rainProb >= 50 ? "🌧️" : region.rainProb >= 25 ? "💧" : "🌤️"}
+                <span className="text-xl sm:text-2xl block leading-none mb-1">
+                  {region.rainProb >= 50 ? "🌧️" : region.rainProb >= 25 ? "💧" : "🌤️"}
                 </span>
-                <span className="text-[10px] font-mono text-[#868B96] block mt-0.5">
+                <span className="text-[10px] sm:text-[11px] font-mono text-[#868B96] block font-medium">
                   💨 {region.windSpeed} km/h
                 </span>
               </div>
