@@ -35,13 +35,13 @@ export default function EventsSection({
 
   const handleScrollLeft = () => {
     if (sliderRef.current) {
-      sliderRef.current.scrollBy({ left: -380, behavior: "smooth" });
+      sliderRef.current.scrollBy({ left: -360, behavior: "smooth" });
     }
   };
 
   const handleScrollRight = () => {
     if (sliderRef.current) {
-      sliderRef.current.scrollBy({ left: 380, behavior: "smooth" });
+      sliderRef.current.scrollBy({ left: 360, behavior: "smooth" });
     }
   };
 
@@ -148,11 +148,11 @@ export default function EventsSection({
 
         {/* 1-Row Events Horizontal Slider aligned with header padding */}
         {isLoading ? (
-          <div className="flex gap-4 sm:gap-6 overflow-hidden pt-0 pb-1.5">
+          <div className="flex gap-3 sm:gap-4 overflow-hidden pt-0 pb-1.5">
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="shrink-0 w-[85vw] sm:w-[350px] md:w-[380px] lg:w-[400px] h-96 bg-black/45 backdrop-blur-md border border-white/15 rounded-xl p-6 space-y-4 animate-pulse"
+                className="shrink-0 w-[85vw] sm:w-[320px] md:w-[340px] lg:w-[calc((100%-2rem)/3)] h-96 bg-black/45 backdrop-blur-md border border-white/15 rounded-xl p-6 space-y-4 animate-pulse"
               >
                 <div className="w-full h-48 bg-white/10 rounded-lg" />
                 <div className="w-1/3 h-4 bg-white/10 rounded" />
@@ -165,12 +165,12 @@ export default function EventsSection({
           <div className="relative group/slider">
             <div
               ref={sliderRef}
-              className="flex gap-4 sm:gap-6 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory pt-0 pb-1.5 items-stretch"
+              className="flex gap-3 sm:gap-4 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory pt-0 pb-1.5 items-stretch"
             >
               {filteredEvents.map((event) => (
                 <div
                   key={event.id}
-                  className="snap-start shrink-0 w-[85vw] sm:w-[350px] md:w-[380px] lg:w-[400px] flex"
+                  className="snap-start shrink-0 w-[85vw] sm:w-[320px] md:w-[340px] lg:w-[calc((100%-2rem)/3)] flex"
                 >
                   <div className="w-full flex">
                     <EventCard
