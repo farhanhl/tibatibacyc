@@ -69,7 +69,7 @@ export default function EventsSection({
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header & Filter controls */}
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-2.5 mb-0">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-5 sm:mb-6 md:mb-7">
           <SectionHeading
             number="02"
             tag="Aktivitas & Gowes"

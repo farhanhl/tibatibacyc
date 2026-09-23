@@ -576,15 +576,20 @@ export default function BekasiWeatherWidget() {
               </div>
             </div>
 
-            {/* Air Quality (AQI) Row with explicit label */}
-            <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-mono">
-              <span className="text-gray-400 flex items-center gap-1 font-medium">
-                <span>🍃</span>
-                <span>Kualitas Udara</span>
-              </span>
-              <span className={`px-2 py-0.5 rounded-full font-bold border ${region.airQuality.badgeBg}`}>
-                AQI {region.airQuality.aqi} • {region.airQuality.label}
-              </span>
+            {/* Air Quality (AQI) Section: 2 Clean Rows */}
+            <div className="pt-2 border-t border-white/10 space-y-1.5 text-[10px] font-mono">
+              <div className="flex items-center justify-between text-gray-400 font-medium">
+                <span className="flex items-center gap-1">
+                  <span>🍃</span>
+                  <span>Kualitas Udara</span>
+                </span>
+                <span className="text-white font-bold tracking-tight">AQI {region.airQuality.aqi}</span>
+              </div>
+              <div
+                className={`w-full py-1 px-2 rounded-md text-center font-bold text-[10px] tracking-tight border ${region.airQuality.badgeBg}`}
+              >
+                {region.airQuality.label}
+              </div>
             </div>
           </div>
         ))}
