@@ -52,105 +52,15 @@ export default function LoadingImage({
             ) : (
               /* Waiting Cyclist Animated Character for card & modal images */
               <div className="flex flex-col items-center">
-                <div className="relative w-16 h-14 sm:w-20 sm:h-16">
-                  <svg
-                    viewBox="0 0 64 64"
-                    className="w-full h-full drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    {/* Road Line with Moving Dashes beneath bike */}
-                    <line
-                      x1="4"
-                      y1="56"
-                      x2="60"
-                      y2="56"
-                      stroke="#FFFFFF"
-                      strokeWidth="2"
-                      strokeDasharray="6 4"
-                      strokeOpacity="0.3"
-                      className="animate-road-dash"
-                    />
-
-                    {/* Rear Wheel (White Rim with rotating spokes) */}
-                    <g className="animate-spin-wheel" style={{ transformOrigin: "16px 44px" }}>
-                      <circle cx="16" cy="44" r="11" stroke="#FFFFFF" strokeWidth="2.5" />
-                      <circle cx="16" cy="44" r="11" stroke="#C44341" strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
-                      <line x1="16" y1="33" x2="16" y2="55" stroke="#FFFFFF" strokeWidth="1" opacity="0.7" />
-                      <line x1="5" y1="44" x2="27" y2="44" stroke="#FFFFFF" strokeWidth="1" opacity="0.7" />
-                      <circle cx="16" cy="44" r="2.5" fill="#FFFFFF" />
-                    </g>
-
-                    {/* Front Wheel (White Rim with rotating spokes) */}
-                    <g className="animate-spin-wheel" style={{ transformOrigin: "48px 44px" }}>
-                      <circle cx="48" cy="44" r="11" stroke="#FFFFFF" strokeWidth="2.5" />
-                      <circle cx="48" cy="44" r="11" stroke="#C44341" strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
-                      <line x1="48" y1="33" x2="48" y2="55" stroke="#FFFFFF" strokeWidth="1" opacity="0.7" />
-                      <line x1="37" y1="44" x2="59" y2="44" stroke="#FFFFFF" strokeWidth="1" opacity="0.7" />
-                      <circle cx="48" cy="44" r="2.5" fill="#FFFFFF" />
-                    </g>
-
-                    {/* White Bicycle Chassis */}
-                    <path
-                      d="M16 44 L32 44 L44 26 L26 26 Z"
-                      stroke="#FFFFFF"
-                      strokeWidth="3"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M32 44 L28 22"
-                      stroke="#FFFFFF"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M48 44 L44 24 L48 20"
-                      stroke="#FFFFFF"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M46 19 C49 19 52 21 51 24"
-                      stroke="#FFFFFF"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-
-                    {/* Red Cyclist Character with Waiting/Breathing Bounce */}
-                    <g className="animate-cyclist-bounce">
-                      {/* Red Helmet */}
-                      <circle cx="37" cy="11" r="5" fill="#C44341" />
-                      <circle cx="36" cy="11" r="4.5" fill="#A93434" />
-                      <path d="M34 9 Q38 6 42 11" stroke="#FFFFFF" strokeWidth="1.5" fill="none" />
-
-                      {/* Red Torso / Jersey */}
-                      <path
-                        d="M36 15 L28 24 L38 28"
-                        stroke="#C44341"
-                        strokeWidth="3.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-
-                      {/* Red Arms */}
-                      <path
-                        d="M35 17 L44 22 L48 21"
-                        stroke="#C44341"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-
-                      {/* Red Legs Waiting on Pedal */}
-                      <path
-                        d="M28 24 L33 33 L32 44"
-                        stroke="#C44341"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </g>
-                  </svg>
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 animate-cyclist-bounce">
+                  <Image
+                    src="/images/cyclist.png"
+                    alt="Memuat foto..."
+                    fill
+                    sizes="(max-width: 640px) 64px, 80px"
+                    className="object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]"
+                    priority
+                  />
                 </div>
 
                 {/* Waiting Gowes Status Text */}
