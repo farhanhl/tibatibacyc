@@ -77,15 +77,52 @@ export default function AdminDashboardPage() {
     instastoryImage: "",
   });
 
+  const AUTH_STORAGE_KEY = "tibatiba_admin_auth_expiry_v1";
+  const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000; // 7 hari dalam milidetik
+
+  // Cek sesi login tersimpan saat halaman dimuat
+  useEffect(() => {
+    try {
+      const storedExpiry = localStorage.getItem(AUTH_STORAGE_KEY);
+      if (storedExpiry) {
+        const expiryTime = parseInt(storedExpiry, 10);
+        if (Date.now() < expiryTime) {
+          setIsAuthenticated(true);
+          fetchAllDashboardData();
+        } else {
+          localStorage.removeItem(AUTH_STORAGE_KEY);
+        }
+      }
+    } catch {
+      // abaikan jika localStorage diblokir
+    }
+  }, []);
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (pinInput.trim() === ADMIN_PIN) {
+      try {
+        const expiry = Date.now() + SEVEN_DAYS_MS;
+        localStorage.setItem(AUTH_STORAGE_KEY, expiry.toString());
+      } catch {
+        // abaikan
+      }
       setIsAuthenticated(true);
       setPinError(false);
       fetchAllDashboardData();
     } else {
       setPinError(true);
     }
+  };
+
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+    } catch {
+      // abaikan
+    }
+    setIsAuthenticated(false);
+    setPinInput("");
   };
 
   // Helper date keys (Jakarta)
@@ -496,7 +533,7 @@ export default function AdminDashboardPage() {
             </Link>
 
             <button
-              onClick={() => setIsAuthenticated(false)}
+              onClick={handleLogout}
               className="inline-flex items-center px-3.5 py-2 rounded-xl bg-red-950/60 hover:bg-red-900/60 border border-red-500/30 text-xs font-mono text-red-300 transition-colors cursor-pointer"
               title="Keluar dari Admin"
             >
