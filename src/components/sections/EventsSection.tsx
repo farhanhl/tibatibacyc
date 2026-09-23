@@ -148,7 +148,7 @@ export default function EventsSection({
 
         {/* 1-Row Events Horizontal Slider aligned with header padding */}
         {isLoading ? (
-          <div className="flex gap-3 sm:gap-4 overflow-hidden pt-0 pb-1.5">
+          <div className="flex gap-4 overflow-hidden pt-0 pb-1.5">
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
@@ -165,20 +165,18 @@ export default function EventsSection({
           <div className="relative group/slider">
             <div
               ref={sliderRef}
-              className="flex gap-3 sm:gap-4 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory pt-0 pb-1.5 items-stretch"
+              className="flex gap-4 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory pt-0 pb-1.5 items-stretch"
             >
               {filteredEvents.map((event) => (
                 <div
                   key={event.id}
                   className="snap-start shrink-0 w-[85vw] sm:w-[320px] md:w-[340px] lg:w-[calc((100%-2rem)/3)] flex"
                 >
-                  <div className="w-full flex">
-                    <EventCard
-                      event={event}
-                      onOpenStory={onOpenStory}
-                      onOpenPhoto={onOpenPhoto}
-                    />
-                  </div>
+                  <EventCard
+                    event={event}
+                    onOpenStory={onOpenStory}
+                    onOpenPhoto={onOpenPhoto}
+                  />
                 </div>
               ))}
             </div>

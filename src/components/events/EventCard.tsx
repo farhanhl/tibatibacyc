@@ -24,7 +24,7 @@ export default function EventCard({
   const mainPhoto = event.photos && event.photos.length > 0 ? event.photos[0] : null;
 
   return (
-    <article className="bg-black/45 backdrop-blur-md border border-white/20 rounded-xl overflow-hidden transition-all duration-300 hover:border-[#C44341] hover:shadow-2xl flex flex-col justify-between group text-white shadow-2xl">
+    <article className="w-full h-full bg-black/45 backdrop-blur-md border border-white/20 rounded-xl overflow-hidden transition-all duration-300 hover:border-[#C44341] hover:shadow-2xl flex flex-col justify-between group text-white shadow-2xl">
       <div>
         {/* Top Image Preview or Community Logo Fallback */}
         <div
