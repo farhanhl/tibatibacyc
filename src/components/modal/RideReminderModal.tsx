@@ -1,16 +1,23 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { RideSchedule } from "@/types/schedule";
 import { calculateDaysRemaining, formatIndonesianFullDate, getDaysDifference } from "@/lib/scheduleService";
 
 export default function RideReminderModal() {
+  const pathname = usePathname();
   const [schedule, setSchedule] = useState<RideSchedule | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
+  // Hanya izinkan modal aktif di halaman utama ("/")
+  const isHomePage = pathname === "/";
+
   useEffect(() => {
+    if (!isHomePage) return;
+
     let unsubscribe = () => { };
 
     try {
@@ -40,7 +47,7 @@ export default function RideReminderModal() {
             if (eligibleSchedules.length > 0) {
               setSchedule(eligibleSchedules[0].schedule);
             } else {
-              // Jika tidak ada jadwal dalam rentang H-5 (misal H-6 atau sudah lewat), jangan tampilkan apa-apa
+              // Jika tidak ada jadwal dalam rentang H-5, jangan tampilkan apa-apa
               setSchedule(null);
             }
           } else {
@@ -58,10 +65,15 @@ export default function RideReminderModal() {
     }
 
     return () => unsubscribe();
-  }, []);
+  }, [isHomePage]);
 
   // Buka popup otomatis saat jadwal yang memenuhi syarat ditemukan
   useEffect(() => {
+    if (!isHomePage) {
+      setIsOpen(false);
+      return;
+    }
+
     if (schedule && schedule.isActive) {
       const timer = setTimeout(() => {
         setIsOpen(true);
@@ -70,9 +82,9 @@ export default function RideReminderModal() {
     } else {
       setIsOpen(false);
     }
-  }, [schedule]);
+  }, [schedule, isHomePage]);
 
-  if (!schedule || !schedule.isActive || !isOpen) return null;
+  if (!isHomePage || !schedule || !schedule.isActive || !isOpen) return null;
 
   const countdown = calculateDaysRemaining(schedule.date);
   const fullDateIndo = formatIndonesianFullDate(schedule.date);

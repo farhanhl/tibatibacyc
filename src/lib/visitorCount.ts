@@ -1,47 +1,35 @@
-import fs from "fs";
-import path from "path";
-
-// Memory cache fallback jika di serverless / read-only filesystem
-const memoryVisitorCounts: Record<string, number> = {};
-const memoryJoinCounts: Record<string, number> = {};
+import { db } from "@/lib/firebase";
+import { doc, getDoc, setDoc, increment } from "firebase/firestore";
 
 /**
- * Helper generic untuk increment hitungan harian berdasarkan tipe ('visitor' | 'join')
+ * Helper generic untuk increment hitungan harian ('visitor_counters' | 'join_counters')
+ * Menggunakan atomic increment di Firebase agar 100% permanen dan kompatibel dengan Vercel Serverless.
  */
 async function incrementCounter(
-  filename: string,
-  memoryCache: Record<string, number>,
+  collectionName: string,
   dateKey: string
 ): Promise<number> {
-  const dataDir = path.join(process.cwd(), "data");
-  const filePath = path.join(dataDir, filename);
-
   try {
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir, { recursive: true });
+    const docRef = doc(db, collectionName, dateKey);
+    // Tambahkan +1 secara atomik di database online
+    await setDoc(
+      docRef,
+      {
+        count: increment(1),
+        lastUpdated: new Date().toISOString(),
+      },
+      { merge: true }
+    );
+
+    // Ambil nilai terbaru
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      return snap.data().count || 1;
     }
-
-    let fileData: Record<string, number> = {};
-    if (fs.existsSync(filePath)) {
-      try {
-        const raw = fs.readFileSync(filePath, "utf-8");
-        fileData = JSON.parse(raw);
-      } catch {
-        fileData = {};
-      }
-    }
-
-    const currentCount = (fileData[dateKey] || memoryCache[dateKey] || 0) + 1;
-    fileData[dateKey] = currentCount;
-    memoryCache[dateKey] = currentCount;
-
-    fs.writeFileSync(filePath, JSON.stringify(fileData, null, 2), "utf-8");
-    return currentCount;
+    return 1;
   } catch (err) {
-    // Fallback in-memory jika file system tidak bisa ditulis (misal Vercel serverless)
-    const fallbackCount = (memoryCache[dateKey] || 0) + 1;
-    memoryCache[dateKey] = fallbackCount;
-    return fallbackCount;
+    console.warn(`[Counter] Gagal update ke database online (${collectionName}):`, err);
+    return 1;
   }
 }
 
@@ -49,14 +37,14 @@ async function incrementCounter(
  * Menambahkan +1 hitungan pengunjung untuk tanggal tertentu (format key: YYYY-MM-DD)
  */
 export async function incrementDailyVisitor(dateKey: string): Promise<number> {
-  return incrementCounter("visitor-counts.json", memoryVisitorCounts, dateKey);
+  return incrementCounter("visitor_counters", dateKey);
 }
 
 /**
  * Menambahkan +1 hitungan yang mau join WhatsApp untuk tanggal tertentu (format key: YYYY-MM-DD)
  */
 export async function incrementDailyJoin(dateKey: string): Promise<number> {
-  return incrementCounter("join-counts.json", memoryJoinCounts, dateKey);
+  return incrementCounter("join_counters", dateKey);
 }
 
 /**
