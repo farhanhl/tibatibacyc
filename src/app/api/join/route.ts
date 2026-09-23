@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getJakartaDateInfo, incrementDailyVisitor } from "@/lib/visitorCount";
+import { getJakartaDateInfo, incrementDailyJoin } from "@/lib/visitorCount";
 
 export const dynamic = "force-dynamic";
 
 const TELEGRAM_BOT_TOKEN =
   process.env.TELEGRAM_BOT_TOKEN || "7673904668:AAFbGmFQISyRy0Ub7Ae4AZxlEFZn1BtJXWE";
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || "7101696494";
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.tibatibacyc.my.id";
 const TELEGRAM_API_URL = process.env.TELEGRAM_API_URL || "https://api.telegram.org";
 
 export async function POST(req: NextRequest) {
@@ -35,7 +34,7 @@ export async function POST(req: NextRequest) {
       if (clientIp && clientIp !== "::1" && clientIp !== "127.0.0.1") {
         try {
           const res = await fetch(`https://ipapi.co/${clientIp}/json/`, {
-            headers: { "User-Agent": "tibatibacyc-visitor-tracker/1.0" },
+            headers: { "User-Agent": "tibatibacyc-join-tracker/1.0" },
             cache: "no-store",
             signal: AbortSignal.timeout(3000),
           });
@@ -52,13 +51,11 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 3. Hitung jumlah pengunjung hari ini
+    // 3. Hitung jumlah yang mau join hari ini (terpisah dari jumlah visitor)
     const { formattedDate, dateKey } = getJakartaDateInfo();
-    const visitorTodayCount = await incrementDailyVisitor(dateKey);
+    const joinTodayCount = await incrementDailyJoin(dateKey);
 
-    const messageText =
-      `🚲 Ada yang mampir ke ${BASE_URL} dari ${location}\n\n` +
-      `📊 Jumlah pengunjung tanggal ${formattedDate} : ${visitorTodayCount} Pengunjung`;
+    const messageText = `🤝 Ada yang mau join nih dari ${location}, total yang mau join hari ini: ${joinTodayCount}`;
 
     // 4. Send Telegram Notification
     try {
@@ -84,30 +81,29 @@ export async function POST(req: NextRequest) {
         delivered: true,
         message: messageText,
         location,
-        visitorTodayCount,
+        joinTodayCount,
         formattedDate,
         telegram: telegramData,
       });
     } catch (telegramErr: any) {
       console.warn(
-        "[Telegram API] Gagal terhubung ke api.telegram.org di lingkungan ini (kemungkinan blokir DNS ISP di localhost):",
+        "[Telegram API] Gagal terhubung ke api.telegram.org di lingkungan ini:",
         telegramErr.message
       );
 
-      // Return success with note so API doesn't fail with 500 when testing locally
       return NextResponse.json({
         success: true,
         delivered: false,
         message: messageText,
         location,
-        visitorTodayCount,
+        joinTodayCount,
         formattedDate,
-        note: "Request diterima, namun koneksi lokal (localhost) ke api.telegram.org dibatasi oleh DNS ISP lokal. Di server hosting / production (Vercel/Cloud), pesan akan otomatis terkirim 100%.",
+        note: "Request diterima, pesan akan otomatis terkirim 100% di server production.",
         errorDetail: telegramErr.message,
       });
     }
   } catch (error: any) {
-    console.error("Visitor Notification API Error:", error);
+    console.error("Join Notification API Error:", error);
     return NextResponse.json(
       {
         success: false,

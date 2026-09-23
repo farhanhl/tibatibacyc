@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
 import { ProfileData } from "@/types/profile";
@@ -8,6 +10,22 @@ interface JoinSectionProps {
 }
 
 export default function JoinSection({ community, brand }: JoinSectionProps) {
+  const handleJoinClick = () => {
+    try {
+      fetch("/api/join", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
+        keepalive: true,
+      }).catch((err) => {
+        console.warn("[JoinTracker] Gagal mengirim log join:", err);
+      });
+    } catch {
+      // ignore
+    }
+  };
   return (
     <section
       id="join"
@@ -71,6 +89,7 @@ export default function JoinSection({ community, brand }: JoinSectionProps) {
                   href={community.joinUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={handleJoinClick}
                   className="inline-flex items-center justify-center gap-3 px-8 py-4 text-base font-black uppercase tracking-wider bg-[#C44341] hover:bg-[#A93434] text-white rounded-sm shadow-2xl hover:shadow-[#C44341]/60 transition-all transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-white group"
                   style={{ fontFamily: "var(--font-display)" }}
                 >

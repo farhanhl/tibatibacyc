@@ -2,9 +2,6 @@
 
 import { useEffect, useRef } from "react";
 
-const TELEGRAM_BOT_TOKEN = "7673904668:AAFbGmFQISyRy0Ub7Ae4AZxlEFZn1BtJXWE";
-const TELEGRAM_CHAT_ID = "7101696494";
-const BASE_URL = "https://www.tibatibacyc.my.id";
 const COOLDOWN_MS = 60 * 1000; // 1 menit
 
 export default function VisitorTracker() {
@@ -47,32 +44,27 @@ export default function VisitorTracker() {
         console.warn("[VisitorTracker] IP lookup fallback:", err);
       }
 
-      const messageText = `🚲 Ada yang mampir ke ${BASE_URL} dari ${locationString}`;
-
-      // 2. Kirim langsung ke Telegram API (client-side)
+      // 2. Kirim ke Server API (/api/visitor)
+      // Server akan mencatat hitungan pengunjung hari ini & mengirim pesan ke bot Telegram
       try {
-        const res = await fetch(
-          `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              chat_id: TELEGRAM_CHAT_ID,
-              text: messageText,
-            }),
-          }
-        );
+        const res = await fetch("/api/visitor", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            location: locationString,
+          }),
+        });
 
         const data = await res.json();
-        if (data.ok) {
-          console.log("[VisitorTracker] ✅ Notifikasi Telegram berhasil terkirim:", data);
+        if (data.success) {
+          console.log("[VisitorTracker] ✅ Notifikasi Telegram & counter berhasil diproses:", data);
         } else {
-          console.warn("[VisitorTracker] ⚠️ Telegram API error response:", data);
+          console.warn("[VisitorTracker] ⚠️ Visitor API response:", data);
         }
       } catch (err) {
-        console.error("[VisitorTracker] ❌ Gagal mengirim ke Telegram:", err);
+        console.error("[VisitorTracker] ❌ Gagal memproses notifikasi visitor:", err);
       }
     };
 
