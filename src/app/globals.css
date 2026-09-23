@@ -148,3 +148,13 @@ input[type="reset"] {
     scroll-behavior: auto !important;
   }
 }
+
+/* Safari & WebKit Date Input Dark Styling */
+input[type="date"] {
+  color-scheme: dark;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.85);
+  cursor: pointer;
+}

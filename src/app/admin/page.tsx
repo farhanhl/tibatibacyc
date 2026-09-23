@@ -768,7 +768,7 @@ export default function AdminDashboardPage() {
                 </div>
 
                 {/* Tanggal & Waktu */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-gray-300 mb-1">TANGGAL GOWES *</label>
                     <input
@@ -776,7 +776,7 @@ export default function AdminDashboardPage() {
                       required
                       value={eventFormData.date}
                       onChange={(e) => setEventFormData({ ...eventFormData, date: e.target.value })}
-                      className="w-full px-3.5 py-2.5 bg-black/60 border border-white/20 rounded-xl text-white text-xs focus:outline-none focus:border-[#C44341]"
+                      className="w-full px-3.5 py-2.5 min-h-[42px] [color-scheme:dark] bg-black/60 border border-white/20 rounded-xl text-white text-xs focus:outline-none focus:border-[#C44341]"
                     />
                   </div>
                   <div>
@@ -786,7 +786,7 @@ export default function AdminDashboardPage() {
                       value={eventFormData.time}
                       onChange={(e) => setEventFormData({ ...eventFormData, time: e.target.value })}
                       placeholder="05:30 WIB"
-                      className="w-full px-3.5 py-2.5 bg-black/60 border border-white/20 rounded-xl text-white text-xs focus:outline-none focus:border-[#C44341]"
+                      className="w-full px-3.5 py-2.5 min-h-[42px] bg-black/60 border border-white/20 rounded-xl text-white text-xs placeholder-gray-600 focus:outline-none focus:border-[#C44341]"
                     />
                   </div>
                 </div>
@@ -808,7 +808,7 @@ export default function AdminDashboardPage() {
                 )}
 
                 {/* Titik Start & Jarak */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-gray-300 mb-1">TITIK KUMPUL (START) *</label>
                     <input
@@ -817,7 +817,7 @@ export default function AdminDashboardPage() {
                       value={eventFormData.startLocation}
                       onChange={(e) => setEventFormData({ ...eventFormData, startLocation: e.target.value })}
                       placeholder="Alfamidi Bekasi Timur"
-                      className="w-full px-3.5 py-2.5 bg-black/60 border border-white/20 rounded-xl text-white text-xs focus:outline-none focus:border-[#C44341]"
+                      className="w-full px-3.5 py-2.5 min-h-[42px] bg-black/60 border border-white/20 rounded-xl text-white text-xs placeholder-gray-600 focus:outline-none focus:border-[#C44341]"
                     />
                   </div>
                   <div>
@@ -827,7 +827,7 @@ export default function AdminDashboardPage() {
                       value={eventFormData.distance}
                       onChange={(e) => setEventFormData({ ...eventFormData, distance: e.target.value })}
                       placeholder="25 KM"
-                      className="w-full px-3.5 py-2.5 bg-black/60 border border-white/20 rounded-xl text-white text-xs focus:outline-none focus:border-[#C44341]"
+                      className="w-full px-3.5 py-2.5 min-h-[42px] bg-black/60 border border-white/20 rounded-xl text-white text-xs placeholder-gray-600 focus:outline-none focus:border-[#C44341]"
                     />
                   </div>
                 </div>
