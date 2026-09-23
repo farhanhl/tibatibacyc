@@ -715,7 +715,7 @@ export default function AdminDashboardPage() {
         {activeTab === "events" && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-300">
             {/* Form Column */}
-            <div className="lg:col-span-5 bg-black/55 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-2xl space-y-5">
+            <div className="lg:col-span-5 bg-black/55 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-2xl space-y-5 overflow-hidden min-w-0">
               <div className="flex items-center justify-between border-b border-white/10 pb-3">
                 <div>
                   <h2 className="text-lg font-black uppercase text-white" style={{ fontFamily: "var(--font-display)" }}>
@@ -753,7 +753,7 @@ export default function AdminDashboardPage() {
                 )}
               </div>
 
-              <form onSubmit={handleSaveEvent} className="space-y-4 text-xs font-mono">
+              <form onSubmit={handleSaveEvent} className="space-y-4 text-xs font-mono w-full min-w-0">
                 {/* Nama Kegiatan */}
                 <div>
                   <label className="block text-gray-300 mb-1">NAMA KEGIATAN / DESTINASI GOWES *</label>
@@ -768,25 +768,25 @@ export default function AdminDashboardPage() {
                 </div>
 
                 {/* Tanggal & Waktu */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0 w-full">
+                  <div className="min-w-0 w-full">
                     <label className="block text-gray-300 mb-1">TANGGAL GOWES *</label>
                     <input
                       type="date"
                       required
                       value={eventFormData.date}
                       onChange={(e) => setEventFormData({ ...eventFormData, date: e.target.value })}
-                      className="w-full px-3.5 py-2.5 min-h-[42px] [color-scheme:dark] bg-black/60 border border-white/20 rounded-xl text-white text-xs focus:outline-none focus:border-[#C44341]"
+                      className="block w-full max-w-full min-w-0 box-border px-3.5 py-2.5 min-h-[42px] [color-scheme:dark] bg-black/60 border border-white/20 rounded-xl text-white text-xs focus:outline-none focus:border-[#C44341]"
                     />
                   </div>
-                  <div>
+                  <div className="min-w-0 w-full">
                     <label className="block text-gray-300 mb-1">JAM KUMPUL</label>
                     <input
                       type="text"
                       value={eventFormData.time}
                       onChange={(e) => setEventFormData({ ...eventFormData, time: e.target.value })}
                       placeholder="05:30 WIB"
-                      className="w-full px-3.5 py-2.5 min-h-[42px] bg-black/60 border border-white/20 rounded-xl text-white text-xs placeholder-gray-600 focus:outline-none focus:border-[#C44341]"
+                      className="block w-full max-w-full min-w-0 box-border px-3.5 py-2.5 min-h-[42px] bg-black/60 border border-white/20 rounded-xl text-white text-xs placeholder-gray-600 focus:outline-none focus:border-[#C44341]"
                     />
                   </div>
                 </div>
@@ -808,8 +808,8 @@ export default function AdminDashboardPage() {
                 )}
 
                 {/* Titik Start & Jarak */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0 w-full">
+                  <div className="min-w-0 w-full">
                     <label className="block text-gray-300 mb-1">TITIK KUMPUL (START) *</label>
                     <input
                       type="text"
@@ -817,17 +817,17 @@ export default function AdminDashboardPage() {
                       value={eventFormData.startLocation}
                       onChange={(e) => setEventFormData({ ...eventFormData, startLocation: e.target.value })}
                       placeholder="Alfamidi Bekasi Timur"
-                      className="w-full px-3.5 py-2.5 min-h-[42px] bg-black/60 border border-white/20 rounded-xl text-white text-xs placeholder-gray-600 focus:outline-none focus:border-[#C44341]"
+                      className="block w-full max-w-full min-w-0 box-border px-3.5 py-2.5 min-h-[42px] bg-black/60 border border-white/20 rounded-xl text-white text-xs placeholder-gray-600 focus:outline-none focus:border-[#C44341]"
                     />
                   </div>
-                  <div>
+                  <div className="min-w-0 w-full">
                     <label className="block text-gray-300 mb-1">JARAK TEMPUH</label>
                     <input
                       type="text"
                       value={eventFormData.distance}
                       onChange={(e) => setEventFormData({ ...eventFormData, distance: e.target.value })}
                       placeholder="25 KM"
-                      className="w-full px-3.5 py-2.5 min-h-[42px] bg-black/60 border border-white/20 rounded-xl text-white text-xs placeholder-gray-600 focus:outline-none focus:border-[#C44341]"
+                      className="block w-full max-w-full min-w-0 box-border px-3.5 py-2.5 min-h-[42px] bg-black/60 border border-white/20 rounded-xl text-white text-xs placeholder-gray-600 focus:outline-none focus:border-[#C44341]"
                     />
                   </div>
                 </div>

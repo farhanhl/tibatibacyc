@@ -149,12 +149,24 @@ input[type="reset"] {
   }
 }
 
-/* Safari & WebKit Date Input Dark Styling */
+/* Safari & WebKit Date Input Dark Styling & Overflow Fix */
 input[type="date"] {
   color-scheme: dark;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="date"]::-webkit-date-and-time-value {
+  text-align: left;
+  min-height: 1.2em;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(0.85);
   cursor: pointer;
+  opacity: 0.8;
 }
