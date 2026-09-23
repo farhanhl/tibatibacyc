@@ -1,13 +1,18 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 const COOLDOWN_MS = 60 * 1000; // 1 menit
 
 export default function VisitorTracker() {
+  const pathname = usePathname();
   const isTriggered = useRef(false);
 
   useEffect(() => {
+    // Hanya hitung visitor jika pengguna berada di halaman utama ('/')
+    if (pathname !== "/") return;
+
     if (isTriggered.current) return;
     isTriggered.current = true;
 
