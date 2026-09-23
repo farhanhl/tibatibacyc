@@ -5,15 +5,18 @@ import Image from "next/image";
 import { EventItem } from "@/types/profile";
 import SectionHeading from "@/components/ui/SectionHeading";
 import EventCard from "@/components/events/EventCard";
+import { getDaysDifference } from "@/lib/scheduleService";
 
 interface EventsSectionProps {
   events: EventItem[];
+  isLoading?: boolean;
   onOpenStory: (imageSrc: string, eventName: string) => void;
   onOpenPhoto: (photos: string[] | string, title: string) => void;
 }
 
 export default function EventsSection({
   events,
+  isLoading = false,
   onOpenStory,
   onOpenPhoto,
 }: EventsSectionProps) {
@@ -22,11 +25,13 @@ export default function EventsSection({
 
   const filteredEvents = events.filter((event) => {
     if (activeFilter === "all") return true;
-    return event.status === activeFilter;
+    const isUpcoming = getDaysDifference(event.date) >= 0;
+    if (activeFilter === "upcoming") return isUpcoming;
+    return !isUpcoming;
   });
 
-  const upcomingCount = events.filter((e) => e.status === "upcoming").length;
-  const completedCount = events.filter((e) => e.status === "completed").length;
+  const upcomingCount = events.filter((e) => getDaysDifference(e.date) >= 0).length;
+  const completedCount = events.filter((e) => getDaysDifference(e.date) < 0).length;
 
   const handleScrollLeft = () => {
     if (sliderRef.current) {
@@ -142,7 +147,21 @@ export default function EventsSection({
         </div>
 
         {/* 1-Row Events Horizontal Slider aligned with header padding */}
-        {filteredEvents.length > 0 ? (
+        {isLoading ? (
+          <div className="flex gap-4 sm:gap-6 overflow-hidden pt-0 pb-1.5">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="shrink-0 w-[85vw] sm:w-[350px] md:w-[380px] lg:w-[400px] h-96 bg-black/45 backdrop-blur-md border border-white/15 rounded-xl p-6 space-y-4 animate-pulse"
+              >
+                <div className="w-full h-48 bg-white/10 rounded-lg" />
+                <div className="w-1/3 h-4 bg-white/10 rounded" />
+                <div className="w-3/4 h-6 bg-white/10 rounded" />
+                <div className="w-full h-12 bg-white/10 rounded" />
+              </div>
+            ))}
+          </div>
+        ) : filteredEvents.length > 0 ? (
           <div className="relative group/slider">
             <div
               ref={sliderRef}

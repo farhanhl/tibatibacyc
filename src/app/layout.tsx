@@ -196,32 +196,6 @@ export default function RootLayout({
             }
           }
         ]
-      },
-      {
-        "@type": "ItemList",
-        "name": "Kegiatan Gowes Tiba-Tiba Cycling",
-        "itemListElement": profile.events.map((event, index) => ({
-          "@type": "ListItem",
-          "position": index + 1,
-          "item": {
-            "@type": "SportsEvent",
-            "name": event.name,
-            "startDate": `${event.date}T${event.time.replace(" WIB", ":00+07:00")}`,
-            "location": {
-              "@type": "Place",
-              "name": event.startLocation,
-              "address": {
-                "@type": "PostalAddress",
-                "addressLocality": "Bekasi",
-                "addressCountry": "ID"
-              }
-            },
-            "sport": "Cycling",
-            "organizer": {
-              "@id": "https://www.tibatibacyc.my.id/#organization"
-            }
-          }
-        }))
       }
     ]
   };

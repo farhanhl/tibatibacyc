@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import profileData from "@/data/profile.json";
-import { ProfileData } from "@/types/profile";
+import { ProfileData, EventItem } from "@/types/profile";
+import { getEventsFromDb } from "@/lib/eventsService";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/sections/HeroSection";
@@ -17,6 +18,16 @@ import ScrollCyclistProgress from "@/components/ui/ScrollCyclistProgress";
 const profile = profileData as ProfileData;
 
 export default function HomePage() {
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [isLoadingEvents, setIsLoadingEvents] = useState(true);
+
+  useEffect(() => {
+    getEventsFromDb().then((data) => {
+      setEvents(data);
+      setIsLoadingEvents(false);
+    });
+  }, []);
+
   // Lightbox State
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -62,7 +73,8 @@ export default function HomePage() {
         <HeroSection profile={profile} />
         <AboutSection profile={profile} />
         <EventsSection
-          events={profile.events}
+          events={events}
+          isLoading={isLoadingEvents}
           onOpenStory={handleOpenStory}
           onOpenPhoto={handleOpenEventPhoto}
         />

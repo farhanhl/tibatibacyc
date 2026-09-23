@@ -58,10 +58,15 @@ export interface EventItem {
   distance?: string;
   description?: string;
   bikePolicy?: string;
+  notes?: string;
+  joinUrl?: string;
+  showPopup?: boolean;
   photos: string[];
   instastoryImage?: string;
   status: "upcoming" | "completed" | "cancelled";
   badge?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface GalleryItem {
@@ -79,6 +84,6 @@ export interface ProfileData {
   about: AboutInfo;
   social: SocialInfo;
   community: CommunityInfo;
-  events: EventItem[];
+  events?: EventItem[];
   gallery?: GalleryItem[];
 }

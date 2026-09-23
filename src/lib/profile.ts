@@ -2,7 +2,7 @@ import profileData from "@/data/profile.json";
 import { ProfileData, EventItem, GalleryItem } from "@/types/profile";
 
 export function getProfile(): ProfileData {
-  return profileData as ProfileData;
+  return profileData as unknown as ProfileData;
 }
 
 export function getEvents(): EventItem[] {

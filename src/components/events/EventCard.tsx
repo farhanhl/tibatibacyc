@@ -4,6 +4,7 @@ import React from "react";
 import LoadingImage from "@/components/ui/LoadingImage";
 import { EventItem } from "@/types/profile";
 import Badge from "@/components/ui/Badge";
+import { getDaysDifference, formatIndonesianFullDate } from "@/lib/scheduleService";
 
 interface EventCardProps {
   event: EventItem;
@@ -16,7 +17,10 @@ export default function EventCard({
   onOpenStory,
   onOpenPhoto,
 }: EventCardProps) {
-  const isUpcoming = event.status === "upcoming";
+  const diffDays = getDaysDifference(event.date);
+  const isUpcoming = diffDays >= 0;
+  const badgeLabel = isUpcoming ? (event.badge || "Akan Datang") : "Selesai";
+  const formattedDate = formatIndonesianFullDate(event.date);
   const mainPhoto = event.photos && event.photos.length > 0 ? event.photos[0] : null;
 
   return (
@@ -41,7 +45,7 @@ export default function EventCard({
             {/* Top Badges */}
             <div className="absolute top-3 left-3 flex items-center z-10">
               <Badge variant={isUpcoming ? "upcoming" : "completed"} size="sm">
-                {event.badge || (isUpcoming ? "Akan Datang" : "Selesai")}
+                {badgeLabel}
               </Badge>
             </div>
 
@@ -61,7 +65,7 @@ export default function EventCard({
         <div className="p-5 sm:p-6">
           {/* Date & Time Header */}
           <div className="flex flex-wrap items-center gap-2 text-xs font-mono text-[#C44341] font-semibold mb-2 uppercase tracking-wide">
-            <span>📅 {event.date}</span>
+            <span>📅 {formattedDate}</span>
             <span>•</span>
             <span>⏰ {event.time}</span>
           </div>

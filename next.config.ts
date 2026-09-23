@@ -8,6 +8,8 @@ const REQUIRED_ENV_VARS = [
   "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET",
   "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID",
   "NEXT_PUBLIC_FIREBASE_APP_ID",
+  "NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME",
+  "NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET",
   "TELEGRAM_BOT_TOKEN",
   "TELEGRAM_CHAT_ID",
   "NEXT_PUBLIC_SITE_URL",
@@ -37,7 +39,18 @@ Silakan lengkapi variabel tersebut di file .env / .env.local atau di dashboard h
 }
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+    ],
+  },
 };
 
 export default nextConfig;
