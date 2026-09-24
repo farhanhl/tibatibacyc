@@ -90,7 +90,7 @@ export default function RideReminderModal() {
 
   if (!isHomePage || !activeEvent || activeEvent.showPopup === false || !isOpen) return null;
 
-  const countdown = calculateDaysRemaining(activeEvent.date);
+  const countdown = calculateDaysRemaining(activeEvent.date, activeEvent.time);
   const fullDateIndo = formatIndonesianFullDate(activeEvent.date);
 
   const handleClose = () => {

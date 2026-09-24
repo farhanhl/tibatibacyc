@@ -618,7 +618,7 @@ export default function AdminDashboardPage() {
               {activeUpcomingPopupEvent ? (
                 <div className="space-y-1">
                   <span className="inline-block text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#C44341] text-white">
-                    {calculateDaysRemaining(activeUpcomingPopupEvent.date).label}
+                    {calculateDaysRemaining(activeUpcomingPopupEvent.date, activeUpcomingPopupEvent.time).label}
                   </span>
                   <p className="text-sm font-bold text-white truncate max-w-[200px]">
                     {activeUpcomingPopupEvent.name}
@@ -1057,7 +1057,7 @@ export default function AdminDashboardPage() {
                     .map((item) => {
                       const diffDays = getDaysDifference(item.date);
                       const isUpcoming = diffDays >= 0;
-                      const countdown = calculateDaysRemaining(item.date);
+                      const countdown = calculateDaysRemaining(item.date, item.time);
                       const fullDate = formatIndonesianFullDate(item.date);
                       const thumbnail = item.photos && item.photos.length > 0 ? item.photos[0] : null;
                       const isPopupActive = isUpcoming && item.showPopup !== false;
