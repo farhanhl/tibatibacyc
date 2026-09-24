@@ -83,6 +83,28 @@ export function getGoogleCalendarUrl(event: EventItem): string {
 }
 
 /**
+ * Deteksi tipe perangkat pengguna berdasarkan User Agent
+ */
+export function detectDeviceType(): "ios" | "android" | "desktop" {
+  if (typeof window === "undefined" || !navigator) return "desktop";
+
+  const ua = navigator.userAgent || navigator.vendor || (window as unknown as { opera?: string }).opera || "";
+
+  // Deteksi iOS (iPhone, iPad, iPod, dan iPadOS baru yang berkedok Macintosh dengan multitouch)
+  const isIOS =
+    /iPad|iPhone|iPod/.test(ua) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+  if (isIOS) return "ios";
+
+  // Deteksi Android
+  const isAndroid = /android/i.test(ua);
+  if (isAndroid) return "android";
+
+  return "desktop";
+}
+
+/**
  * Menghasilkan dan mendownload file iCalendar (.ics) untuk Apple Calendar / Outlook / iPhone
  */
 export function downloadIcsCalendar(event: EventItem): void {
@@ -144,5 +166,39 @@ export function downloadIcsCalendar(event: EventItem): void {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+
+/**
+ * Otomatis pasang pengingat ke kalender sesuai User-Agent device pengguna
+ */
+export function addEventToDeviceCalendar(event: EventItem): {
+  device: "ios" | "android" | "desktop";
+  message: string;
+} {
+  const device = detectDeviceType();
+
+  if (device === "ios") {
+    downloadIcsCalendar(event);
+    return {
+      device: "ios",
+      message: "Membuka Apple Calendar / Menyimpan jadwal di iPhone...",
+    };
+  } else if (device === "android") {
+    const url = getGoogleCalendarUrl(event);
+    window.open(url, "_blank");
+    return {
+      device: "android",
+      message: "Membuka aplikasi Google Calendar di Android...",
+    };
+  } else {
+    // Desktop: buka Google Calendar Web
+    const url = getGoogleCalendarUrl(event);
+    window.open(url, "_blank");
+    return {
+      device: "desktop",
+      message: "Membuka Google Calendar...",
+    };
+  }
+}
+

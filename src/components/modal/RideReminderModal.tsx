@@ -10,7 +10,12 @@ import {
   formatIndonesianFullDate,
   getDaysDifference,
 } from "@/lib/scheduleService";
-import { getGoogleCalendarUrl, downloadIcsCalendar } from "@/lib/calendarService";
+import {
+  getGoogleCalendarUrl,
+  downloadIcsCalendar,
+  addEventToDeviceCalendar,
+  detectDeviceType,
+} from "@/lib/calendarService";
 
 export default function RideReminderModal() {
   const pathname = usePathname();
@@ -18,6 +23,11 @@ export default function RideReminderModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [showCalendarMenu, setShowCalendarMenu] = useState(false);
   const [calendarSuccessMsg, setCalendarSuccessMsg] = useState<string | null>(null);
+  const [deviceType, setDeviceType] = useState<"ios" | "android" | "desktop">("desktop");
+
+  useEffect(() => {
+    setDeviceType(detectDeviceType());
+  }, []);
 
   // Hanya izinkan modal aktif di halaman utama ("/")
   const isHomePage = pathname === "/";
@@ -25,7 +35,7 @@ export default function RideReminderModal() {
   useEffect(() => {
     if (!isHomePage) return;
 
-    let unsubscribe = () => {};
+    let unsubscribe = () => { };
 
     try {
       const eventsRef = collection(db, "events");
@@ -107,7 +117,7 @@ export default function RideReminderModal() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
         keepalive: true,
-      }).catch(() => {});
+      }).catch(() => { });
     } catch {
       // ignore
     }
@@ -219,25 +229,30 @@ export default function RideReminderModal() {
             </div>
           )}
 
-          {/* Opsi Tambah ke Kalender HP (Google & Apple) */}
+          {/* Opsi Tambah ke Kalender HP (Otomatis berdasarkan User Agent & Pilihan Manual) */}
           <div className="space-y-2">
-            <button
-              type="button"
-              onClick={() => setShowCalendarMenu(!showCalendarMenu)}
-              className="w-full py-2.5 px-3.5 bg-black/60 hover:bg-black/80 text-gray-200 hover:text-white border border-white/15 hover:border-[#C44341]/60 rounded-xl font-mono text-xs font-semibold flex items-center justify-between transition-all cursor-pointer shadow-sm"
-            >
-              <span className="flex items-center gap-2">
-                <span>📅</span>
-                <span>Pasang Pengingat di Kalender HP</span>
-              </span>
-              <span className="text-[10px] text-gray-400 font-mono">
-                {showCalendarMenu ? "▲ Tutup" : "▼ Pilih Kalender"}
-              </span>
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const result = addEventToDeviceCalendar(activeEvent);
+                  setCalendarSuccessMsg(result.message);
+                  setTimeout(() => setCalendarSuccessMsg(null), 4000);
+                }}
+                className="flex-1 py-2.5 px-3.5 bg-gradient-to-r from-[#1e232f] to-[#141720] hover:from-[#2a3040] hover:to-[#1a1f2c] text-white border border-white/20 hover:border-[#C44341]/60 rounded-xl font-mono text-xs font-semibold flex items-center justify-between transition-all cursor-pointer shadow-sm group"
+              >
+                <span className="flex items-center gap-2">
+                  <span>📅 Pasang Pengingat di Kalender</span>
+                </span>
+              </button>
+            </div>
 
-            {/* Dropdown Options */}
+            {/* Dropdown Options Manual (Fallback / Opsi Tambahan) */}
             {showCalendarMenu && (
-              <div className="p-2.5 bg-black/90 backdrop-blur-md rounded-xl border border-white/20 shadow-2xl space-y-1.5 animate-in fade-in zoom-in-95 duration-200">
+              <div className="p-2.5 bg-black/95 backdrop-blur-md rounded-xl border border-white/20 shadow-2xl space-y-1.5 animate-in fade-in zoom-in-95 duration-200">
+                <p className="text-[10px] font-mono text-gray-400 px-1 pb-1 border-b border-white/10">
+                  Pilih format kalender secara manual:
+                </p>
                 <a
                   href={getGoogleCalendarUrl(activeEvent)}
                   target="_blank"
@@ -247,10 +262,10 @@ export default function RideReminderModal() {
                     setCalendarSuccessMsg("Membuka Google Calendar...");
                     setTimeout(() => setCalendarSuccessMsg(null), 3500);
                   }}
-                  className="w-full p-2.5 rounded-lg bg-white/5 hover:bg-[#C44341]/20 hover:border-[#C44341]/50 border border-transparent text-xs font-mono text-white flex items-center justify-between transition-all cursor-pointer"
+                  className="w-full p-2 rounded-lg bg-white/5 hover:bg-[#C44341]/20 hover:border-[#C44341]/50 border border-transparent text-xs font-mono text-white flex items-center justify-between transition-all cursor-pointer"
                 >
                   <span className="flex items-center gap-2">
-                    <span className="text-base">🌐</span>
+                    <span className="text-sm">🌐</span>
                     <span>Google Calendar (Android / Gmail)</span>
                   </span>
                   <span className="text-[10px] text-gray-400 font-bold">Buka ↗</span>
@@ -264,10 +279,10 @@ export default function RideReminderModal() {
                     setCalendarSuccessMsg("File jadwal (.ics) diunduh! Buka untuk simpan di Apple Calendar.");
                     setTimeout(() => setCalendarSuccessMsg(null), 4000);
                   }}
-                  className="w-full p-2.5 rounded-lg bg-white/5 hover:bg-[#C44341]/20 hover:border-[#C44341]/50 border border-transparent text-xs font-mono text-white flex items-center justify-between transition-all cursor-pointer text-left"
+                  className="w-full p-2 rounded-lg bg-white/5 hover:bg-[#C44341]/20 hover:border-[#C44341]/50 border border-transparent text-xs font-mono text-white flex items-center justify-between transition-all cursor-pointer text-left"
                 >
                   <span className="flex items-center gap-2">
-                    <span className="text-base">🍏</span>
+                    <span className="text-sm">🍏</span>
                     <span>Apple Calendar / iPhone & Outlook (.ics)</span>
                   </span>
                   <span className="text-[10px] text-gray-400 font-bold">Simpan ↓</span>
