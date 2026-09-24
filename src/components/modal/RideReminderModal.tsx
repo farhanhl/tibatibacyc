@@ -10,11 +10,14 @@ import {
   formatIndonesianFullDate,
   getDaysDifference,
 } from "@/lib/scheduleService";
+import { getGoogleCalendarUrl, downloadIcsCalendar } from "@/lib/calendarService";
 
 export default function RideReminderModal() {
   const pathname = usePathname();
   const [activeEvent, setActiveEvent] = useState<EventItem | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [showCalendarMenu, setShowCalendarMenu] = useState(false);
+  const [calendarSuccessMsg, setCalendarSuccessMsg] = useState<string | null>(null);
 
   // Hanya izinkan modal aktif di halaman utama ("/")
   const isHomePage = pathname === "/";
@@ -215,6 +218,69 @@ export default function RideReminderModal() {
               <span className="leading-relaxed">{activeEvent.notes}</span>
             </div>
           )}
+
+          {/* Opsi Tambah ke Kalender HP (Google & Apple) */}
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={() => setShowCalendarMenu(!showCalendarMenu)}
+              className="w-full py-2.5 px-3.5 bg-black/60 hover:bg-black/80 text-gray-200 hover:text-white border border-white/15 hover:border-[#C44341]/60 rounded-xl font-mono text-xs font-semibold flex items-center justify-between transition-all cursor-pointer shadow-sm"
+            >
+              <span className="flex items-center gap-2">
+                <span>📅</span>
+                <span>Pasang Pengingat di Kalender HP</span>
+              </span>
+              <span className="text-[10px] text-gray-400 font-mono">
+                {showCalendarMenu ? "▲ Tutup" : "▼ Pilih Kalender"}
+              </span>
+            </button>
+
+            {/* Dropdown Options */}
+            {showCalendarMenu && (
+              <div className="p-2.5 bg-black/90 backdrop-blur-md rounded-xl border border-white/20 shadow-2xl space-y-1.5 animate-in fade-in zoom-in-95 duration-200">
+                <a
+                  href={getGoogleCalendarUrl(activeEvent)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => {
+                    setShowCalendarMenu(false);
+                    setCalendarSuccessMsg("Membuka Google Calendar...");
+                    setTimeout(() => setCalendarSuccessMsg(null), 3500);
+                  }}
+                  className="w-full p-2.5 rounded-lg bg-white/5 hover:bg-[#C44341]/20 hover:border-[#C44341]/50 border border-transparent text-xs font-mono text-white flex items-center justify-between transition-all cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="text-base">🌐</span>
+                    <span>Google Calendar (Android / Gmail)</span>
+                  </span>
+                  <span className="text-[10px] text-gray-400 font-bold">Buka ↗</span>
+                </a>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    downloadIcsCalendar(activeEvent);
+                    setShowCalendarMenu(false);
+                    setCalendarSuccessMsg("File jadwal (.ics) diunduh! Buka untuk simpan di Apple Calendar.");
+                    setTimeout(() => setCalendarSuccessMsg(null), 4000);
+                  }}
+                  className="w-full p-2.5 rounded-lg bg-white/5 hover:bg-[#C44341]/20 hover:border-[#C44341]/50 border border-transparent text-xs font-mono text-white flex items-center justify-between transition-all cursor-pointer text-left"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="text-base">🍏</span>
+                    <span>Apple Calendar / iPhone & Outlook (.ics)</span>
+                  </span>
+                  <span className="text-[10px] text-gray-400 font-bold">Simpan ↓</span>
+                </button>
+              </div>
+            )}
+
+            {calendarSuccessMsg && (
+              <p className="text-[11px] font-mono text-emerald-400 text-center animate-in fade-in">
+                ✅ {calendarSuccessMsg}
+              </p>
+            )}
+          </div>
 
           {/* CTA Action Buttons */}
           <div className="pt-2 flex flex-col sm:flex-row gap-3">
