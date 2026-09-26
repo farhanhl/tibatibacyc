@@ -30,7 +30,7 @@ export default function WeatherSection() {
         {/* Section Header */}
         <div className="mb-6 sm:mb-8">
           <SectionHeading
-            number="04"
+            number="06"
             tag="Prakiraan Cuaca & Kualitas Udara"
             title="Cuaca & Udara Gowes Bekasi"
             subtitle="Prakiraan cuaca & indeks kualitas udara (AQI) pagi akhir pekan (05:30 – 08:30 WIB) di seluruh penjuru Bekasi."

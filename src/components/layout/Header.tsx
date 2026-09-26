@@ -24,6 +24,7 @@ export default function Header({ profile }: HeaderProps) {
     { label: "Home", href: "#home" },
     { label: "Tentang", href: "#about" },
     { label: "Kegiatan", href: "#events" },
+    { label: "Peta Rute", href: "#route-map" },
     { label: "Join", href: "#join" },
     { label: "Cuaca", href: "#cuaca" },
   ];

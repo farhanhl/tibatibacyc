@@ -46,7 +46,9 @@ export default function ScrollCyclistProgress() {
 
   return (
     <div
-      className="fixed top-16 sm:top-20 left-0 w-full z-40 pointer-events-none select-none"
+      className={`fixed top-16 sm:top-20 left-0 w-full z-40 pointer-events-none select-none transition-opacity duration-300 ${
+        scrollProgress > 1 ? "opacity-100" : "opacity-0"
+      }`}
       aria-hidden="true"
     >
       {/* Background Track Line */}
@@ -57,16 +59,16 @@ export default function ScrollCyclistProgress() {
           style={{ width: `${scrollProgress}%` }}
         />
 
-        {/* Animated Cyclist Sprite Container riding right on the progress tip */}
+        {/* Animated Cyclist Sprite Container riding right on top of the progress line */}
         <div
-          className="absolute bottom-0 transition-[left] duration-75 ease-out flex flex-col items-center"
+          className="absolute -top-7 sm:-top-9 transition-[left] duration-75 ease-out flex flex-col items-center"
           style={{
-            left: `calc(${scrollProgress}% - ${scrollProgress > 95 ? "44px" : scrollProgress < 5 ? "8px" : "24px"})`,
+            left: `calc(${scrollProgress}% - ${scrollProgress > 95 ? "30px" : scrollProgress < 5 ? "4px" : "16px"})`,
           }}
         >
           {/* Official Community Cyclist Illustration Sprite */}
           <div
-            className={`relative w-11 h-11 sm:w-13 sm:h-13 transition-transform duration-200 ${
+            className={`relative w-7 h-7 sm:w-9 sm:h-9 transition-transform duration-200 ${
               isScrolling ? "animate-cyclist-bounce scale-105" : "scale-100"
             }`}
           >
@@ -74,7 +76,7 @@ export default function ScrollCyclistProgress() {
               src="/images/cyclist.png"
               alt="Cyclist Progress Indicator"
               fill
-              sizes="(max-width: 640px) 44px, 52px"
+              sizes="(max-width: 640px) 28px, 36px"
               className="object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]"
               priority
             />

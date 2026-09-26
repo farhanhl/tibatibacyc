@@ -170,3 +170,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
   opacity: 0.8;
 }
+
+/* Sleek Dark Mode Styling for OpenStreetMap Tiles (100% Free & No Watermark / API Key) */
+.map-tiles-dark {
+  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7) !important;
+}
+
+.leaflet-container {
+  background-color: #121212 !important;
+}

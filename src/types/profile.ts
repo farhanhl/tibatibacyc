@@ -48,6 +48,12 @@ export interface CommunityInfo {
   guidelines: string[];
 }
 
+export interface CoordinatePoint {
+  lat: number;
+  lng: number;
+  name?: string;
+}
+
 export interface EventItem {
   id: string;
   slug: string;
@@ -55,6 +61,9 @@ export interface EventItem {
   date: string;
   time: string;
   startLocation: string;
+  startCoordinates?: CoordinatePoint;
+  destinationCoordinates?: CoordinatePoint;
+  waypoints?: CoordinatePoint[];
   distance?: string;
   description?: string;
   bikePolicy?: string;

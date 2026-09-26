@@ -71,7 +71,7 @@ export default function EventsSection({
         {/* Section Header & Filter controls */}
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-5 sm:mb-6 md:mb-7">
           <SectionHeading
-            number="02"
+            number="03"
             tag="Aktivitas & Gowes"
             title="Kegiatan Tiba-Tiba Cycling"
             subtitle="Jadwal gowes akhir pekan dan dokumentasi ride seru melintasi rute-rute terbaik di Bekasi."

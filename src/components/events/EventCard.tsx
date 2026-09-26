@@ -125,18 +125,24 @@ export default function EventCard({
       </div>
 
       {/* Card Action Buttons */}
-      <div className="px-5 pb-5 sm:px-6 sm:pb-6 pt-2 flex flex-wrap items-center gap-2.5">
+      <div className="px-5 pb-5 sm:px-6 sm:pb-6 pt-2 flex flex-wrap items-center gap-2">
+        <a
+          href="#route-map"
+          className="cursor-pointer flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold uppercase tracking-wider bg-black/40 hover:bg-[#C44341] text-[#EAE6DD] hover:text-white border border-white/15 hover:border-[#C44341] rounded-md transition-all shadow-md"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          <span>🗺️</span>
+          <span>Rute Peta</span>
+        </a>
+
         {event.instastoryImage && onOpenStory && (
           <button
             type="button"
             onClick={() => onOpenStory(event.instastoryImage!, event.name)}
-            className="cursor-pointer flex-1 inline-flex items-center justify-center gap-2 px-3.5 py-2.5 text-xs font-bold uppercase tracking-wider bg-black/40 hover:bg-[#C44341] text-[#EAE6DD] hover:text-white border border-white/15 hover:border-[#C44341] rounded-md transition-all shadow-md"
+            className="cursor-pointer inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold uppercase tracking-wider bg-black/40 hover:bg-[#C44341] text-[#EAE6DD] hover:text-white border border-white/15 hover:border-[#C44341] rounded-md transition-all shadow-md"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-            </svg>
-            Lihat Poster
+            <span>📜 Poster</span>
           </button>
         )}
         {mainPhoto && onOpenPhoto && (
@@ -144,7 +150,7 @@ export default function EventCard({
             type="button"
             onClick={() => onOpenPhoto(event.photos, event.name)}
             aria-label={`Lihat foto ${event.name}`}
-            className="cursor-pointer inline-flex items-center justify-center p-2.5 text-xs font-bold bg-black/40 hover:bg-[#C44341] text-[#EAE6DD] hover:text-white rounded-md border border-white/15 hover:border-[#C44341] transition-all shadow-md"
+            className="cursor-pointer inline-flex items-center justify-center p-2 text-xs font-bold bg-black/40 hover:bg-[#C44341] text-[#EAE6DD] hover:text-white rounded-md border border-white/15 hover:border-[#C44341] transition-all shadow-md"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

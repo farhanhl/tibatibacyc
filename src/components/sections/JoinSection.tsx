@@ -52,10 +52,10 @@ export default function JoinSection({ community, brand }: JoinSectionProps) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Column: Bold Invitation & WhatsApp CTA */}
           <div className="lg:col-span-7 space-y-6 text-white">
-            {/* Section 03 Open Member Tag */}
+            {/* Section 05 Open Member Tag */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-white/20 text-xs sm:text-sm font-semibold tracking-wider uppercase font-mono shadow-md text-[#EAE6DD]">
               <span className="inline-block px-2 py-0.5 bg-[#C44341] text-white rounded-full font-bold text-[11px] sm:text-xs tracking-normal shadow-xs">
-                03
+                05
               </span>
               <span className="font-bold tracking-wider">Gabung Komunitas</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#C44341] animate-ping ml-0.5" />

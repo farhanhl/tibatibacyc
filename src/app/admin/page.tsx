@@ -22,6 +22,7 @@ import {
   deleteEventFromDb,
 } from "@/lib/eventsService";
 import { uploadImageToCloudinary } from "@/lib/cloudinary";
+import { PRESET_LOCATIONS } from "@/lib/routeLocations";
 
 const ADMIN_PIN = process.env.NEXT_PUBLIC_ADMIN_PIN || "tibatiba2026";
 
@@ -65,6 +66,8 @@ export default function AdminDashboardPage() {
     date: "",
     time: "05:30 WIB",
     startLocation: "Alfamidi depan Tol Bekasi Timur",
+    startCoordinates: { lat: -6.2572, lng: 107.0135, name: "Alfamidi depan Tol Bekasi Timur" },
+    destinationCoordinates: { lat: -6.3268, lng: 107.1265, name: "" },
     distance: "25 KM",
     bikePolicy: "Semua jenis sepeda boleh ikut",
     notes: "Gowes santai, jangan lupa helm, lampu & uang kopi!",
@@ -316,6 +319,8 @@ export default function AdminDashboardPage() {
         date: "",
         time: "05:30 WIB",
         startLocation: "Alfamidi depan Tol Bekasi Timur",
+        startCoordinates: { lat: -6.2572, lng: 107.0135, name: "Alfamidi depan Tol Bekasi Timur" },
+        destinationCoordinates: { lat: -6.3268, lng: 107.1265, name: "" },
         distance: "25 KM",
         bikePolicy: "Semua jenis sepeda boleh ikut",
         notes: "Gowes santai, jangan lupa helm, lampu & uang kopi!",
@@ -347,6 +352,8 @@ export default function AdminDashboardPage() {
       date: item.date,
       time: item.time || "05:30 WIB",
       startLocation: item.startLocation,
+      startCoordinates: item.startCoordinates || { lat: -6.2572, lng: 107.0135, name: item.startLocation },
+      destinationCoordinates: item.destinationCoordinates || { lat: -6.3268, lng: 107.1265, name: item.name },
       distance: item.distance || "25 KM",
       bikePolicy: item.bikePolicy || "Semua jenis sepeda boleh ikut",
       notes: item.notes || "",
@@ -866,6 +873,85 @@ export default function AdminDashboardPage() {
                       placeholder="25 KM"
                       className="block w-full max-w-full min-w-0 box-border px-3.5 py-2.5 min-h-[42px] bg-black/60 border border-white/20 rounded-xl text-white text-xs placeholder-gray-600 focus:outline-none focus:border-[#C44341]"
                     />
+                  </div>
+                </div>
+
+                {/* Preset Cepat Lokasi Destinasi untuk Peta */}
+                <div className="p-3.5 bg-black/60 border border-white/15 rounded-xl space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-gray-300 font-bold flex items-center gap-1.5">
+                      <span>🗺️</span>
+                      <span>Preset Destinasi Gowes (Peta)</span>
+                    </label>
+                    <span className="text-[10px] text-gray-400 font-mono">Pilih untuk auto-set</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto pr-1">
+                    {PRESET_LOCATIONS.map((loc) => (
+                      <button
+                        key={loc.name}
+                        type="button"
+                        onClick={() => {
+                          setEventFormData((prev) => ({
+                            ...prev,
+                            destinationCoordinates: {
+                              lat: loc.lat,
+                              lng: loc.lng,
+                              name: loc.name,
+                            },
+                          }));
+                        }}
+                        className={`px-2 py-1 rounded-md text-[10px] font-mono transition-colors border cursor-pointer ${
+                          eventFormData.destinationCoordinates?.lat === loc.lat &&
+                          eventFormData.destinationCoordinates?.lng === loc.lng
+                            ? "bg-[#C44341] text-white border-[#C44341]"
+                            : "bg-white/5 text-gray-300 border-white/10 hover:bg-white/10 hover:text-white"
+                        }`}
+                      >
+                        {loc.name.split("(")[0].trim()}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Koordinat Lat/Lng Manual (Opsional) */}
+                  <div className="pt-2 border-t border-white/10 grid grid-cols-2 gap-2 text-[11px]">
+                    <div>
+                      <span className="text-gray-400 block mb-0.5">Destinasi Lat:</span>
+                      <input
+                        type="number"
+                        step="any"
+                        value={eventFormData.destinationCoordinates?.lat || -6.3268}
+                        onChange={(e) =>
+                          setEventFormData((prev) => ({
+                            ...prev,
+                            destinationCoordinates: {
+                              lat: parseFloat(e.target.value) || 0,
+                              lng: prev.destinationCoordinates?.lng || 107.1265,
+                              name: prev.destinationCoordinates?.name || prev.name,
+                            },
+                          }))
+                        }
+                        className="w-full px-2.5 py-1.5 bg-black/80 border border-white/15 rounded-lg text-white font-mono text-[11px] focus:outline-none focus:border-[#C44341]"
+                      />
+                    </div>
+                    <div>
+                      <span className="text-gray-400 block mb-0.5">Destinasi Lng:</span>
+                      <input
+                        type="number"
+                        step="any"
+                        value={eventFormData.destinationCoordinates?.lng || 107.1265}
+                        onChange={(e) =>
+                          setEventFormData((prev) => ({
+                            ...prev,
+                            destinationCoordinates: {
+                              lat: prev.destinationCoordinates?.lat || -6.3268,
+                              lng: parseFloat(e.target.value) || 0,
+                              name: prev.destinationCoordinates?.name || prev.name,
+                            },
+                          }))
+                        }
+                        className="w-full px-2.5 py-1.5 bg-black/80 border border-white/15 rounded-lg text-white font-mono text-[11px] focus:outline-none focus:border-[#C44341]"
+                      />
+                    </div>
                   </div>
                 </div>
 
