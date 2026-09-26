@@ -151,29 +151,33 @@ export function getEventRoutePoints(event: EventItem): CoordinatePoint[] {
  * Mendapatkan rute jelajah berurutan (Grand Tour) dari Alfamidi ke semua destinasi secara berantai
  */
 export function getGrandTourRoutePoints(events: EventItem[]): { points: CoordinatePoint[]; eventStops: { index: number; event: EventItem }[] } {
-  const points: CoordinatePoint[] = [DEFAULT_START_COORDINATES];
+  // Titik awal selalu Alfamidi Tol Bekasi Timur
+  const firstEventWithStart = events.find((e) => e.startCoordinates);
+  const startPt: CoordinatePoint = firstEventWithStart?.startCoordinates || DEFAULT_START_COORDINATES;
+  const points: CoordinatePoint[] = [startPt];
   const eventStops: { index: number; event: EventItem }[] = [];
 
   // Urutan tujuan berurutan
   const orderedDestinations = [
-    { key: "situ cibeureum", name: "Situ Cibeureum", lat: -6.2980556, lng: 107.0455556 },
-    { key: "tuku", name: "Kopi Tuku Vida", lat: -6.313454, lng: 107.008124 },
-    { key: "kopitagram", name: "Kopitagram Vida", lat: -6.313768, lng: 107.008432 },
-    { key: "kalean", name: "Kopi Kalean Kebonjati", lat: -6.2227052, lng: 107.0885664 },
-    { key: "susy", name: "Susy Garden", lat: -6.325599, lng: 106.9281809 },
-    { key: "nako", name: "Kopi Nako Kota Bintang", lat: -6.249497, lng: 106.966952 },
-    { key: "beels", name: "Warkop Beels", lat: -6.257630, lng: 107.014264 },
-    { key: "summarecon", name: "CFD Summarecon", lat: -6.225579, lng: 106.999676 },
-    { key: "icm", name: "ICM (Stadion Patriot)", lat: -6.236687, lng: 106.992645 },
+    { key: "situ cibeureum", fallbackName: "Situ Cibeureum", defaultLat: -6.2980556, defaultLng: 107.0455556 },
+    { key: "tuku", fallbackName: "Kopi Tuku Vida", defaultLat: -6.313454, defaultLng: 107.008124 },
+    { key: "kopitagram", fallbackName: "Kopitagram Vida", defaultLat: -6.313768, defaultLng: 107.008432 },
+    { key: "kalean", fallbackName: "Kopi Kalean Kebonjati", defaultLat: -6.2227052, defaultLng: 107.0885664 },
+    { key: "susy", fallbackName: "Susy Garden", defaultLat: -6.325599, defaultLng: 106.9281809 },
+    { key: "nako", fallbackName: "Kopi Nako Kota Bintang", defaultLat: -6.249497, defaultLng: 106.966952 },
+    { key: "beels", fallbackName: "Warkop Beels", defaultLat: -6.257630, defaultLng: 107.014264 },
+    { key: "summarecon", fallbackName: "CFD Summarecon", defaultLat: -6.225579, defaultLng: 106.999676 },
+    { key: "icm", fallbackName: "ICM (Stadion Patriot)", defaultLat: -6.236687, defaultLng: 106.992645 },
   ];
 
   for (const dest of orderedDestinations) {
     const matchedEvent = events.find((e) => e.name.toLowerCase().includes(dest.key));
-    const coord: CoordinatePoint = {
-      lat: dest.lat,
-      lng: dest.lng,
-      name: matchedEvent ? matchedEvent.name : dest.name,
-    };
+    // Mengambil langsung koordinat murni dari data Firestore kegiatan
+    const lat = matchedEvent?.destinationCoordinates?.lat ?? dest.defaultLat;
+    const lng = matchedEvent?.destinationCoordinates?.lng ?? dest.defaultLng;
+    const name = matchedEvent?.destinationCoordinates?.name || matchedEvent?.name || dest.fallbackName;
+
+    const coord: CoordinatePoint = { lat, lng, name };
     points.push(coord);
     if (matchedEvent) {
       eventStops.push({ index: points.length - 1, event: matchedEvent });
@@ -183,7 +187,9 @@ export function getGrandTourRoutePoints(events: EventItem[]): { points: Coordina
   // Kembali ke meeting point / Situ Cibeureum Lagi
   const finalEvent = events.find((e) => e.name.toLowerCase().includes("lagi")) || events[0];
   if (finalEvent) {
-    points.push({ lat: -6.2980556, lng: 107.0455556, name: finalEvent.name });
+    const lat = finalEvent.destinationCoordinates?.lat ?? -6.2980556;
+    const lng = finalEvent.destinationCoordinates?.lng ?? 107.0455556;
+    points.push({ lat, lng, name: finalEvent.name });
     eventStops.push({ index: points.length - 1, event: finalEvent });
   }
 
