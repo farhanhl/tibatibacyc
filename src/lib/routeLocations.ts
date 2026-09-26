@@ -19,8 +19,8 @@ export const PRESET_LOCATIONS: LocationPreset[] = [
   {
     name: "Situ Cibeureum",
     category: "landmark",
-    lat: -6.319589,
-    lng: 107.054366,
+    lat: -6.2980556,
+    lng: 107.0455556,
   },
   {
     name: "Kopi Tuku Vida",
@@ -92,7 +92,7 @@ export function getCoordinatesFromName(text: string, fallback: CoordinatePoint =
   }
 
   if (clean.includes("situ cibeureum") || clean.includes("situ cibereum")) {
-    return { lat: -6.319589, lng: 107.054366, name: "Situ Cibeureum" };
+    return { lat: -6.2980556, lng: 107.0455556, name: "Situ Cibeureum" };
   }
   if (clean.includes("tuku")) {
     return { lat: -6.313454, lng: 107.008124, name: "Kopi Tuku Vida" };
@@ -136,8 +136,8 @@ export function getEventRoutePoints(event: EventItem): CoordinatePoint[] {
 
   const start = event.startCoordinates || DEFAULT_START_COORDINATES;
   const destination = event.destinationCoordinates || getCoordinatesFromName(event.name, {
-    lat: -6.319589,
-    lng: 107.054366,
+    lat: -6.2980556,
+    lng: 107.0455556,
     name: event.name,
   });
 
@@ -156,7 +156,7 @@ export function getGrandTourRoutePoints(events: EventItem[]): { points: Coordina
 
   // Urutan tujuan berurutan
   const orderedDestinations = [
-    { key: "situ cibeureum", name: "Situ Cibeureum", lat: -6.319589, lng: 107.054366 },
+    { key: "situ cibeureum", name: "Situ Cibeureum", lat: -6.2980556, lng: 107.0455556 },
     { key: "tuku", name: "Kopi Tuku Vida", lat: -6.313454, lng: 107.008124 },
     { key: "kopitagram", name: "Kopitagram Vida", lat: -6.313768, lng: 107.008432 },
     { key: "kalean", name: "Kopi Kalean Kebonjati", lat: -6.2227052, lng: 107.0885664 },
@@ -183,7 +183,7 @@ export function getGrandTourRoutePoints(events: EventItem[]): { points: Coordina
   // Kembali ke meeting point / Situ Cibeureum Lagi
   const finalEvent = events.find((e) => e.name.toLowerCase().includes("lagi")) || events[0];
   if (finalEvent) {
-    points.push({ lat: -6.319589, lng: 107.054366, name: finalEvent.name });
+    points.push({ lat: -6.2980556, lng: 107.0455556, name: finalEvent.name });
     eventStops.push({ index: points.length - 1, event: finalEvent });
   }
 
