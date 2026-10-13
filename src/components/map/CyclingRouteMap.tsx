@@ -607,9 +607,6 @@ export default function CyclingRouteMap({
             </h3>
           </div>
           <div className="flex items-center gap-2">
-            <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded">
-              🖐️ Geser Peta Bebas
-            </span>
             <span className="text-[10px] font-mono text-gray-400 bg-white/5 px-2 py-0.5 rounded border border-white/10">
               {isLoadingRoads ? "Menghitung Rute Jalan..." : `${events.length} Destinasi`}
             </span>
