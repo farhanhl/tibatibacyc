@@ -21,18 +21,9 @@ interface CyclingRouteMapProps {
 }
 
 function getShortPlaceName(name: string): string {
-  let clean = name.replace(/^tiba[- ]tiba\s*(ke\s*)?/i, "").trim();
-  if (clean.toLowerCase().includes("situ cibereum lagi")) return "Situ Cibeureum Lagi";
-  if (clean.toLowerCase().includes("situ cibeureum")) return "Situ Cibeureum";
-  if (clean.toLowerCase().includes("kopi tuku")) return "Kopi Tuku Vida";
-  if (clean.toLowerCase().includes("kopitagram")) return "Kopitagram Vida";
-  if (clean.toLowerCase().includes("kopi kalean")) return "Kopi Kalean";
-  if (clean.toLowerCase().includes("kopi nako")) return "Kopi Nako";
-  if (clean.toLowerCase().includes("susy garden")) return "Susy Garden";
-  if (clean.toLowerCase().includes("warkop beels")) return "Warkop Beels";
-  if (clean.toLowerCase().includes("car free day") || clean.toLowerCase().includes("summarecon")) return "CFD Summarecon";
-  if (clean.toLowerCase().includes("critical mass") || clean.toLowerCase().includes("icm")) return "ICM Bekasi";
-  return clean.length > 18 ? clean.substring(0, 16) + "..." : clean;
+  if (!name) return "";
+  const clean = name.replace(/^tiba[- ]tiba\s*(ke\s*)?/i, "").trim();
+  return clean.length > 20 ? clean.substring(0, 18) + "..." : clean;
 }
 
 interface InterpolatedPosition {
@@ -589,19 +580,17 @@ export default function CyclingRouteMap({
   const isUpcoming = activeEvent ? getDaysDifference(activeEvent.date) >= 0 : false;
   const formattedDate = activeEvent ? formatIndonesianFullDate(activeEvent.date) : "";
 
-  const grandTourPills = [
-    "🚩 Alfamidi Tol",
-    "Situ Cibeureum",
-    "Kopi Tuku",
-    "Kopitagram",
-    "Kopi Kalean",
-    "Susy Garden",
-    "Kopi Nako",
-    "Warkop Beels",
-    "CFD Summarecon",
-    "ICM Patriot",
-    "Situ Cibeureum Lagi ☕",
-  ];
+  const grandTourPills = useMemo(() => {
+    const { points } = getGrandTourRoutePoints(events);
+    if (points.length <= 1) {
+      return ["🚩 Alfamidi Tol", "Destinasi Gowes"];
+    }
+    return points.map((p, idx) => {
+      if (idx === 0) return "🚩 Alfamidi Tol";
+      const name = getShortPlaceName(p.name || `Stop ${idx}`);
+      return idx === points.length - 1 ? `${name} ☕` : name;
+    });
+  }, [events]);
 
   return (
     <div className="w-full bg-black/70 backdrop-blur-md border border-white/20 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col">

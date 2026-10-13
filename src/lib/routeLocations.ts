@@ -41,6 +41,12 @@ export const PRESET_LOCATIONS: LocationPreset[] = [
     lng: 107.0885664,
   },
   {
+    name: "Kopi Calf Jatiwarna",
+    category: "cafe",
+    lat: -6.289158,
+    lng: 106.915626,
+  },
+  {
     name: "Susy Garden",
     category: "cafe",
     lat: -6.325599,
@@ -103,6 +109,9 @@ export function getCoordinatesFromName(text: string, fallback: CoordinatePoint =
   if (clean.includes("kalean") || clean.includes("kebonjati")) {
     return { lat: -6.2227052, lng: 107.0885664, name: "Kopi Kalean Kebonjati" };
   }
+  if (clean.includes("calf") || clean.includes("jatiwarna")) {
+    return { lat: -6.289158, lng: 106.915626, name: "Kopi Calf Jatiwarna" };
+  }
   if (clean.includes("susy") || clean.includes("garden")) {
     return { lat: -6.325599, lng: 106.9281809, name: "Susy Garden" };
   }
@@ -148,49 +157,78 @@ export function getEventRoutePoints(event: EventItem): CoordinatePoint[] {
 }
 
 /**
- * Mendapatkan rute jelajah berurutan (Grand Tour) dari Alfamidi ke semua destinasi secara berantai
+ * Mendapatkan rute jelajah lengkap (Grand Tour) 100% MURNI dari database Firebase Firestore.
+ * Tidak ada lagi pemanggilan atau list destinasi yang di-hardcode dalam script.
  */
-export function getGrandTourRoutePoints(events: EventItem[]): { points: CoordinatePoint[]; eventStops: { index: number; event: EventItem }[] } {
-  // Titik awal selalu Alfamidi Tol Bekasi Timur
+export function getGrandTourRoutePoints(events: EventItem[]): {
+  points: CoordinatePoint[];
+  eventStops: { index: number; event: EventItem }[];
+} {
+  if (!events || events.length === 0) {
+    return { points: [], eventStops: [] };
+  }
+
+  // Titik awal diambil dari startCoordinates kegiatan di Firestore, atau DEFAULT_START_COORDINATES
   const firstEventWithStart = events.find((e) => e.startCoordinates);
-  const startPt: CoordinatePoint = firstEventWithStart?.startCoordinates || DEFAULT_START_COORDINATES;
+  const startPt: CoordinatePoint = firstEventWithStart?.startCoordinates || {
+    ...DEFAULT_START_COORDINATES,
+    name: firstEventWithStart?.startLocation || DEFAULT_START_COORDINATES.name,
+  };
+
   const points: CoordinatePoint[] = [startPt];
   const eventStops: { index: number; event: EventItem }[] = [];
 
-  // Urutan tujuan berurutan
-  const orderedDestinations = [
-    { key: "situ cibeureum", fallbackName: "Situ Cibeureum", defaultLat: -6.2980556, defaultLng: 107.0455556 },
-    { key: "tuku", fallbackName: "Kopi Tuku Vida", defaultLat: -6.313454, defaultLng: 107.008124 },
-    { key: "kopitagram", fallbackName: "Kopitagram Vida", defaultLat: -6.313768, defaultLng: 107.008432 },
-    { key: "kalean", fallbackName: "Kopi Kalean Kebonjati", defaultLat: -6.2227052, defaultLng: 107.0885664 },
-    { key: "susy", fallbackName: "Susy Garden", defaultLat: -6.325599, defaultLng: 106.9281809 },
-    { key: "nako", fallbackName: "Kopi Nako Kota Bintang", defaultLat: -6.249497, defaultLng: 106.966952 },
-    { key: "beels", fallbackName: "Warkop Beels", defaultLat: -6.257630, defaultLng: 107.014264 },
-    { key: "summarecon", fallbackName: "CFD Summarecon", defaultLat: -6.225579, defaultLng: 106.999676 },
-    { key: "icm", fallbackName: "ICM (Stadion Patriot)", defaultLat: -6.236687, defaultLng: 106.992645 },
-  ];
+  // Urutkan kegiatan berdasarkan tanggal secara kronologis (dari awal hingga akhir)
+  const sortedEvents = [...events].sort((a, b) => (a.date || "").localeCompare(b.date || ""));
 
-  for (const dest of orderedDestinations) {
-    const matchedEvent = events.find((e) => e.name.toLowerCase().includes(dest.key));
-    // Mengambil langsung koordinat murni dari data Firestore kegiatan
-    const lat = matchedEvent?.destinationCoordinates?.lat ?? dest.defaultLat;
-    const lng = matchedEvent?.destinationCoordinates?.lng ?? dest.defaultLng;
-    const name = matchedEvent?.destinationCoordinates?.name || matchedEvent?.name || dest.fallbackName;
+  for (const ev of sortedEvents) {
+    // 1. Ambil koordinat destinasi murni dari data Firebase
+    let destCoord: CoordinatePoint | null = null;
 
-    const coord: CoordinatePoint = { lat, lng, name };
-    points.push(coord);
-    if (matchedEvent) {
-      eventStops.push({ index: points.length - 1, event: matchedEvent });
+    if (
+      ev.destinationCoordinates &&
+      typeof ev.destinationCoordinates.lat === "number" &&
+      typeof ev.destinationCoordinates.lng === "number" &&
+      (ev.destinationCoordinates.lat !== 0 || ev.destinationCoordinates.lng !== 0)
+    ) {
+      destCoord = {
+        lat: ev.destinationCoordinates.lat,
+        lng: ev.destinationCoordinates.lng,
+        name: ev.destinationCoordinates.name || ev.name,
+      };
+    } else if (ev.waypoints && ev.waypoints.length > 0) {
+      const lastWp = ev.waypoints[ev.waypoints.length - 1];
+      destCoord = {
+        lat: lastWp.lat,
+        lng: lastWp.lng,
+        name: lastWp.name || ev.name,
+      };
+    } else if (ev.name) {
+      // Fallback jika kegiatan di Firestore belum diisi koordinat manual
+      destCoord = getCoordinatesFromName(ev.name);
+    }
+
+    if (destCoord && destCoord.lat && destCoord.lng) {
+      // Hindari duplikasi beruntun jika koordinat identik
+      const prevPt = points[points.length - 1];
+      const isDuplicate =
+        Math.abs(prevPt.lat - destCoord.lat) < 0.0001 &&
+        Math.abs(prevPt.lng - destCoord.lng) < 0.0001;
+
+      if (!isDuplicate) {
+        points.push(destCoord);
+        eventStops.push({ index: points.length - 1, event: ev });
+      }
     }
   }
 
-  // Kembali ke meeting point / Situ Cibeureum Lagi
-  const finalEvent = events.find((e) => e.name.toLowerCase().includes("lagi")) || events[0];
-  if (finalEvent) {
-    const lat = finalEvent.destinationCoordinates?.lat ?? -6.2980556;
-    const lng = finalEvent.destinationCoordinates?.lng ?? 107.0455556;
-    points.push({ lat, lng, name: finalEvent.name });
-    eventStops.push({ index: points.length - 1, event: finalEvent });
+  // Jika terdapat minimal 2 destinasi kegiatan, buat rute berputar kembali ke titik kumpul utama
+  if (points.length >= 3) {
+    points.push({
+      lat: startPt.lat,
+      lng: startPt.lng,
+      name: `Kembali ke ${startPt.name || "Titik Kumpul"} ☕`,
+    });
   }
 
   return { points, eventStops };
