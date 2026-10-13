@@ -13,8 +13,8 @@ export const PRESET_LOCATIONS: LocationPreset[] = [
   {
     name: "Alfamidi Depan Tol Bekasi Timur (Meeting Point Utama)",
     category: "start",
-    lat: -6.260645,
-    lng: 107.017520,
+    lat: -6.2648671,
+    lng: 107.0169006,
   },
   {
     name: "Situ Cibeureum",
@@ -73,8 +73,8 @@ export const PRESET_LOCATIONS: LocationPreset[] = [
 ];
 
 export const DEFAULT_START_COORDINATES: CoordinatePoint = {
-  lat: -6.260645,
-  lng: 107.017520,
+  lat: -6.2648671,
+  lng: 107.0169006,
   name: "Alfamidi Depan Tol Bekasi Timur",
 };
 
