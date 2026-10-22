@@ -39,6 +39,8 @@ export const metadata: Metadata = {
     "Bekasi Timur",
     "Bekasi Barat",
     "Bekasi Selatan",
+    "Bekasi Utara",
+    "Seluruh Bekasi",
     "Road Bike Bekasi",
     "Sepeda Lipat Bekasi",
     "Gravel Bekasi",

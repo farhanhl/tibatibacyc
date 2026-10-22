@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ProfileData } from "@/types/profile";
 
 interface HeaderProps {
@@ -11,6 +13,8 @@ interface HeaderProps {
 export default function Header({ profile }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,19 +25,22 @@ export default function Header({ profile }: HeaderProps) {
   }, []);
 
   const navLinks = [
-    { label: "Home", href: "#home" },
-    { label: "Tentang", href: "#about" },
-    { label: "Kegiatan", href: "#events" },
-    { label: "Peta Rute", href: "#route-map" },
-    { label: "Join", href: "#join" },
-    { label: "Cuaca", href: "#cuaca" },
+    { label: "Home", href: isHomePage ? "#home" : "/" },
+    { label: "Tentang", href: isHomePage ? "#about" : "/#about" },
+    { label: "Kegiatan", href: isHomePage ? "#events" : "/#events" },
+    { label: "Peta Rute", href: isHomePage ? "#route-map" : "/#route-map" },
+    { label: "Join", href: isHomePage ? "#join" : "/#join" },
+    { label: "Cuaca", href: isHomePage ? "#cuaca" : "/#cuaca" },
+    { label: "Twibbon", href: "/twibon" },
   ];
 
   const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    if (window.location.hash) {
-      history.replaceState(null, "", window.location.pathname);
+    if (isHomePage) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (window.location.hash) {
+        history.replaceState(null, "", window.location.pathname);
+      }
     }
     setIsMobileMenuOpen(false);
   };
@@ -44,15 +51,16 @@ export default function Header({ profile }: HeaderProps) {
 
   return (
     <header
-      className={`sticky top-0 z-40 w-full transition-all duration-300 ${isScrolled
+      className={`sticky top-0 z-40 w-full transition-all duration-300 ${
+        isScrolled
           ? "bg-black/80 backdrop-blur-md shadow-2xl border-b border-white/10"
           : "bg-black/50 backdrop-blur-md border-b border-white/10"
-        }`}
+      }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
         {/* Brand Logo & Name */}
-        <a
-          href="#home"
+        <Link
+          href={isHomePage ? "#home" : "/"}
           onClick={handleHomeClick}
           className="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-[#C44341] rounded-sm p-1 cursor-pointer"
         >
@@ -77,21 +85,28 @@ export default function Header({ profile }: HeaderProps) {
               Bekasi • Est. {profile.site.founded}
             </span>
           </div>
-        </a>
+        </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-1 lg:gap-2" aria-label="Main Navigation">
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={link.href === "#home" ? handleHomeClick : undefined}
-              className="px-3.5 py-2 text-sm font-bold uppercase tracking-wider text-[#EAE6DD] hover:text-[#C44341] hover:bg-white/5 rounded-sm transition-colors cursor-pointer"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              {link.label}
-            </a>
-          ))}
+          {navLinks.map((link) => {
+            const isCurrentTwibon = link.href === "/twibon" && pathname === "/twibon";
+            return (
+              <a
+                key={link.label}
+                href={link.href}
+                onClick={link.href === "#home" ? handleHomeClick : undefined}
+                className={`px-3 py-2 text-sm font-bold uppercase tracking-wider rounded-sm transition-colors cursor-pointer ${
+                  isCurrentTwibon
+                    ? "text-[#C44341] bg-white/5 border-b-2 border-[#C44341]"
+                    : "text-[#EAE6DD] hover:text-[#C44341] hover:bg-white/5"
+                }`}
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                {link.label}
+              </a>
+            );
+          })}
         </nav>
 
         {/* Desktop Right: Social + CTA */}
@@ -128,7 +143,7 @@ export default function Header({ profile }: HeaderProps) {
 
           {/* CTA Button */}
           <a
-            href="#join"
+            href={isHomePage ? "#join" : "/#join"}
             className="inline-flex items-center justify-center px-4 py-2 text-xs font-bold uppercase tracking-wider bg-[#C44341] hover:bg-[#A93434] text-white rounded-sm transition-colors shadow-xs"
             style={{ fontFamily: "var(--font-display)" }}
           >
@@ -156,19 +171,26 @@ export default function Header({ profile }: HeaderProps) {
 
       {/* Mobile Drawer / Dropdown */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-black/90 backdrop-blur-xl border-b border-white/10 px-4 pt-2 pb-6 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="md:hidden bg-black/95 backdrop-blur-xl border-b border-white/10 px-4 pt-2 pb-6 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
           <nav className="flex flex-col space-y-1">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={link.href === "#home" ? handleHomeClick : handleNavClick}
-                className="px-3 py-2.5 text-base font-bold uppercase tracking-wider text-[#EAE6DD] hover:text-[#C44341] hover:bg-white/5 rounded-sm transition-colors cursor-pointer"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const isCurrentTwibon = link.href === "/twibon" && pathname === "/twibon";
+              return (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  onClick={link.href === "#home" ? handleHomeClick : handleNavClick}
+                  className={`px-3 py-2.5 text-base font-bold uppercase tracking-wider rounded-sm transition-colors cursor-pointer ${
+                    isCurrentTwibon
+                      ? "text-[#C44341] bg-white/10"
+                      : "text-[#EAE6DD] hover:text-[#C44341] hover:bg-white/5"
+                  }`}
+                  style={{ fontFamily: "var(--font-display)" }}
+                >
+                  {link.label}
+                </a>
+              );
+            })}
           </nav>
 
           <div className="pt-4 border-t border-white/10 flex items-center justify-between">
@@ -202,7 +224,7 @@ export default function Header({ profile }: HeaderProps) {
             </div>
 
             <a
-              href="#join"
+              href={isHomePage ? "#join" : "/#join"}
               onClick={handleNavClick}
               className="inline-flex items-center justify-center px-4 py-2 text-xs font-bold uppercase tracking-wider bg-[#C44341] text-white rounded-sm"
               style={{ fontFamily: "var(--font-display)" }}

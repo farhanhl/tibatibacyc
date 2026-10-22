@@ -51,6 +51,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/twibbon",
+        destination: "/twibon",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
