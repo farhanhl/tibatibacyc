@@ -13,8 +13,8 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
     templates[0] || {
       id: "default",
       name: "Tiba-Tiba Cycling Frame",
-      filename: "Tiba-Tiba Cycling Overlay Frame.png",
-      src: "/images/twibon/Tiba-Tiba%20Cycling%20Overlay%20Frame.png",
+      filename: "twibbon 1.png",
+      src: "/images/twibbon/twibbon%201.png",
       width: 941,
       height: 1672,
       aspectRatio: 941 / 1672,
@@ -45,17 +45,7 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [dragStart, setDragStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [posStart, setPosStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  // 2-Finger Touch gesture state for mobile pan & pinch-zoom
-  const touchStartRef = useRef<{
-    midX: number;
-    midY: number;
-    posX: number;
-    posY: number;
-    dist: number;
-    scale: number;
-  } | null>(null);
-  const [showTwoFingerHint, setShowTwoFingerHint] = useState<boolean>(false);
-  const hintTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [pinchDistance, setPinchDistance] = useState<number | null>(null);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [toastType, setToastType] = useState<"success" | "info" | "error">("success");
@@ -290,10 +280,8 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
     }
   };
 
-  // Mouse Pan Handling (Desktop only)
+  // Mouse & Touch Pan Handling
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    // Only handle mouse dragging here; touch is handled specifically with 2 fingers
-    if (e.pointerType === "touch") return;
     if (!userImageElement) return;
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
     setIsDragging(true);
@@ -302,7 +290,6 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (e.pointerType === "touch") return;
     if (!isDragging || !canvasRef.current) return;
 
     const rect = canvasRef.current.getBoundingClientRect();
@@ -318,7 +305,6 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (e.pointerType === "touch") return;
     if (isDragging) {
       setIsDragging(false);
       try {
@@ -340,86 +326,35 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
     });
   };
 
-  // Mobile 2-Finger Gestures (Pan & Pinch-to-Zoom)
+  // Touch Pinch-to-zoom (2 fingers on mobile)
   const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    if (!userImageElement) return;
-
     if (e.touches.length === 2) {
-      // 2 fingers active: start pan & pinch-zoom
-      if (hintTimeoutRef.current) clearTimeout(hintTimeoutRef.current);
-      setShowTwoFingerHint(false);
-
-      const x1 = e.touches[0].clientX;
-      const y1 = e.touches[0].clientY;
-      const x2 = e.touches[1].clientX;
-      const y2 = e.touches[1].clientY;
-
-      const midX = (x1 + x2) / 2;
-      const midY = (y1 + y2) / 2;
-      const dist = Math.hypot(x1 - x2, y1 - y2);
-
-      touchStartRef.current = {
-        midX,
-        midY,
-        posX: position.x,
-        posY: position.y,
-        dist,
-        scale,
-      };
-    } else if (e.touches.length === 1) {
-      // 1 finger: do not move photo; show hint overlay so user knows to use 2 fingers
-      touchStartRef.current = null;
-      setShowTwoFingerHint(true);
-      if (hintTimeoutRef.current) clearTimeout(hintTimeoutRef.current);
-      hintTimeoutRef.current = setTimeout(() => {
-        setShowTwoFingerHint(false);
-      }, 1500);
-    } else {
-      touchStartRef.current = null;
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      setPinchDistance(dist);
     }
   };
 
   const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    if (!userImageElement) return;
-
-    // Only move/zoom photo if exactly 2 fingers are touching
-    if (e.touches.length === 2 && touchStartRef.current && canvasRef.current) {
-      e.preventDefault(); // prevent native scroll/pinch while actively manipulating photo
-
-      const x1 = e.touches[0].clientX;
-      const y1 = e.touches[0].clientY;
-      const x2 = e.touches[1].clientX;
-      const y2 = e.touches[1].clientY;
-
-      const midX = (x1 + x2) / 2;
-      const midY = (y1 + y2) / 2;
-      const dist = Math.hypot(x1 - x2, y1 - y2);
-
-      const rect = canvasRef.current.getBoundingClientRect();
-      const scaleFactor = selectedTemplate.width / rect.width;
-
-      // 1. Pan (Geser foto dengan 2 jari)
-      const dx = (midX - touchStartRef.current.midX) * scaleFactor;
-      const dy = (midY - touchStartRef.current.midY) * scaleFactor;
-
-      setPosition({
-        x: touchStartRef.current.posX + dx,
-        y: touchStartRef.current.posY + dy,
+    if (e.touches.length === 2 && pinchDistance !== null) {
+      e.preventDefault();
+      const currentDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const ratio = currentDist / pinchDistance;
+      setScale((prev) => {
+        const next = prev * ratio;
+        return Math.min(Math.max(next, baseFitScale * 0.2), baseFitScale * 4);
       });
-
-      // 2. Pinch Zoom (Zoom in/out dengan jarak 2 jari)
-      if (touchStartRef.current.dist > 10) {
-        const ratio = dist / touchStartRef.current.dist;
-        const newScale = touchStartRef.current.scale * ratio;
-        setScale(Math.min(Math.max(newScale, baseFitScale * 0.2), baseFitScale * 4));
-      }
+      setPinchDistance(currentDist);
     }
   };
 
   const handleTouchEnd = () => {
-    touchStartRef.current = null;
-    if (hintTimeoutRef.current) clearTimeout(hintTimeoutRef.current);
-    setShowTwoFingerHint(false);
+    setPinchDistance(null);
   };
 
   // Quick Action Buttons
@@ -648,7 +583,7 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
               {/* Canvas Element */}
               <canvas
                 ref={canvasRef}
-                className="w-full h-full object-contain block touch-pan-y"
+                className="w-full h-full object-contain block touch-none"
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
@@ -658,24 +593,6 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
               />
-
-              {/* 2-Finger Gesture Hint on Mobile */}
-              {showTwoFingerHint && userImageElement && (
-                <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center p-4 bg-black/60 backdrop-blur-[2px] animate-in fade-in duration-150">
-                  <div className="bg-black/90 border border-[#C44341]/60 px-4 py-3 rounded-xl shadow-2xl text-center flex flex-col items-center">
-                    <span className="text-3xl mb-1 animate-bounce">✌️</span>
-                    <p
-                      className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider"
-                      style={{ fontFamily: "var(--font-display)" }}
-                    >
-                      Gunakan 2 Jari
-                    </p>
-                    <p className="text-[11px] text-[#EAE6DD]/80 font-mono mt-0.5">
-                      untuk menggeser & zoom foto
-                    </p>
-                  </div>
-                </div>
-              )}
 
               {/* Empty State Overlay (Upload prompt) */}
               {!userImageElement && (

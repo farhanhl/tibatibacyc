@@ -55,7 +55,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/twibbon",
-        destination: "/twibon",
+        destination: "/twibbon",
         permanent: true,
       },
     ];

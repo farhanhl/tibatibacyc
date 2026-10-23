@@ -31,7 +31,7 @@ export default function Header({ profile }: HeaderProps) {
     { label: "Peta Rute", href: isHomePage ? "#route-map" : "/#route-map" },
     { label: "Join", href: isHomePage ? "#join" : "/#join" },
     { label: "Cuaca", href: isHomePage ? "#cuaca" : "/#cuaca" },
-    { label: "Twibbon", href: "/twibon" },
+    { label: "Twibbon", href: "/twibbon" },
   ];
 
   const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -90,14 +90,14 @@ export default function Header({ profile }: HeaderProps) {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-1 lg:gap-2" aria-label="Main Navigation">
           {navLinks.map((link) => {
-            const isCurrentTwibon = link.href === "/twibon" && pathname === "/twibon";
+            const isCurrentTwibbon = link.href === "/twibbon" && pathname === "/twibbon";
             return (
               <a
                 key={link.label}
                 href={link.href}
                 onClick={link.href === "#home" ? handleHomeClick : undefined}
                 className={`px-3 py-2 text-sm font-bold uppercase tracking-wider rounded-sm transition-colors cursor-pointer ${
-                  isCurrentTwibon
+                  isCurrentTwibbon
                     ? "text-[#C44341] bg-white/5 border-b-2 border-[#C44341]"
                     : "text-[#EAE6DD] hover:text-[#C44341] hover:bg-white/5"
                 }`}
@@ -174,14 +174,14 @@ export default function Header({ profile }: HeaderProps) {
         <div className="md:hidden bg-black/95 backdrop-blur-xl border-b border-white/10 px-4 pt-2 pb-6 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
           <nav className="flex flex-col space-y-1">
             {navLinks.map((link) => {
-              const isCurrentTwibon = link.href === "/twibon" && pathname === "/twibon";
+              const isCurrentTwibbon = link.href === "/twibbon" && pathname === "/twibbon";
               return (
                 <a
                   key={link.label}
                   href={link.href}
                   onClick={link.href === "#home" ? handleHomeClick : handleNavClick}
                   className={`px-3 py-2.5 text-base font-bold uppercase tracking-wider rounded-sm transition-colors cursor-pointer ${
-                    isCurrentTwibon
+                    isCurrentTwibbon
                       ? "text-[#C44341] bg-white/10"
                       : "text-[#EAE6DD] hover:text-[#C44341] hover:bg-white/5"
                   }`}

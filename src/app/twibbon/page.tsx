@@ -4,11 +4,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import TwibbonEditor from "@/components/twibon/TwibbonEditor";
-import TwibbonGuide from "@/components/twibon/TwibbonGuide";
+import TwibbonEditor from "@/components/twibbon/TwibbonEditor";
+import TwibbonGuide from "@/components/twibbon/TwibbonGuide";
 import profileData from "@/data/profile.json";
 import { ProfileData } from "@/types/profile";
-import { TwibbonTemplate } from "@/components/twibon/types";
+import { TwibbonTemplate } from "@/components/twibbon/types";
 
 const profile = profileData as ProfileData;
 
@@ -27,11 +27,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: `Twibbon Resmi — ${profile.site.name}`,
     description: `Pasang fotomu di bingkai twibbon resmi ${profile.site.name} Bekasi. Kualitas HD & gratis!`,
-    url: "https://www.tibatibacyc.my.id/twibon",
+    url: "https://www.tibatibacyc.my.id/twibbon",
     siteName: profile.site.name,
     images: [
       {
-        url: "/images/twibon/twibon%201.png",
+        url: "/images/twibbon/twibbon%201.png",
         width: 941,
         height: 1672,
         alt: `Twibbon Resmi ${profile.site.name}`,
@@ -42,21 +42,21 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `Twibbon Resmi — ${profile.site.name}`,
     description: `Pasang fotomu di bingkai twibbon resmi ${profile.site.name} Bekasi.`,
-    images: ["/images/twibon/twibon%201.png"],
+    images: ["/images/twibbon/twibbon%201.png"],
   },
   alternates: {
-    canonical: "https://www.tibatibacyc.my.id/twibon",
+    canonical: "https://www.tibatibacyc.my.id/twibbon",
   },
 };
 
 function getTwibbonTemplates(): TwibbonTemplate[] {
-  const dirPath = path.join(process.cwd(), "public", "images", "twibon");
+  const dirPath = path.join(process.cwd(), "public", "images", "twibbon");
 
   const defaultTemplate: TwibbonTemplate = {
-    id: "twibon-1",
+    id: "twibbon-1",
     name: "Twibbon #1",
-    filename: "twibon 1.png",
-    src: "/images/twibon/twibon%201.png",
+    filename: "twibbon 1.png",
+    src: "/images/twibbon/twibbon%201.png",
     width: 941,
     height: 1672,
     aspectRatio: 941 / 1672,
@@ -105,8 +105,10 @@ function getTwibbonTemplates(): TwibbonTemplate[] {
         .replace(/\.(png|webp|jpg|jpeg)$/i, "")
         .replace(/[-_]+/g, " ");
 
-      // Format name gracefully, e.g. "twibon 1" -> "Twibbon #1"
-      const cleanName = rawName.replace(/^twibon\s*(\d+)$/i, "Twibbon #$1");
+      // Format name gracefully, e.g. "twibbon 1" -> "Twibbon #1"
+      const cleanName = rawName
+        .replace(/^twibbon\s*(\d+)$/i, "Twibbon #$1")
+        .replace(/^twibon\s*(\d+)$/i, "Twibbon #$1");
 
       const id = filename
         .toLowerCase()
@@ -117,7 +119,7 @@ function getTwibbonTemplates(): TwibbonTemplate[] {
         id,
         name: cleanName,
         filename,
-        src: `/images/twibon/${encodeURIComponent(filename)}`,
+        src: `/images/twibbon/${encodeURIComponent(filename)}`,
         width,
         height,
         aspectRatio: width / height,
@@ -125,12 +127,12 @@ function getTwibbonTemplates(): TwibbonTemplate[] {
       };
     });
   } catch (error) {
-    console.error("Gagal membaca folder twibon:", error);
+    console.error("Gagal membaca folder twibbon:", error);
     return [defaultTemplate];
   }
 }
 
-export default function TwibonPage() {
+export default function TwibbonPage() {
   const templates = getTwibbonTemplates();
 
   return (
@@ -158,7 +160,10 @@ export default function TwibonPage() {
             <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
               {/* Badge */}
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/15 text-xs sm:text-sm font-semibold tracking-wider uppercase font-mono shadow-md mb-4">
-                <span className="text-white">TWIBBON GENERATOR TIBA-TIBA CYCLING</span>
+                <span className="inline-block px-2 py-0.5 bg-[#C44341] text-white rounded-full font-bold text-[11px] sm:text-xs">
+                  {templates.length} PILIHAN FRAME
+                </span>
+                <span className="text-white">TWIBBON GENERATOR RESMI</span>
               </div>
 
               {/* Main Heading */}
@@ -172,7 +177,24 @@ export default function TwibonPage() {
               {/* Tagline & Subtitle */}
               <p className="mt-3 text-base sm:text-lg text-[#EAE6DD]/90 max-w-2xl leading-relaxed">
                 Tunjukkan semangat bersepedamu bersama <strong className="text-white font-bold">{profile.site.name}</strong>.
+                Pilih frame favorit dari dropdown, upload fotomu, atur posisi & ukuran dengan mudah, lalu unduh resolusi HD secara gratis.
               </p>
+
+              {/* Feature Highlights Pills */}
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 text-xs font-mono">
+                <span className="px-3 py-1 bg-black/60 rounded-full border border-white/15 text-[#EAE6DD] flex items-center gap-1.5">
+                  <span className="text-emerald-400">✓</span> {templates.length} Pilihan Desain
+                </span>
+                <span className="px-3 py-1 bg-black/60 rounded-full border border-white/15 text-[#EAE6DD] flex items-center gap-1.5">
+                  <span className="text-emerald-400">✓</span> Zoom & Geser Bebas
+                </span>
+                <span className="px-3 py-1 bg-black/60 rounded-full border border-white/15 text-[#EAE6DD] flex items-center gap-1.5">
+                  <span className="text-emerald-400">✓</span> Kualitas HD 9:16 Story
+                </span>
+                <span className="px-3 py-1 bg-black/60 rounded-full border border-white/15 text-[#EAE6DD] flex items-center gap-1.5">
+                  <span className="text-emerald-400">✓</span> 100% Gratis & Instan
+                </span>
+              </div>
             </div>
           </div>
         </section>

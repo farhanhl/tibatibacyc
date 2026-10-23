@@ -120,9 +120,9 @@ export default function Footer({ profile }: FooterProps) {
               </li>
               <li>
                 <Link
-                  href="/twibon"
+                  href="/twibbon"
                   className={`transition-colors flex items-center gap-1.5 ${
-                    pathname === "/twibon"
+                    pathname === "/twibbon"
                       ? "text-[#C44341] font-semibold"
                       : "text-[#868B96] hover:text-[#C44341]"
                   }`}
