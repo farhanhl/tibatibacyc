@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     siteName: profile.site.name,
     images: [
       {
-        url: "/images/twibon/Tiba-Tiba%20Cycling%20Overlay%20Frame.png",
+        url: "/images/twibon/twibon%201.png",
         width: 941,
         height: 1672,
         alt: `Twibbon Resmi ${profile.site.name}`,
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `Twibbon Resmi — ${profile.site.name}`,
     description: `Pasang fotomu di bingkai twibbon resmi ${profile.site.name} Bekasi.`,
-    images: ["/images/twibon/Tiba-Tiba%20Cycling%20Overlay%20Frame.png"],
+    images: ["/images/twibon/twibon%201.png"],
   },
   alternates: {
     canonical: "https://www.tibatibacyc.my.id/twibon",
@@ -53,10 +53,10 @@ function getTwibbonTemplates(): TwibbonTemplate[] {
   const dirPath = path.join(process.cwd(), "public", "images", "twibon");
 
   const defaultTemplate: TwibbonTemplate = {
-    id: "tiba-tiba-cycling-overlay-frame",
-    name: "Tiba-Tiba Cycling Official Frame",
-    filename: "Tiba-Tiba Cycling Overlay Frame.png",
-    src: "/images/twibon/Tiba-Tiba%20Cycling%20Overlay%20Frame.png",
+    id: "twibon-1",
+    name: "Twibbon #1",
+    filename: "twibon 1.png",
+    src: "/images/twibon/twibon%201.png",
     width: 941,
     height: 1672,
     aspectRatio: 941 / 1672,
@@ -69,9 +69,11 @@ function getTwibbonTemplates(): TwibbonTemplate[] {
     }
 
     const files = fs.readdirSync(dirPath);
-    const imageFiles = files.filter((f) =>
-      /\.(png|webp|jpg|jpeg)$/i.test(f)
-    );
+    const imageFiles = files
+      .filter((f) => /\.(png|webp|jpg|jpeg)$/i.test(f))
+      .sort((a, b) =>
+        a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" })
+      );
 
     if (imageFiles.length === 0) {
       return [defaultTemplate];
@@ -99,9 +101,12 @@ function getTwibbonTemplates(): TwibbonTemplate[] {
         // Fallback to default dimensions
       }
 
-      const cleanName = filename
+      const rawName = filename
         .replace(/\.(png|webp|jpg|jpeg)$/i, "")
         .replace(/[-_]+/g, " ");
+
+      // Format name gracefully, e.g. "twibon 1" -> "Twibbon #1"
+      const cleanName = rawName.replace(/^twibon\s*(\d+)$/i, "Twibbon #$1");
 
       const id = filename
         .toLowerCase()
@@ -116,7 +121,7 @@ function getTwibbonTemplates(): TwibbonTemplate[] {
         width,
         height,
         aspectRatio: width / height,
-        description: "Frame resmi gowes komunitas Tiba-Tiba Cycling Bekasi",
+        description: `Frame resmi gowes ${cleanName} Tiba-Tiba Cycling Bekasi`,
       };
     });
   } catch (error) {
@@ -153,10 +158,7 @@ export default function TwibonPage() {
             <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
               {/* Badge */}
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/15 text-xs sm:text-sm font-semibold tracking-wider uppercase font-mono shadow-md mb-4">
-                <span className="inline-block px-2 py-0.5 bg-[#C44341] text-white rounded-full font-bold text-[11px] sm:text-xs">
-                  NEW
-                </span>
-                <span className="text-white">TWIBBON GENERATOR RESMI</span>
+                <span className="text-white">TWIBBON GENERATOR TIBA-TIBA CYCLING</span>
               </div>
 
               {/* Main Heading */}
@@ -170,7 +172,6 @@ export default function TwibonPage() {
               {/* Tagline & Subtitle */}
               <p className="mt-3 text-base sm:text-lg text-[#EAE6DD]/90 max-w-2xl leading-relaxed">
                 Tunjukkan semangat bersepedamu bersama <strong className="text-white font-bold">{profile.site.name}</strong>.
-                Upload fotomu, atur posisi & ukuran dengan mudah, lalu unduh secara gratis dalam resolusi HD.
               </p>
             </div>
           </div>

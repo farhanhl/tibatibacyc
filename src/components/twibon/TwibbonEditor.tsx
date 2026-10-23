@@ -15,8 +15,15 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
       name: "Tiba-Tiba Cycling Frame",
       filename: "Tiba-Tiba Cycling Overlay Frame.png",
       src: "/images/twibon/Tiba-Tiba%20Cycling%20Overlay%20Frame.png",
+      width: 941,
+      height: 1672,
+      aspectRatio: 941 / 1672,
     }
   );
+
+  // Twibbon Dropdown selector state
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   // User uploaded image state
   const [userImageElement, setUserImageElement] = useState<HTMLImageElement | null>(null);
@@ -38,7 +45,17 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [dragStart, setDragStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [posStart, setPosStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [pinchDistance, setPinchDistance] = useState<number | null>(null);
+  // 2-Finger Touch gesture state for mobile pan & pinch-zoom
+  const touchStartRef = useRef<{
+    midX: number;
+    midY: number;
+    posX: number;
+    posY: number;
+    dist: number;
+    scale: number;
+  } | null>(null);
+  const [showTwoFingerHint, setShowTwoFingerHint] = useState<boolean>(false);
+  const hintTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [toastType, setToastType] = useState<"success" | "info" | "error">("success");
@@ -73,6 +90,52 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
       isCancelled = true;
     };
   }, [selectedTemplate.src]);
+
+  // Handle outside click to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Handle escape key to close dropdown
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsDropdownOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  // Handle template selection via dropdown
+  const handleSelectTemplate = (tpl: TwibbonTemplate) => {
+    setSelectedTemplate(tpl);
+    setIsDropdownOpen(false);
+
+    // If user has uploaded an image, adapt scale and position to the new frame dimensions
+    if (userImageElement) {
+      const targetW = tpl.width;
+      const targetH = tpl.height;
+      const fitScale = Math.max(
+        targetW / userImageElement.naturalWidth,
+        targetH / userImageElement.naturalHeight
+      );
+      setBaseFitScale(fitScale);
+      setScale(fitScale);
+      setPosition({ x: 0, y: 0 });
+    }
+    showToast(`Frame "${tpl.name}" dipilih`, "info");
+  };
 
   // Main drawing routine
   const drawToContext = useCallback(
@@ -227,8 +290,10 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
     }
   };
 
-  // Mouse & Touch Pan Handling
+  // Mouse Pan Handling (Desktop only)
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    // Only handle mouse dragging here; touch is handled specifically with 2 fingers
+    if (e.pointerType === "touch") return;
     if (!userImageElement) return;
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
     setIsDragging(true);
@@ -237,6 +302,7 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (e.pointerType === "touch") return;
     if (!isDragging || !canvasRef.current) return;
 
     const rect = canvasRef.current.getBoundingClientRect();
@@ -252,6 +318,7 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (e.pointerType === "touch") return;
     if (isDragging) {
       setIsDragging(false);
       try {
@@ -273,35 +340,86 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
     });
   };
 
-  // Touch Pinch-to-zoom (2 fingers on mobile)
+  // Mobile 2-Finger Gestures (Pan & Pinch-to-Zoom)
   const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (!userImageElement) return;
+
     if (e.touches.length === 2) {
-      const dist = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
-      setPinchDistance(dist);
+      // 2 fingers active: start pan & pinch-zoom
+      if (hintTimeoutRef.current) clearTimeout(hintTimeoutRef.current);
+      setShowTwoFingerHint(false);
+
+      const x1 = e.touches[0].clientX;
+      const y1 = e.touches[0].clientY;
+      const x2 = e.touches[1].clientX;
+      const y2 = e.touches[1].clientY;
+
+      const midX = (x1 + x2) / 2;
+      const midY = (y1 + y2) / 2;
+      const dist = Math.hypot(x1 - x2, y1 - y2);
+
+      touchStartRef.current = {
+        midX,
+        midY,
+        posX: position.x,
+        posY: position.y,
+        dist,
+        scale,
+      };
+    } else if (e.touches.length === 1) {
+      // 1 finger: do not move photo; show hint overlay so user knows to use 2 fingers
+      touchStartRef.current = null;
+      setShowTwoFingerHint(true);
+      if (hintTimeoutRef.current) clearTimeout(hintTimeoutRef.current);
+      hintTimeoutRef.current = setTimeout(() => {
+        setShowTwoFingerHint(false);
+      }, 1500);
+    } else {
+      touchStartRef.current = null;
     }
   };
 
   const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    if (e.touches.length === 2 && pinchDistance !== null) {
-      e.preventDefault();
-      const currentDist = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
-      const ratio = currentDist / pinchDistance;
-      setScale((prev) => {
-        const next = prev * ratio;
-        return Math.min(Math.max(next, baseFitScale * 0.2), baseFitScale * 4);
+    if (!userImageElement) return;
+
+    // Only move/zoom photo if exactly 2 fingers are touching
+    if (e.touches.length === 2 && touchStartRef.current && canvasRef.current) {
+      e.preventDefault(); // prevent native scroll/pinch while actively manipulating photo
+
+      const x1 = e.touches[0].clientX;
+      const y1 = e.touches[0].clientY;
+      const x2 = e.touches[1].clientX;
+      const y2 = e.touches[1].clientY;
+
+      const midX = (x1 + x2) / 2;
+      const midY = (y1 + y2) / 2;
+      const dist = Math.hypot(x1 - x2, y1 - y2);
+
+      const rect = canvasRef.current.getBoundingClientRect();
+      const scaleFactor = selectedTemplate.width / rect.width;
+
+      // 1. Pan (Geser foto dengan 2 jari)
+      const dx = (midX - touchStartRef.current.midX) * scaleFactor;
+      const dy = (midY - touchStartRef.current.midY) * scaleFactor;
+
+      setPosition({
+        x: touchStartRef.current.posX + dx,
+        y: touchStartRef.current.posY + dy,
       });
-      setPinchDistance(currentDist);
+
+      // 2. Pinch Zoom (Zoom in/out dengan jarak 2 jari)
+      if (touchStartRef.current.dist > 10) {
+        const ratio = dist / touchStartRef.current.dist;
+        const newScale = touchStartRef.current.scale * ratio;
+        setScale(Math.min(Math.max(newScale, baseFitScale * 0.2), baseFitScale * 4));
+      }
     }
   };
 
   const handleTouchEnd = () => {
-    setPinchDistance(null);
+    touchStartRef.current = null;
+    if (hintTimeoutRef.current) clearTimeout(hintTimeoutRef.current);
+    setShowTwoFingerHint(false);
   };
 
   // Quick Action Buttons
@@ -500,7 +618,7 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
             <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10 text-xs">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#C44341] animate-pulse" />
-                <span className="font-mono text-white font-semibold">PREVIEW TWIBBON</span>
+                <span className="font-mono text-white font-semibold">TWIBBON</span>
               </div>
             </div>
 
@@ -530,7 +648,7 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
               {/* Canvas Element */}
               <canvas
                 ref={canvasRef}
-                className="w-full h-full object-contain block touch-none"
+                className="w-full h-full object-contain block touch-pan-y"
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
@@ -540,6 +658,24 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
               />
+
+              {/* 2-Finger Gesture Hint on Mobile */}
+              {showTwoFingerHint && userImageElement && (
+                <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center p-4 bg-black/60 backdrop-blur-[2px] animate-in fade-in duration-150">
+                  <div className="bg-black/90 border border-[#C44341]/60 px-4 py-3 rounded-xl shadow-2xl text-center flex flex-col items-center">
+                    <span className="text-3xl mb-1 animate-bounce">✌️</span>
+                    <p
+                      className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider"
+                      style={{ fontFamily: "var(--font-display)" }}
+                    >
+                      Gunakan 2 Jari
+                    </p>
+                    <p className="text-[11px] text-[#EAE6DD]/80 font-mono mt-0.5">
+                      untuk menggeser & zoom foto
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {/* Empty State Overlay (Upload prompt) */}
               {!userImageElement && (
@@ -564,12 +700,6 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
                   >
                     Klik untuk Upload Foto
                   </h3>
-                  <p className="text-xs sm:text-sm text-[#EAE6DD]/80 max-w-xs leading-relaxed">
-                    Atau seret dan lepaskan file foto di sini (JPG, PNG, WEBP)
-                  </p>
-                  <span className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full text-[11px] font-mono text-white transition-colors">
-                    <span>📷</span> Ambil dari Kamera / Galeri
-                  </span>
                 </div>
               )}
 
@@ -608,6 +738,15 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
                   </div>
                 </div>
               )}
+
+              {/* Drag instruction pill at bottom
+              {userImageElement && (
+                <div className="absolute bottom-3 inset-x-0 pointer-events-none flex justify-center z-10">
+                  <div className="bg-black/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/15 text-[11px] font-medium text-[#EAE6DD]/90 shadow-lg flex items-center gap-1.5">
+                    <span>✋</span> Geser langsung untuk memindahkan foto
+                  </div>
+                </div>
+              )} */}
             </div>
 
             {/* Quick action bar below canvas */}
@@ -653,10 +792,11 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
 
         {/* ================= RIGHT COLUMN: CONTROLS & SETTINGS ================= */}
         <div className="lg:col-span-6 xl:col-span-6 space-y-6">
-          {/* 1. Template Frame Selection */}
-          <div className="bg-[#0E1426] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl">
+          {/* 1. Template Frame Selection via Dropdown */}
+          <div className="bg-[#0E1426] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl relative" ref={dropdownRef}>
             <div className="flex items-center justify-between mb-3">
               <label
+                id="twibbon-select-label"
                 className="text-xs font-mono font-bold uppercase tracking-wider text-[#C44341] flex items-center gap-1.5"
               >
                 <span>01.</span> PILIH FRAME TWIBBON
@@ -666,51 +806,127 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
               </span>
             </div>
 
-            {/* Template Card / Carousel */}
-            <div className="space-y-2.5">
-              {templates.map((tpl) => {
-                const isActive = tpl.id === selectedTemplate.id;
-                return (
-                  <button
-                    key={tpl.id}
-                    type="button"
-                    onClick={() => setSelectedTemplate(tpl)}
-                    className={`w-full flex items-center gap-4 p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                      isActive
-                        ? "bg-white/10 border-[#C44341] shadow-lg shadow-[#C44341]/10 ring-1 ring-[#C44341]"
-                        : "bg-black/40 border-white/10 hover:border-white/20 hover:bg-white/5"
+            {/* Custom Interactive Dropdown Component */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setIsDropdownOpen((prev) => !prev)}
+                aria-haspopup="listbox"
+                aria-expanded={isDropdownOpen}
+                aria-labelledby="twibbon-select-label"
+                className={`w-full flex items-center justify-between gap-3 p-3 sm:p-3.5 rounded-xl border text-left transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#C44341] ${
+                  isDropdownOpen
+                    ? "bg-black/90 border-[#C44341] ring-1 ring-[#C44341] shadow-lg shadow-[#C44341]/10"
+                    : "bg-black/50 border-white/15 hover:border-white/30 hover:bg-black/70"
+                }`}
+              >
+                {/* Selected Item Preview */}
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <div className="relative w-10 h-14 rounded-md overflow-hidden bg-black shrink-0 border border-white/20">
+                    <Image
+                      src={selectedTemplate.src}
+                      alt={selectedTemplate.name}
+                      fill
+                      sizes="40px"
+                      className="object-contain"
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="text-sm sm:text-base font-bold text-white uppercase truncate block"
+                        style={{ fontFamily: "var(--font-display)" }}
+                      >
+                        {selectedTemplate.name}
+                      </span>
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[#C44341] text-white shrink-0">
+                        AKTIF
+                      </span>
+                    </div>
+                    {/* <p className="text-xs text-[#868B96] font-mono mt-0.5 flex items-center gap-2 truncate">
+                      <span>📱 9:16 Story</span>
+                      <span>•</span>
+                      <span>{selectedTemplate.width} × {selectedTemplate.height} px</span>
+                    </p> */}
+                  </div>
+                </div>
+
+                {/* Dropdown Chevron Arrow */}
+                <div className="shrink-0 pl-2">
+                  <div
+                    className={`w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[#EAE6DD] transition-transform duration-200 ${
+                      isDropdownOpen ? "rotate-180 text-[#C44341] border-[#C44341]/50 bg-[#C44341]/10" : ""
                     }`}
                   >
-                    {/* Thumbnail */}
-                    <div className="relative w-12 h-16 rounded-md overflow-hidden bg-black shrink-0 border border-white/10">
-                      <Image
-                        src={tpl.src}
-                        alt={tpl.name}
-                        fill
-                        sizes="48px"
-                        className="object-contain"
-                      />
-                    </div>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </button>
 
-                    {/* Metadata */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h4
-                          className="text-sm sm:text-base font-bold text-white truncate uppercase"
-                          style={{ fontFamily: "var(--font-display)" }}
-                        >
-                          {tpl.name}
-                        </h4>
-                        {isActive && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#C44341] text-white shrink-0">
-                            AKTIF
+              {/* Dropdown Menu Options */}
+              {isDropdownOpen && (
+                <div
+                  role="listbox"
+                  className="absolute top-full mt-2 inset-x-0 z-30 bg-[#0E1426]/98 backdrop-blur-xl border border-[#C44341]/40 rounded-xl shadow-2xl p-2 space-y-1.5 max-h-72 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-150 ring-1 ring-black/50"
+                >
+                  {templates.map((tpl) => {
+                    const isSelected = tpl.id === selectedTemplate.id;
+                    return (
+                      <div
+                        key={tpl.id}
+                        role="option"
+                        aria-selected={isSelected}
+                        onClick={() => handleSelectTemplate(tpl)}
+                        className={`flex items-center justify-between gap-3 p-2.5 rounded-lg border transition-all cursor-pointer ${
+                          isSelected
+                            ? "bg-[#C44341]/20 border-[#C44341] text-white"
+                            : "bg-black/40 border-transparent hover:border-white/10 hover:bg-white/5 text-[#EAE6DD]"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="relative w-8 h-12 rounded overflow-hidden bg-black shrink-0 border border-white/10">
+                            <Image
+                              src={tpl.src}
+                              alt={tpl.name}
+                              fill
+                              sizes="32px"
+                              className="object-contain"
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className="text-xs sm:text-sm font-bold uppercase truncate"
+                                style={{ fontFamily: "var(--font-display)" }}
+                              >
+                                {tpl.name}
+                              </span>
+                            </div>
+                            {/* <div className="text-[11px] font-mono text-[#868B96]">
+                              {tpl.width} × {tpl.height} px • 9:16
+                            </div> */}
+                          </div>
+                        </div>
+
+                        {/* Checkmark icon for selected option */}
+                        {isSelected ? (
+                          <div className="w-6 h-6 rounded-full bg-[#C44341] text-white flex items-center justify-center shrink-0">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                        ) : (
+                          <span className="text-[11px] font-mono text-[#868B96] opacity-0 group-hover:opacity-100">
+                            Pilih
                           </span>
                         )}
                       </div>
-                    </div>
-                  </button>
-                );
-              })}
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
 
@@ -722,11 +938,11 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
               >
                 <span>02.</span> ATUR POSISI & UKURAN
               </label>
-              {!userImageElement && (
+              {/* {!userImageElement && (
                 <span className="text-[11px] font-mono text-[#868B96] italic">
                   Upload foto untuk mengaktifkan
                 </span>
-              )}
+              )} */}
             </div>
 
             {/* A. Zoom Slider & Buttons */}
@@ -841,7 +1057,7 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                 </svg>
-                Cermin Horizontal
+                Putar Horizontal
               </button>
 
               <button
@@ -857,9 +1073,41 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4" />
                 </svg>
-                Cermin Vertikal
+                Putar Vertikal
               </button>
             </div>
+
+            {/* D. Background Fill (If image does not cover frame fully)
+            <div className="pt-2 flex items-center justify-between">
+              <span className="text-xs text-[#868B96] font-mono">Warna Latar Belakang:</span>
+              <div className="flex items-center gap-2">
+                {[
+                  { label: "Transparan", val: "transparent" },
+                  { label: "Hitam", val: "#000000" },
+                  { label: "Navy", val: "#0E1426" },
+                  { label: "Putih", val: "#FFFFFF" },
+                ].map((item) => (
+                  <button
+                    key={item.val}
+                    type="button"
+                    onClick={() => setBgColor(item.val)}
+                    className={`w-6 h-6 rounded-full border transition-transform ${
+                      bgColor === item.val
+                        ? "ring-2 ring-[#C44341] scale-110"
+                        : "opacity-70 hover:opacity-100"
+                    }`}
+                    style={{
+                      backgroundColor: item.val === "transparent" ? "#222" : item.val,
+                      backgroundImage:
+                        item.val === "transparent"
+                          ? "radial-gradient(circle, #555 10%, transparent 20%)"
+                          : undefined,
+                    }}
+                    title={item.label}
+                  />
+                ))}
+              </div>
+            </div> */}
           </div>
 
           {/* 3. Export & Download Actions */}
@@ -870,9 +1118,6 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
               >
                 <span>03.</span> SIMPAN & BAGIKAN
               </label>
-              <span className="text-[11px] font-mono text-emerald-400 font-bold">
-                ✓ Kualitas HD Lossless
-              </span>
             </div>
 
             {/* Main Download Button */}
@@ -906,7 +1151,7 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
               )}
             </button>
 
-            {/* Secondary Action Buttons: Copy & Share */}
+            {/* Secondary Action Buttons: Copy & Share
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
@@ -943,7 +1188,7 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
                 </svg>
                 Bagikan
               </button>
-            </div>
+            </div> */}
 
             {/* Note & File info */}
             <p className="text-[11px] text-[#868B96] text-center font-mono">
@@ -955,4 +1200,3 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
     </div>
   );
 }
-
