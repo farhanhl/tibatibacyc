@@ -3,6 +3,7 @@ export interface TwibbonTemplate {
   name: string;
   filename: string;
   src: string;
+  thumbnailSrc?: string;
   width: number;
   height: number;
   aspectRatio: number;

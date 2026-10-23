@@ -51,12 +51,14 @@ export const metadata: Metadata = {
 
 function getTwibbonTemplates(): TwibbonTemplate[] {
   const dirPath = path.join(process.cwd(), "public", "images", "twibbon");
+  const thumbDirPath = path.join(dirPath, "thumbnails");
 
   const defaultTemplate: TwibbonTemplate = {
     id: "twibbon-1",
     name: "Twibbon #1",
     filename: "twibbon 1.png",
     src: "/images/twibbon/twibbon%201.png",
+    thumbnailSrc: "/images/twibbon/thumbnails/twibbon%201.webp",
     width: 941,
     height: 1672,
     aspectRatio: 941 / 1672,
@@ -115,11 +117,19 @@ function getTwibbonTemplates(): TwibbonTemplate[] {
         .replace(/\.(png|webp|jpg|jpeg)$/i, "")
         .replace(/[^a-z0-9]/g, "-");
 
+      const baseNameWithoutExt = filename.replace(/\.(png|webp|jpg|jpeg)$/i, "");
+      const thumbFilename = `${baseNameWithoutExt}.webp`;
+      const thumbFullPath = path.join(thumbDirPath, thumbFilename);
+      const thumbnailSrc = fs.existsSync(thumbFullPath)
+        ? `/images/twibbon/thumbnails/${encodeURIComponent(thumbFilename)}`
+        : `/images/twibbon/${encodeURIComponent(filename)}`;
+
       return {
         id,
         name: cleanName,
         filename,
         src: `/images/twibbon/${encodeURIComponent(filename)}`,
+        thumbnailSrc,
         width,
         height,
         aspectRatio: width / height,

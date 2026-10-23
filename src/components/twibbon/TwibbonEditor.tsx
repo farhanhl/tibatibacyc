@@ -15,6 +15,7 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
       name: "Tiba-Tiba Cycling Frame",
       filename: "twibbon 1.png",
       src: "/images/twibbon/twibbon%201.png",
+      thumbnailSrc: "/images/twibbon/thumbnails/twibbon%201.webp",
       width: 941,
       height: 1672,
       aspectRatio: 941 / 1672,
@@ -741,7 +742,7 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
                 <div className="flex items-center gap-3.5 min-w-0">
                   <div className="relative w-10 h-14 rounded-md overflow-hidden bg-black shrink-0 border border-white/20">
                     <Image
-                      src={selectedTemplate.src}
+                      src={selectedTemplate.thumbnailSrc || selectedTemplate.src}
                       alt={selectedTemplate.name}
                       fill
                       sizes="40px"
@@ -805,7 +806,7 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="relative w-8 h-12 rounded overflow-hidden bg-black shrink-0 border border-white/10">
                             <Image
-                              src={tpl.src}
+                              src={tpl.thumbnailSrc || tpl.src}
                               alt={tpl.name}
                               fill
                               sizes="32px"
@@ -1067,50 +1068,6 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
                 </>
               )}
             </button>
-
-            {/* Secondary Action Buttons: Copy & Share
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                disabled={isExporting || !userImageElement}
-                onClick={handleCopyClipboard}
-                className="py-3 px-4 bg-black/60 hover:bg-black border border-white/15 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                <svg className="w-4 h-4 text-[#C44341]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
-                  />
-                </svg>
-                Salin Gambar
-              </button>
-
-              <button
-                type="button"
-                disabled={isExporting || !userImageElement}
-                onClick={handleShare}
-                className="py-3 px-4 bg-black/60 hover:bg-black border border-white/15 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                <svg className="w-4 h-4 text-[#C44341]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                  />
-                </svg>
-                Bagikan
-              </button>
-            </div> */}
-
-            {/* Note & File info */}
-            <p className="text-[11px] text-[#868B96] text-center font-mono">
-              Format PNG berkualitas tinggi ({selectedTemplate.width} × {selectedTemplate.height} px), cocok untuk Instagram Story & WhatsApp Status.
-            </p>
           </div>
         </div>
       </div>
