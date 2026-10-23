@@ -147,80 +147,12 @@ export default function TwibbonPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#000000] text-[#EAE6DD]">
-      {/* Global Header */}
       <Header profile={profile} />
-
-      {/* Main Content */}
       <main className="flex-1 w-full">
-        {/* Hero Section Banner */}
-        <section className="relative pt-10 sm:pt-14 pb-8 sm:pb-12 bg-gradient-to-b from-[#0E1426]/70 via-black to-black border-b border-white/10 overflow-hidden">
-          {/* Subtle Background Radial Glow */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#C44341]/10 blur-[100px] pointer-events-none" />
-
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            {/* Breadcrumb */}
-            <nav className="flex items-center gap-2 text-xs font-mono text-[#868B96] mb-6" aria-label="Breadcrumb">
-              <Link href="/" className="hover:text-white transition-colors">
-                Home
-              </Link>
-              <span>/</span>
-              <span className="text-[#C44341] font-semibold">Twibbon</span>
-            </nav>
-
-            <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/15 text-xs sm:text-sm font-semibold tracking-wider uppercase font-mono shadow-md mb-4">
-                <span className="inline-block px-2 py-0.5 bg-[#C44341] text-white rounded-full font-bold text-[11px] sm:text-xs">
-                  {templates.length} PILIHAN FRAME
-                </span>
-                <span className="text-white">TWIBBON GENERATOR RESMI</span>
-              </div>
-
-              {/* Main Heading */}
-              <h1
-                className="text-4xl sm:text-5xl md:text-6xl font-black uppercase tracking-tight text-white leading-[1.05]"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                PASANG TWIBBON <span className="text-[#C44341]">GOWES</span>
-              </h1>
-
-              {/* Tagline & Subtitle */}
-              <p className="mt-3 text-base sm:text-lg text-[#EAE6DD]/90 max-w-2xl leading-relaxed">
-                Tunjukkan semangat bersepedamu bersama <strong className="text-white font-bold">{profile.site.name}</strong>.
-                Pilih frame favorit dari dropdown, upload fotomu, atur posisi & ukuran dengan mudah, lalu unduh resolusi HD secara gratis.
-              </p>
-
-              {/* Feature Highlights Pills */}
-              <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 text-xs font-mono">
-                <span className="px-3 py-1 bg-black/60 rounded-full border border-white/15 text-[#EAE6DD] flex items-center gap-1.5">
-                  <span className="text-emerald-400">✓</span> {templates.length} Pilihan Desain
-                </span>
-                <span className="px-3 py-1 bg-black/60 rounded-full border border-white/15 text-[#EAE6DD] flex items-center gap-1.5">
-                  <span className="text-emerald-400">✓</span> Zoom & Geser Bebas
-                </span>
-                <span className="px-3 py-1 bg-black/60 rounded-full border border-white/15 text-[#EAE6DD] flex items-center gap-1.5">
-                  <span className="text-emerald-400">✓</span> Kualitas HD 9:16 Story
-                </span>
-                <span className="px-3 py-1 bg-black/60 rounded-full border border-white/15 text-[#EAE6DD] flex items-center gap-1.5">
-                  <span className="text-emerald-400">✓</span> 100% Gratis & Instan
-                </span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Twibbon Interactive Workspace */}
         <section className="relative">
           <TwibbonEditor templates={templates} />
         </section>
-
-        {/* Guide & Steps Section */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24">
-          <TwibbonGuide />
-        </section>
       </main>
-
-      {/* Global Footer */}
       <Footer profile={profile} />
     </div>
   );

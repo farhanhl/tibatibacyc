@@ -257,7 +257,6 @@ export default function TwibbonEditor({ templates }: TwibbonEditorProps) {
         setRotation(0);
         setFlipH(false);
         setFlipV(false);
-        showToast("Foto berhasil dimuat! Geser atau zoom untuk menyesuaikan.", "success");
       };
     };
     reader.readAsDataURL(file);
