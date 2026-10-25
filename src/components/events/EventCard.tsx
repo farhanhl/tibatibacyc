@@ -28,9 +28,8 @@ export default function EventCard({
       <div>
         {/* Top Image Preview or Community Logo Fallback */}
         <div
-          className={`relative w-full h-48 sm:h-52 bg-black overflow-hidden ${
-            mainPhoto ? "cursor-pointer" : ""
-          }`}
+          className={`relative w-full h-48 sm:h-52 bg-black overflow-hidden ${mainPhoto ? "cursor-pointer" : ""
+            }`}
           onClick={() => {
             if (mainPhoto && onOpenPhoto) {
               onOpenPhoto(event.photos, event.name);
@@ -128,34 +127,51 @@ export default function EventCard({
       <div className="px-5 pb-5 sm:px-6 sm:pb-6 pt-2 flex flex-wrap items-center gap-2">
         <a
           href="#route-map"
-          className="cursor-pointer flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold uppercase tracking-wider bg-black/40 hover:bg-[#C44341] text-[#EAE6DD] hover:text-white border border-white/15 hover:border-[#C44341] rounded-md transition-all shadow-md"
+          className="cursor-pointer flex-1 inline-flex items-center justify-center gap-1.5 h-9 px-3 text-xs font-bold uppercase tracking-wider bg-black/40 hover:bg-[#C44341] text-[#EAE6DD] hover:text-white border border-white/15 hover:border-[#C44341] rounded-md transition-all shadow-md"
           style={{ fontFamily: "var(--font-display)" }}
         >
           <span>🗺️</span>
-          <span>Rute Peta</span>
+          <span>Rute</span>
         </a>
 
         {event.instastoryImage && onOpenStory && (
           <button
             type="button"
             onClick={() => onOpenStory(event.instastoryImage!, event.name)}
-            className="cursor-pointer inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold uppercase tracking-wider bg-black/40 hover:bg-[#C44341] text-[#EAE6DD] hover:text-white border border-white/15 hover:border-[#C44341] rounded-md transition-all shadow-md"
+            className="cursor-pointer flex-1 inline-flex items-center justify-center gap-1.5 h-9 px-3 text-xs font-bold uppercase tracking-wider bg-black/40 hover:bg-[#C44341] text-[#EAE6DD] hover:text-white border border-white/15 hover:border-[#C44341] rounded-md transition-all shadow-md"
             style={{ fontFamily: "var(--font-display)" }}
           >
             <span>📜 Poster</span>
           </button>
         )}
+
         {mainPhoto && onOpenPhoto && (
           <button
             type="button"
             onClick={() => onOpenPhoto(event.photos, event.name)}
             aria-label={`Lihat foto ${event.name}`}
-            className="cursor-pointer inline-flex items-center justify-center p-2 text-xs font-bold bg-black/40 hover:bg-[#C44341] text-[#EAE6DD] hover:text-white rounded-md border border-white/15 hover:border-[#C44341] transition-all shadow-md"
+            className="cursor-pointer flex-1 inline-flex items-center justify-center gap-1.5 h-9 px-3 text-xs font-bold uppercase tracking-wider bg-black/40 hover:bg-[#C44341] text-[#EAE6DD] hover:text-white border border-white/15 hover:border-[#C44341] rounded-md transition-all shadow-md"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+              />
             </svg>
+            <span>Foto</span>
           </button>
         )}
       </div>

@@ -69,16 +69,13 @@ export default function Lightbox({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      {/* Top Bar: Counter & Close button */}
-      <div className="absolute top-4 left-4 right-4 flex items-center justify-between text-white z-20 pointer-events-none">
-        <div className="pointer-events-auto bg-black/60 px-3 py-1.5 rounded-sm border border-white/10 text-xs sm:text-sm font-mono tracking-widest text-[#EAE6DD]">
-          {currentIndex + 1} / {images.length}
-        </div>
+      {/* Top Bar: Close button */}
+      <div className="absolute top-4 right-4 z-20">
         <button
           type="button"
           onClick={onClose}
           aria-label="Close Lightbox (Esc)"
-          className="pointer-events-auto p-2.5 bg-black/60 hover:bg-[#C44341] text-white rounded-sm border border-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-[#C44341]"
+          className="p-2.5 bg-black/60 hover:bg-[#C44341] text-white rounded-sm border border-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-[#C44341]"
         >
           <svg
             className="w-6 h-6"
@@ -95,33 +92,6 @@ export default function Lightbox({
           </svg>
         </button>
       </div>
-
-      {/* Prev Button */}
-      {hasMultiple && (
-        <button
-          type="button"
-          aria-label="Previous Image (Left Arrow)"
-          onClick={(e) => {
-            e.stopPropagation();
-            onNavigate((currentIndex - 1 + images.length) % images.length);
-          }}
-          className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-20 p-3 bg-black/70 hover:bg-[#C44341] text-white rounded-sm border border-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-[#C44341]"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-        </button>
-      )}
 
       {/* Main Image Container (Forced 3:4 Aspect Ratio with Slider) */}
       <div className="relative w-full max-w-lg flex flex-col items-center justify-center">
@@ -223,32 +193,6 @@ export default function Lightbox({
         )}
       </div>
 
-      {/* Next Button */}
-      {hasMultiple && (
-        <button
-          type="button"
-          aria-label="Next Image (Right Arrow)"
-          onClick={(e) => {
-            e.stopPropagation();
-            onNavigate((currentIndex + 1) % images.length);
-          }}
-          className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-20 p-3 bg-black/70 hover:bg-[#C44341] text-white rounded-sm border border-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-[#C44341]"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </button>
-      )}
     </div>
   );
 }

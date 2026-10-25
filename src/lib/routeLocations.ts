@@ -1,133 +1,15 @@
 import { CoordinatePoint, EventItem } from "@/types/profile";
 export type { CoordinatePoint };
 
-export interface LocationPreset {
-  name: string;
-  category: "start" | "cafe" | "landmark" | "route";
-  lat: number;
-  lng: number;
-}
-
-// Lokasi preset resmi komunitas Tiba-Tiba Cycling (Bekasi & Sekitarnya)
-export const PRESET_LOCATIONS: LocationPreset[] = [
-  {
-    name: "Alfamidi Depan Tol Bekasi Timur (Meeting Point Utama)",
-    category: "start",
-    lat: -6.260645,
-    lng: 107.017520,
-  },
-  {
-    name: "Situ Cibeureum",
-    category: "landmark",
-    lat: -6.2980556,
-    lng: 107.0455556,
-  },
-  {
-    name: "Kopi Tuku Vida",
-    category: "cafe",
-    lat: -6.313454,
-    lng: 107.008124,
-  },
-  {
-    name: "Kopitagram Vida Bekasi",
-    category: "cafe",
-    lat: -6.313768,
-    lng: 107.008432,
-  },
-  {
-    name: "Kopi Kalean Kebonjati",
-    category: "cafe",
-    lat: -6.2227052,
-    lng: 107.0885664,
-  },
-  {
-    name: "Susy Garden",
-    category: "cafe",
-    lat: -6.325599,
-    lng: 106.9281809,
-  },
-  {
-    name: "Kopi Nako Kota Bintang",
-    category: "cafe",
-    lat: -6.249497,
-    lng: 106.966952,
-  },
-  {
-    name: "Warkop Beels",
-    category: "cafe",
-    lat: -6.257630,
-    lng: 107.014264,
-  },
-  {
-    name: "Car Free Day Summarecon Bekasi",
-    category: "landmark",
-    lat: -6.225579,
-    lng: 106.999676,
-  },
-  {
-    name: "ICM (Stadion Patriot Bekasi)",
-    category: "landmark",
-    lat: -6.236687,
-    lng: 106.992645,
-  },
-];
-
+// Titik kumpul default utama (Meeting Point Alfamidi Bekasi Timur)
 export const DEFAULT_START_COORDINATES: CoordinatePoint = {
-  lat: -6.260645,
-  lng: 107.017520,
+  lat: -6.2648671,
+  lng: 107.0169006,
   name: "Alfamidi Depan Tol Bekasi Timur",
 };
 
 /**
- * Mencari atau memperkirakan koordinat lokasi berdasarkan nama teks
- */
-export function getCoordinatesFromName(text: string, fallback: CoordinatePoint = DEFAULT_START_COORDINATES): CoordinatePoint {
-  const clean = text.toLowerCase();
-
-  for (const loc of PRESET_LOCATIONS) {
-    const locClean = loc.name.toLowerCase();
-    if (clean.includes(locClean.split("(")[0].trim().toLowerCase()) || locClean.includes(clean)) {
-      return { lat: loc.lat, lng: loc.lng, name: loc.name };
-    }
-  }
-
-  if (clean.includes("situ cibeureum") || clean.includes("situ cibereum")) {
-    return { lat: -6.2980556, lng: 107.0455556, name: "Situ Cibeureum" };
-  }
-  if (clean.includes("tuku")) {
-    return { lat: -6.313454, lng: 107.008124, name: "Kopi Tuku Vida" };
-  }
-  if (clean.includes("kopitagram")) {
-    return { lat: -6.313768, lng: 107.008432, name: "Kopitagram Vida Bekasi" };
-  }
-  if (clean.includes("kalean") || clean.includes("kebonjati")) {
-    return { lat: -6.2227052, lng: 107.0885664, name: "Kopi Kalean Kebonjati" };
-  }
-  if (clean.includes("susy") || clean.includes("garden")) {
-    return { lat: -6.325599, lng: 106.9281809, name: "Susy Garden" };
-  }
-  if (clean.includes("nako") || clean.includes("bintang")) {
-    return { lat: -6.249497, lng: 106.966952, name: "Kopi Nako Kota Bintang" };
-  }
-  if (clean.includes("beels") || clean.includes("warkop")) {
-    return { lat: -6.257630, lng: 107.014264, name: "Warkop Beels" };
-  }
-  if (clean.includes("summarecon") || clean.includes("cfd")) {
-    return { lat: -6.225579, lng: 106.999676, name: "Car Free Day Summarecon Bekasi" };
-  }
-  if (clean.includes("icm") || clean.includes("critical mass") || clean.includes("patriot")) {
-    return { lat: -6.236687, lng: 106.992645, name: "ICM (Stadion Patriot Bekasi)" };
-  }
-
-  return {
-    lat: fallback.lat,
-    lng: fallback.lng,
-    name: text,
-  };
-}
-
-/**
- * Mendapatkan jalur koordinat lengkap untuk satu Event spesifik
+ * Mendapatkan jalur koordinat lengkap untuk satu Event spesifik (100% murni dari database Firebase)
  */
 export function getEventRoutePoints(event: EventItem): CoordinatePoint[] {
   if (event.waypoints && event.waypoints.length >= 2) {
@@ -135,62 +17,93 @@ export function getEventRoutePoints(event: EventItem): CoordinatePoint[] {
   }
 
   const start = event.startCoordinates || DEFAULT_START_COORDINATES;
-  const destination = event.destinationCoordinates || getCoordinatesFromName(event.name, {
-    lat: -6.2980556,
-    lng: 107.0455556,
-    name: event.name,
-  });
+  const destination = event.destinationCoordinates;
+
+  if (
+    destination &&
+    typeof destination.lat === "number" &&
+    typeof destination.lng === "number" &&
+    (destination.lat !== 0 || destination.lng !== 0)
+  ) {
+    return [
+      { ...start, name: event.startLocation || start.name || "Titik Kumpul" },
+      { ...destination, name: event.name || destination.name || "Destinasi Akhir" },
+    ];
+  }
 
   return [
-    { ...start, name: event.startLocation || "Alfamidi Depan Tol Bekasi Timur" },
-    { ...destination, name: event.name || "Destinasi Akhir" },
+    { ...start, name: event.startLocation || start.name || "Titik Kumpul" },
   ];
 }
 
 /**
- * Mendapatkan rute jelajah berurutan (Grand Tour) dari Alfamidi ke semua destinasi secara berantai
+ * Mendapatkan rute jelajah lengkap (Grand Tour) 100% MURNI dari data Firebase Firestore.
+ * Tidak ada pemanggilan preset ataupun hardcoded destinasi dalam script.
  */
-export function getGrandTourRoutePoints(events: EventItem[]): { points: CoordinatePoint[]; eventStops: { index: number; event: EventItem }[] } {
-  // Titik awal selalu Alfamidi Tol Bekasi Timur
+export function getGrandTourRoutePoints(events: EventItem[]): {
+  points: CoordinatePoint[];
+  eventStops: { index: number; event: EventItem }[];
+} {
+  if (!events || events.length === 0) {
+    return { points: [], eventStops: [] };
+  }
+
+  // Titik awal diambil dari startCoordinates kegiatan di Firestore, atau DEFAULT_START_COORDINATES
   const firstEventWithStart = events.find((e) => e.startCoordinates);
-  const startPt: CoordinatePoint = firstEventWithStart?.startCoordinates || DEFAULT_START_COORDINATES;
+  const startPt: CoordinatePoint = firstEventWithStart?.startCoordinates || {
+    ...DEFAULT_START_COORDINATES,
+    name: firstEventWithStart?.startLocation || DEFAULT_START_COORDINATES.name,
+  };
+
   const points: CoordinatePoint[] = [startPt];
   const eventStops: { index: number; event: EventItem }[] = [];
 
-  // Urutan tujuan berurutan
-  const orderedDestinations = [
-    { key: "situ cibeureum", fallbackName: "Situ Cibeureum", defaultLat: -6.2980556, defaultLng: 107.0455556 },
-    { key: "tuku", fallbackName: "Kopi Tuku Vida", defaultLat: -6.313454, defaultLng: 107.008124 },
-    { key: "kopitagram", fallbackName: "Kopitagram Vida", defaultLat: -6.313768, defaultLng: 107.008432 },
-    { key: "kalean", fallbackName: "Kopi Kalean Kebonjati", defaultLat: -6.2227052, defaultLng: 107.0885664 },
-    { key: "susy", fallbackName: "Susy Garden", defaultLat: -6.325599, defaultLng: 106.9281809 },
-    { key: "nako", fallbackName: "Kopi Nako Kota Bintang", defaultLat: -6.249497, defaultLng: 106.966952 },
-    { key: "beels", fallbackName: "Warkop Beels", defaultLat: -6.257630, defaultLng: 107.014264 },
-    { key: "summarecon", fallbackName: "CFD Summarecon", defaultLat: -6.225579, defaultLng: 106.999676 },
-    { key: "icm", fallbackName: "ICM (Stadion Patriot)", defaultLat: -6.236687, defaultLng: 106.992645 },
-  ];
+  // Urutkan kegiatan berdasarkan tanggal secara kronologis (dari awal hingga akhir)
+  const sortedEvents = [...events].sort((a, b) => (a.date || "").localeCompare(b.date || ""));
 
-  for (const dest of orderedDestinations) {
-    const matchedEvent = events.find((e) => e.name.toLowerCase().includes(dest.key));
-    // Mengambil langsung koordinat murni dari data Firestore kegiatan
-    const lat = matchedEvent?.destinationCoordinates?.lat ?? dest.defaultLat;
-    const lng = matchedEvent?.destinationCoordinates?.lng ?? dest.defaultLng;
-    const name = matchedEvent?.destinationCoordinates?.name || matchedEvent?.name || dest.fallbackName;
+  for (const ev of sortedEvents) {
+    let destCoord: CoordinatePoint | null = null;
 
-    const coord: CoordinatePoint = { lat, lng, name };
-    points.push(coord);
-    if (matchedEvent) {
-      eventStops.push({ index: points.length - 1, event: matchedEvent });
+    if (
+      ev.destinationCoordinates &&
+      typeof ev.destinationCoordinates.lat === "number" &&
+      typeof ev.destinationCoordinates.lng === "number" &&
+      (ev.destinationCoordinates.lat !== 0 || ev.destinationCoordinates.lng !== 0)
+    ) {
+      destCoord = {
+        lat: ev.destinationCoordinates.lat,
+        lng: ev.destinationCoordinates.lng,
+        name: ev.destinationCoordinates.name || ev.name,
+      };
+    } else if (ev.waypoints && ev.waypoints.length > 0) {
+      const lastWp = ev.waypoints[ev.waypoints.length - 1];
+      destCoord = {
+        lat: lastWp.lat,
+        lng: lastWp.lng,
+        name: lastWp.name || ev.name,
+      };
+    }
+
+    if (destCoord && destCoord.lat && destCoord.lng) {
+      const prevPt = points[points.length - 1];
+      const isDuplicate =
+        Math.abs(prevPt.lat - destCoord.lat) < 0.0001 &&
+        Math.abs(prevPt.lng - destCoord.lng) < 0.0001;
+
+      if (!isDuplicate) {
+        points.push(destCoord);
+        eventStops.push({ index: points.length - 1, event: ev });
+      }
     }
   }
 
-  // Kembali ke meeting point / Situ Cibeureum Lagi
-  const finalEvent = events.find((e) => e.name.toLowerCase().includes("lagi")) || events[0];
-  if (finalEvent) {
-    const lat = finalEvent.destinationCoordinates?.lat ?? -6.2980556;
-    const lng = finalEvent.destinationCoordinates?.lng ?? 107.0455556;
-    points.push({ lat, lng, name: finalEvent.name });
-    eventStops.push({ index: points.length - 1, event: finalEvent });
+  // Jika terdapat minimal 2 destinasi kegiatan, buat rute berputar kembali ke titik kumpul utama
+  if (points.length >= 3) {
+    points.push({
+      lat: startPt.lat,
+      lng: startPt.lng,
+      name: `Kembali ke ${startPt.name || "Titik Kumpul"} ☕`,
+    });
   }
 
   return { points, eventStops };
@@ -280,4 +193,3 @@ export function interpolateRoute(points: CoordinatePoint[], stepsPerSegment: num
   result.push(points[points.length - 1]);
   return result;
 }
-

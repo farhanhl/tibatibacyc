@@ -21,18 +21,9 @@ interface CyclingRouteMapProps {
 }
 
 function getShortPlaceName(name: string): string {
-  let clean = name.replace(/^tiba[- ]tiba\s*(ke\s*)?/i, "").trim();
-  if (clean.toLowerCase().includes("situ cibereum lagi")) return "Situ Cibeureum Lagi";
-  if (clean.toLowerCase().includes("situ cibeureum")) return "Situ Cibeureum";
-  if (clean.toLowerCase().includes("kopi tuku")) return "Kopi Tuku Vida";
-  if (clean.toLowerCase().includes("kopitagram")) return "Kopitagram Vida";
-  if (clean.toLowerCase().includes("kopi kalean")) return "Kopi Kalean";
-  if (clean.toLowerCase().includes("kopi nako")) return "Kopi Nako";
-  if (clean.toLowerCase().includes("susy garden")) return "Susy Garden";
-  if (clean.toLowerCase().includes("warkop beels")) return "Warkop Beels";
-  if (clean.toLowerCase().includes("car free day") || clean.toLowerCase().includes("summarecon")) return "CFD Summarecon";
-  if (clean.toLowerCase().includes("critical mass") || clean.toLowerCase().includes("icm")) return "ICM Bekasi";
-  return clean.length > 18 ? clean.substring(0, 16) + "..." : clean;
+  if (!name) return "";
+  const clean = name.replace(/^tiba[- ]tiba\s*(ke\s*)?/i, "").trim();
+  return clean.length > 20 ? clean.substring(0, 18) + "..." : clean;
 }
 
 interface InterpolatedPosition {
@@ -192,20 +183,24 @@ export default function CyclingRouteMap({
     if (!mapContainerRef.current) return;
 
     if (!mapInstanceRef.current) {
-      const bekasiBounds = L.latLngBounds(
-        [-6.40, 106.92], // South-West (Bantargebang / Setu)
-        [-6.15, 107.12]  // North-East (Babelan / Tambun)
-      );
-
       const map = L.map(mapContainerRef.current, {
-        center: [-6.2650, 107.0120],
+        center: [-6.2648671, 107.0169006],
         zoom: 13.5,
-        minZoom: 12,
-        maxZoom: 18,
-        maxBounds: bekasiBounds,
-        maxBoundsViscosity: 0.8,
+        minZoom: 9,
+        maxZoom: 19,
         zoomControl: false,
         attributionControl: false,
+        dragging: true,
+        touchZoom: true,
+        scrollWheelZoom: true,
+        doubleClickZoom: true,
+        boxZoom: true,
+        keyboard: true,
+      });
+
+      // When user starts dragging manually, detach follow camera so it doesn't fight panning
+      map.on("dragstart", () => {
+        setFollowCyclist(false);
       });
 
       // OpenStreetMap Tiles with Custom Dark Theme filter
@@ -225,6 +220,11 @@ export default function CyclingRouteMap({
       const markersGroup = L.layerGroup().addTo(map);
       markersGroupRef.current = markersGroup;
       mapInstanceRef.current = map;
+
+      // Invalidate map size once container settles to prevent blank tiles and ensure smooth pan
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 250);
     }
 
     return () => {
@@ -265,6 +265,7 @@ export default function CyclingRouteMap({
       opacity: 0.7,
       lineCap: "round",
       lineJoin: "round",
+      interactive: false,
     }).addTo(markersGroup);
     routePolylineRef.current = routePolyline;
 
@@ -275,6 +276,7 @@ export default function CyclingRouteMap({
       opacity: 0.95,
       lineCap: "round",
       lineJoin: "round",
+      interactive: false,
     }).addTo(markersGroup);
     activeTrailPolylineRef.current = activeTrailPolyline;
 
@@ -379,6 +381,7 @@ export default function CyclingRouteMap({
     const cyclistMarker = L.marker([startPt.lat, startPt.lng], {
       icon: cyclistIcon,
       zIndexOffset: 1000,
+      interactive: false,
     }).addTo(markersGroup);
     cyclistMarkerRef.current = cyclistMarker;
 
@@ -561,31 +564,33 @@ export default function CyclingRouteMap({
   };
 
   const handleRecenter = () => {
-    if (mapInstanceRef.current && roadPoints.length >= 2) {
-      const latLngs = roadPoints.map((p) => [p.lat, p.lng] as [number, number]);
+    if (!mapInstanceRef.current) return;
+    const pts = roadPoints.length >= 2 ? roadPoints : rawWaypoints;
+    if (pts.length >= 2) {
+      const latLngs = pts.map((p) => [p.lat, p.lng] as [number, number]);
       mapInstanceRef.current.fitBounds(L.latLngBounds(latLngs), {
-        padding: [20, 20],
+        padding: [30, 30],
         maxZoom: activeRouteMode === "grand-tour" ? 14.5 : 15.5,
       });
+    } else {
+      mapInstanceRef.current.setView([-6.2648671, 107.0169006], 13.5);
     }
   };
 
   const isUpcoming = activeEvent ? getDaysDifference(activeEvent.date) >= 0 : false;
   const formattedDate = activeEvent ? formatIndonesianFullDate(activeEvent.date) : "";
 
-  const grandTourPills = [
-    "🚩 Alfamidi Tol",
-    "Situ Cibeureum",
-    "Kopi Tuku",
-    "Kopitagram",
-    "Kopi Kalean",
-    "Susy Garden",
-    "Kopi Nako",
-    "Warkop Beels",
-    "CFD Summarecon",
-    "ICM Patriot",
-    "Situ Cibeureum Lagi ☕",
-  ];
+  const grandTourPills = useMemo(() => {
+    const { points } = getGrandTourRoutePoints(events);
+    if (points.length <= 1) {
+      return ["🚩 Alfamidi Tol", "Destinasi Gowes"];
+    }
+    return points.map((p, idx) => {
+      if (idx === 0) return "🚩 Alfamidi Tol";
+      const name = getShortPlaceName(p.name || `Stop ${idx}`);
+      return idx === points.length - 1 ? `${name} ☕` : name;
+    });
+  }, [events]);
 
   return (
     <div className="w-full bg-black/70 backdrop-blur-md border border-white/20 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col">
@@ -601,9 +606,11 @@ export default function CyclingRouteMap({
               Peta Gowes Tiba-Tiba Cycling
             </h3>
           </div>
-          <span className="text-[10px] font-mono text-gray-400 bg-white/5 px-2 py-0.5 rounded border border-white/10">
-            {isLoadingRoads ? "Menghitung Rute Jalan..." : `${events.length} Destinasi`}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono text-gray-400 bg-white/5 px-2 py-0.5 rounded border border-white/10">
+              {isLoadingRoads ? "Menghitung Rute Jalan..." : `${events.length} Destinasi`}
+            </span>
+          </div>
         </div>
 
         {/* Scrollable Route Mode Selector Pills */}
@@ -643,8 +650,8 @@ export default function CyclingRouteMap({
       </div>
 
       {/* Main Map Canvas Area */}
-      <div className="relative w-full h-[360px] sm:h-[460px] lg:h-[520px] bg-neutral-950 overflow-hidden">
-        <div ref={mapContainerRef} className="w-full h-full z-0" />
+      <div className="relative w-full h-[360px] sm:h-[460px] lg:h-[520px] bg-neutral-950 overflow-hidden select-none">
+        <div ref={mapContainerRef} className="w-full h-full z-0 cursor-grab active:cursor-grabbing" />
 
         {/* Floating Top Left: Compact Cyclist Live Status Overlay */}
         <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-[400] max-w-[210px] sm:max-w-[260px] bg-black/90 backdrop-blur-md border border-white/20 rounded-xl p-2 sm:p-3 shadow-2xl space-y-1.5 pointer-events-auto">

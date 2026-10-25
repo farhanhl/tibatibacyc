@@ -178,4 +178,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .leaflet-container {
   background-color: #121212 !important;
+  cursor: grab !important;
+  touch-action: pan-x pan-y;
+}
+
+.leaflet-container:active,
+.leaflet-dragging .leaflet-container {
+  cursor: grabbing !important;
 }

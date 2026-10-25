@@ -22,7 +22,7 @@ import {
   deleteEventFromDb,
 } from "@/lib/eventsService";
 import { uploadImageToCloudinary } from "@/lib/cloudinary";
-import { PRESET_LOCATIONS } from "@/lib/routeLocations";
+import { DEFAULT_START_COORDINATES } from "@/lib/routeLocations";
 import { MerchandiseOrder } from "@/types/merchandise";
 import { getMerchandiseOrders } from "@/lib/merchandiseService";
 import MerchandiseAdminTab from "@/components/admin/MerchandiseAdminTab";
@@ -70,8 +70,8 @@ export default function AdminDashboardPage() {
     date: "",
     time: "05:30 WIB",
     startLocation: "Alfamidi depan Tol Bekasi Timur",
-    startCoordinates: { lat: -6.2572, lng: 107.0135, name: "Alfamidi depan Tol Bekasi Timur" },
-    destinationCoordinates: { lat: -6.3268, lng: 107.1265, name: "" },
+    startCoordinates: { lat: -6.2648671, lng: 107.0169006, name: "Alfamidi depan Tol Bekasi Timur" },
+    destinationCoordinates: { lat: 0, lng: 0, name: "" },
     distance: "25 KM",
     bikePolicy: "Semua jenis sepeda boleh ikut",
     notes: "Gowes santai, jangan lupa helm, lampu & uang kopi!",
@@ -331,8 +331,8 @@ export default function AdminDashboardPage() {
         date: "",
         time: "05:30 WIB",
         startLocation: "Alfamidi depan Tol Bekasi Timur",
-        startCoordinates: { lat: -6.2572, lng: 107.0135, name: "Alfamidi depan Tol Bekasi Timur" },
-        destinationCoordinates: { lat: -6.3268, lng: 107.1265, name: "" },
+        startCoordinates: { lat: -6.2648671, lng: 107.0169006, name: "Alfamidi depan Tol Bekasi Timur" },
+        destinationCoordinates: { lat: 0, lng: 0, name: "" },
         distance: "25 KM",
         bikePolicy: "Semua jenis sepeda boleh ikut",
         notes: "Gowes santai, jangan lupa helm, lampu & uang kopi!",
@@ -364,8 +364,8 @@ export default function AdminDashboardPage() {
       date: item.date,
       time: item.time || "05:30 WIB",
       startLocation: item.startLocation,
-      startCoordinates: item.startCoordinates || { lat: -6.2572, lng: 107.0135, name: item.startLocation },
-      destinationCoordinates: item.destinationCoordinates || { lat: -6.3268, lng: 107.1265, name: item.name },
+      startCoordinates: item.startCoordinates || { lat: -6.2648671, lng: 107.0169006, name: item.startLocation },
+      destinationCoordinates: item.destinationCoordinates || { lat: 0, lng: 0, name: item.name },
       distance: item.distance || "25 KM",
       bikePolicy: item.bikePolicy || "Semua jenis sepeda boleh ikut",
       notes: item.notes || "",
@@ -564,11 +564,10 @@ export default function AdminDashboardPage() {
         {/* Message Banner */}
         {message && (
           <div
-            className={`p-4 rounded-xl border text-sm font-medium backdrop-blur-md animate-in fade-in duration-300 ${
-              message.type === "success"
+            className={`p-4 rounded-xl border text-sm font-medium backdrop-blur-md animate-in fade-in duration-300 ${message.type === "success"
                 ? "bg-emerald-950/80 border-emerald-500/50 text-emerald-300"
                 : "bg-red-950/80 border-red-500/50 text-red-300"
-            }`}
+              }`}
           >
             {message.text}
           </div>
@@ -660,11 +659,10 @@ export default function AdminDashboardPage() {
         <div className="flex flex-wrap border-b border-white/15 gap-2 pt-2">
           <button
             onClick={() => setActiveTab("overview")}
-            className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
-              activeTab === "overview"
+            className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${activeTab === "overview"
                 ? "border-[#C44341] text-white bg-white/5 rounded-t-xl"
                 : "border-transparent text-gray-400 hover:text-white"
-            }`}
+              }`}
             style={{ fontFamily: "var(--font-display)" }}
           >
             📊 Ringkasan Trafik ({dailyStats.length} Hari)
@@ -672,11 +670,10 @@ export default function AdminDashboardPage() {
 
           <button
             onClick={() => setActiveTab("events")}
-            className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
-              activeTab === "events"
+            className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${activeTab === "events"
                 ? "border-[#C44341] text-white bg-white/5 rounded-t-xl"
                 : "border-transparent text-gray-400 hover:text-white"
-            }`}
+              }`}
             style={{ fontFamily: "var(--font-display)" }}
           >
             🚴 Kelola Kegiatan & Jadwal Gowes ({events.length})
@@ -696,11 +693,10 @@ export default function AdminDashboardPage() {
 
           <button
             onClick={() => setActiveTab("settings")}
-            className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
-              activeTab === "settings"
+            className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${activeTab === "settings"
                 ? "border-[#C44341] text-white bg-white/5 rounded-t-xl"
                 : "border-transparent text-gray-400 hover:text-white"
-            }`}
+              }`}
             style={{ fontFamily: "var(--font-display)" }}
           >
             ⚙️ Sistem & Info
@@ -864,11 +860,10 @@ export default function AdminDashboardPage() {
                   <div className="flex items-center justify-between p-3 rounded-xl bg-black/50 border border-white/10">
                     <span className="text-gray-300">Status & Label Kegiatan:</span>
                     <span
-                      className={`px-2.5 py-1 rounded-md text-[11px] font-bold ${
-                        isFormDateUpcoming
+                      className={`px-2.5 py-1 rounded-md text-[11px] font-bold ${isFormDateUpcoming
                           ? "bg-emerald-950 text-emerald-300 border border-emerald-500/40"
                           : "bg-gray-800 text-gray-300"
-                      }`}
+                        }`}
                     >
                       {isFormDateUpcoming ? "● Otomatis: Akan Datang" : "○ Otomatis: Selesai"}
                     </span>
@@ -900,83 +895,61 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
 
-                {/* Preset Cepat Lokasi Destinasi untuk Peta */}
+                {/* Koordinat Destinasi untuk Peta (Murni dari Firebase) */}
                 <div className="p-3.5 bg-black/60 border border-white/15 rounded-xl space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <label className="text-gray-300 font-bold flex items-center gap-1.5">
-                      <span>🗺️</span>
-                      <span>Preset Destinasi Gowes (Peta)</span>
+                    <label className="text-gray-300 font-bold flex items-center gap-1.5 text-xs">
+                      <span>📍</span>
+                      <span>Koordinat Destinasi Peta (Tersimpan di Firebase)</span>
                     </label>
-                    <span className="text-[10px] text-gray-400 font-mono">Pilih untuk auto-set</span>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto pr-1">
-                    {PRESET_LOCATIONS.map((loc) => (
-                      <button
-                        key={loc.name}
-                        type="button"
-                        onClick={() => {
-                          setEventFormData((prev) => ({
-                            ...prev,
-                            destinationCoordinates: {
-                              lat: loc.lat,
-                              lng: loc.lng,
-                              name: loc.name,
-                            },
-                          }));
-                        }}
-                        className={`px-2 py-1 rounded-md text-[10px] font-mono transition-colors border cursor-pointer ${
-                          eventFormData.destinationCoordinates?.lat === loc.lat &&
-                          eventFormData.destinationCoordinates?.lng === loc.lng
-                            ? "bg-[#C44341] text-white border-[#C44341]"
-                            : "bg-white/5 text-gray-300 border-white/10 hover:bg-white/10 hover:text-white"
-                        }`}
-                      >
-                        {loc.name.split("(")[0].trim()}
-                      </button>
-                    ))}
+                    <span className="text-[10px] text-gray-400 font-mono">Latitude & Longitude</span>
                   </div>
 
-                  {/* Koordinat Lat/Lng Manual (Opsional) */}
-                  <div className="pt-2 border-t border-white/10 grid grid-cols-2 gap-2 text-[11px]">
+                  <div className="grid grid-cols-2 gap-2.5 text-[11px]">
                     <div>
-                      <span className="text-gray-400 block mb-0.5">Destinasi Lat:</span>
+                      <span className="text-gray-400 block mb-1">Destinasi Latitude (Lat) *</span>
                       <input
                         type="number"
                         step="any"
-                        value={eventFormData.destinationCoordinates?.lat || -6.3268}
+                        placeholder="-6.289158"
+                        value={eventFormData.destinationCoordinates?.lat || ""}
                         onChange={(e) =>
                           setEventFormData((prev) => ({
                             ...prev,
                             destinationCoordinates: {
                               lat: parseFloat(e.target.value) || 0,
-                              lng: prev.destinationCoordinates?.lng || 107.1265,
+                              lng: prev.destinationCoordinates?.lng || 0,
                               name: prev.destinationCoordinates?.name || prev.name,
                             },
                           }))
                         }
-                        className="w-full px-2.5 py-1.5 bg-black/80 border border-white/15 rounded-lg text-white font-mono text-[11px] focus:outline-none focus:border-[#C44341]"
+                        className="w-full px-3 py-2 bg-black/80 border border-white/20 rounded-lg text-white font-mono text-xs focus:outline-none focus:border-[#C44341]"
                       />
                     </div>
                     <div>
-                      <span className="text-gray-400 block mb-0.5">Destinasi Lng:</span>
+                      <span className="text-gray-400 block mb-1">Destinasi Longitude (Lng) *</span>
                       <input
                         type="number"
                         step="any"
-                        value={eventFormData.destinationCoordinates?.lng || 107.1265}
+                        placeholder="106.915626"
+                        value={eventFormData.destinationCoordinates?.lng || ""}
                         onChange={(e) =>
                           setEventFormData((prev) => ({
                             ...prev,
                             destinationCoordinates: {
-                              lat: prev.destinationCoordinates?.lat || -6.3268,
+                              lat: prev.destinationCoordinates?.lat || 0,
                               lng: parseFloat(e.target.value) || 0,
                               name: prev.destinationCoordinates?.name || prev.name,
                             },
                           }))
                         }
-                        className="w-full px-2.5 py-1.5 bg-black/80 border border-white/15 rounded-lg text-white font-mono text-[11px] focus:outline-none focus:border-[#C44341]"
+                        className="w-full px-3 py-2 bg-black/80 border border-white/20 rounded-lg text-white font-mono text-xs focus:outline-none focus:border-[#C44341]"
                       />
                     </div>
                   </div>
+                  <p className="text-[10px] text-gray-500">
+                    💡 Cara cari koordinat: Buka Google Maps, klik kanan tempat tujuan lalu pilih angka koordinat untuk disalin (contoh: -6.289158, 106.915626).
+                  </p>
                 </div>
 
                 {/* Ketentuan Sepeda */}
@@ -1175,11 +1148,10 @@ export default function AdminDashboardPage() {
                       return (
                         <div
                           key={item.id}
-                          className={`p-4 rounded-2xl border backdrop-blur-md transition-all space-y-3 ${
-                            isUpcoming
+                          className={`p-4 rounded-2xl border backdrop-blur-md transition-all space-y-3 ${isUpcoming
                               ? "bg-black/65 border-[#C44341]/60 shadow-xl"
                               : "bg-black/40 border-white/10 opacity-75 hover:opacity-100"
-                          }`}
+                            }`}
                         >
                           <div className="flex gap-4">
                             {/* Thumbnail */}
@@ -1215,11 +1187,10 @@ export default function AdminDashboardPage() {
 
                                 {isUpcoming && (
                                   <span
-                                    className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
-                                      isPopupActive
+                                    className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${isPopupActive
                                         ? "bg-emerald-950 border border-emerald-500/40 text-emerald-300"
                                         : "bg-gray-800 text-gray-400"
-                                    }`}
+                                      }`}
                                   >
                                     {isPopupActive ? "● POP-UP AKTIF" : "○ POP-UP MATI"}
                                   </span>
@@ -1253,11 +1224,10 @@ export default function AdminDashboardPage() {
                                 <button
                                   onClick={() => handleTogglePopup(item)}
                                   title="Nyalakan / Matikan Pop-up Pengingat H-5 di Beranda"
-                                  className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
-                                    isPopupActive
+                                  className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${isPopupActive
                                       ? "bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/30"
                                       : "bg-white/10 hover:bg-white/20 text-gray-300 border border-white/10"
-                                  }`}
+                                    }`}
                                 >
                                   {isPopupActive ? "Matikan Pop-up" : "Aktifkan Pop-up"}
                                 </button>

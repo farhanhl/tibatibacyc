@@ -2,6 +2,8 @@
 
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ProfileData } from "@/types/profile";
 
 interface FooterProps {
@@ -9,13 +11,19 @@ interface FooterProps {
 }
 
 export default function Footer({ profile }: FooterProps) {
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
+
   const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    if (window.location.hash) {
-      history.replaceState(null, "", window.location.pathname);
+    if (isHomePage) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (window.location.hash) {
+        history.replaceState(null, "", window.location.pathname);
+      }
     }
   };
+
   return (
     <footer className="bg-[#000000] text-white border-t-4 border-[#C44341]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
@@ -71,7 +79,7 @@ export default function Footer({ profile }: FooterProps) {
             <ul className="space-y-2 text-sm">
               <li>
                 <a
-                  href="#home"
+                  href={isHomePage ? "#home" : "/"}
                   onClick={handleHomeClick}
                   className="text-[#868B96] hover:text-[#C44341] transition-colors cursor-pointer"
                 >
@@ -79,24 +87,51 @@ export default function Footer({ profile }: FooterProps) {
                 </a>
               </li>
               <li>
-                <a href="#about" className="text-[#868B96] hover:text-[#C44341] transition-colors">
+                <a
+                  href={isHomePage ? "#about" : "/#about"}
+                  className="text-[#868B96] hover:text-[#C44341] transition-colors"
+                >
                   Tentang Kami
                 </a>
               </li>
               <li>
-                <a href="#events" className="text-[#868B96] hover:text-[#C44341] transition-colors">
+                <a
+                  href={isHomePage ? "#events" : "/#events"}
+                  className="text-[#868B96] hover:text-[#C44341] transition-colors"
+                >
                   Kegiatan Gowes
                 </a>
               </li>
               <li>
-                <a href="#join" className="text-[#868B96] hover:text-[#C44341] transition-colors">
+                <a
+                  href={isHomePage ? "#join" : "/#join"}
+                  className="text-[#868B96] hover:text-[#C44341] transition-colors"
+                >
                   Gabung Komunitas
                 </a>
               </li>
               <li>
-                <a href="#cuaca" className="text-[#868B96] hover:text-[#C44341] transition-colors">
+                <a
+                  href={isHomePage ? "#cuaca" : "/#cuaca"}
+                  className="text-[#868B96] hover:text-[#C44341] transition-colors"
+                >
                   Cuaca Gowes
                 </a>
+              </li>
+              <li>
+                <Link
+                  href="/twibbon"
+                  className={`transition-colors flex items-center gap-1.5 ${
+                    pathname === "/twibbon"
+                      ? "text-[#C44341] font-semibold"
+                      : "text-[#868B96] hover:text-[#C44341]"
+                  }`}
+                >
+                  <span>Twibbon Gowes</span>
+                  <span className="px-1.5 py-0.2 bg-[#C44341] text-white text-[10px] font-mono rounded font-bold">
+                    NEW
+                  </span>
+                </Link>
               </li>
             </ul>
           </div>
