@@ -23,6 +23,9 @@ import {
 } from "@/lib/eventsService";
 import { uploadImageToCloudinary } from "@/lib/cloudinary";
 import { PRESET_LOCATIONS } from "@/lib/routeLocations";
+import { MerchandiseOrder } from "@/types/merchandise";
+import { getMerchandiseOrders } from "@/lib/merchandiseService";
+import MerchandiseAdminTab from "@/components/admin/MerchandiseAdminTab";
 
 const ADMIN_PIN = process.env.NEXT_PUBLIC_ADMIN_PIN || "tibatiba2026";
 
@@ -39,11 +42,12 @@ export default function AdminDashboardPage() {
   const [pinInput, setPinInput] = useState("");
   const [pinError, setPinError] = useState(false);
 
-  // Active Tab: 'overview' | 'events' | 'settings' (Unified 1-page management)
-  const [activeTab, setActiveTab] = useState<"overview" | "events" | "settings">("overview");
+  // Active Tab: 'overview' | 'events' | 'merchandise' | 'settings' (Unified 1-page management)
+  const [activeTab, setActiveTab] = useState<"overview" | "events" | "merchandise" | "settings">("overview");
 
   // Data States
   const [events, setEvents] = useState<EventItem[]>([]);
+  const [merchOrders, setMerchOrders] = useState<MerchandiseOrder[]>([]);
   const [dailyStats, setDailyStats] = useState<DailyStat[]>([]);
   const [totalVisitorsAllTime, setTotalVisitorsAllTime] = useState(0);
   const [totalJoinsAllTime, setTotalJoinsAllTime] = useState(0);
@@ -154,6 +158,14 @@ export default function AdminDashboardPage() {
       // 1. Fetch Events from Firestore
       const eventList = await getEventsFromDb();
       setEvents(eventList);
+
+      // 1b. Fetch Merchandise Orders from Firestore
+      try {
+        const orderList = await getMerchandiseOrders();
+        setMerchOrders(orderList);
+      } catch (e) {
+        console.warn("Gagal memuat merchandise orders:", e);
+      }
 
       // 2. Fetch Visitor Counters
       const snapVisitors = await getDocs(collection(db, "visitor_counters"));
@@ -668,6 +680,18 @@ export default function AdminDashboardPage() {
             style={{ fontFamily: "var(--font-display)" }}
           >
             🚴 Kelola Kegiatan & Jadwal Gowes ({events.length})
+          </button>
+
+          <button
+            onClick={() => setActiveTab("merchandise")}
+            className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
+              activeTab === "merchandise"
+                ? "border-[#C44341] text-white bg-white/5 rounded-t-xl"
+                : "border-transparent text-gray-400 hover:text-white"
+            }`}
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            👕 Pre-Order Merchandise ({merchOrders.length})
           </button>
 
           <button
@@ -1337,6 +1361,14 @@ export default function AdminDashboardPage() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* TAB 4: Kelola Pre-Order Merchandise */}
+        {activeTab === "merchandise" && (
+          <MerchandiseAdminTab
+            orders={merchOrders}
+            onRefresh={fetchAllDashboardData}
+          />
         )}
       </div>
     </main>
