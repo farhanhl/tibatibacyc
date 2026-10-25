@@ -85,7 +85,7 @@ export default function MerchandiseDetail({ onSelectOrder }: { onSelectOrder?: (
 
         {/* Main Product Image */}
         <div
-          className="relative w-full aspect-[16/11] sm:aspect-[16/10] bg-[#12141A] cursor-zoom-in"
+          className="relative w-full aspect-[3/2] cursor-zoom-in overflow-hidden"
           onClick={() => setIsZoomOpen(true)}
         >
           <Image
@@ -93,7 +93,7 @@ export default function MerchandiseDetail({ onSelectOrder }: { onSelectOrder?: (
             alt="Rompi Tiba-Tiba Cycling Official Tactical Riding Vest"
             fill
             sizes="(max-width: 1024px) 100vw, 60vw"
-            className="object-contain p-2 group-hover:scale-[1.02] transition-transform duration-500 ease-out"
+            className="object-cover group-hover:scale-[1.02] transition-transform duration-500 ease-out"
             priority
           />
         </div>

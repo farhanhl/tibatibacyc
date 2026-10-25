@@ -106,13 +106,13 @@ export default function MerchandiseAnnouncementModal() {
               </div>
 
               {/* Image Preview */}
-              <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden border border-white/10 bg-black/70">
+              <div className="relative w-full aspect-[3/2] rounded-xl overflow-hidden border border-white/10 shadow-lg">
                 <Image
                   src="/images/merch/merch.jpeg"
                   alt="Official Vest Tiba-Tiba Cycling"
                   fill
                   sizes="(max-width: 640px) 90vw, 400px"
-                  className="object-contain p-1"
+                  className="object-cover"
                 />
                 <div className="absolute bottom-2 right-2 px-2.5 py-1 rounded-md bg-black/85 backdrop-blur-md border border-white/10 text-xs font-mono font-bold text-[#C44341]">
                   Mulai Rp 185.000
