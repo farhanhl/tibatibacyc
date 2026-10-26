@@ -1038,8 +1038,8 @@ export default function AdminDashboardPage() {
                 <div className="p-4 rounded-xl bg-black/70 border border-white/15 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-gray-200 font-bold block">📱 Poster Cerita (Instastory)</span>
-                      <span className="text-[11px] text-gray-400">Opsional untuk modal poster cerita</span>
+                      <span className="text-gray-200 font-bold block">📱 Poster Cerita / Flyer (Format 9:16)</span>
+                      <span className="text-[11px] text-gray-400">Upload poster kegiatan vertikal dalam format 9:16 (Instagram Story)</span>
                     </div>
                     {isUploadingStory && (
                       <span className="text-[11px] text-[#C44341] font-bold animate-pulse">
@@ -1057,22 +1057,30 @@ export default function AdminDashboardPage() {
                   />
 
                   {eventFormData.instastoryImage && (
-                    <div className="relative inline-block rounded-lg overflow-hidden border border-white/20 w-24 h-36 bg-black mt-2">
-                      <Image
-                        src={eventFormData.instastoryImage}
-                        alt="Poster cerita"
-                        fill
-                        className="object-cover"
-                        sizes="96px"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setEventFormData({ ...eventFormData, instastoryImage: "" })}
-                        className="absolute top-1 right-1 bg-red-600/90 text-white p-1 rounded-md text-[10px] cursor-pointer shadow-md"
-                        title="Hapus poster ini"
+                    <div className="space-y-1 mt-2">
+                      <div
+                        className="relative inline-block rounded-xl overflow-hidden border border-white/20 w-28 aspect-[9/16] bg-black shadow-lg"
+                        style={{ aspectRatio: "9 / 16" }}
                       >
-                        ✕
-                      </button>
+                        <Image
+                          src={eventFormData.instastoryImage}
+                          alt="Poster cerita"
+                          fill
+                          className="object-contain"
+                          sizes="112px"
+                        />
+                        <div className="absolute bottom-1 left-1 right-1 bg-black/80 rounded px-1 text-[9px] text-center font-mono text-gray-300 pointer-events-none">
+                          9:16
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setEventFormData({ ...eventFormData, instastoryImage: "" })}
+                          className="absolute top-1 right-1 bg-red-600/90 hover:bg-red-600 text-white p-1 rounded-md text-[10px] cursor-pointer shadow-md transition-colors"
+                          title="Hapus poster ini"
+                        >
+                          ✕
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

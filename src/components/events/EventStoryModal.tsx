@@ -44,22 +44,38 @@ export default function EventStoryModal({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={`Poster Instagram Story: ${eventName}`}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-md p-4 sm:p-6"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+      aria-label={`Poster kegiatan: ${eventName}`}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-hidden select-none animate-in fade-in duration-200"
     >
-      {/* Close Button Header */}
-      <div className="absolute top-4 right-4 z-20">
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 bg-black/90 backdrop-blur-md transition-opacity"
+        onClick={onClose}
+      />
+
+      {/* Top Action Buttons (Close & View Original in New Tab) */}
+      <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+        {imageSrc && (
+          <a
+            href={imageSrc}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Buka poster resolusi penuh di tab baru"
+            className="cursor-pointer p-2.5 bg-black/70 hover:bg-[#C44341] text-white rounded-lg border border-white/15 transition-all shadow-lg hover:scale-105 flex items-center justify-center"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+        )}
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close Story Poster"
-          className="p-2.5 bg-black/70 hover:bg-[#C44341] text-white rounded-sm border border-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-[#C44341]"
+          aria-label="Tutup Poster"
+          className="cursor-pointer p-2.5 bg-black/70 hover:bg-[#C44341] text-white rounded-lg border border-white/15 transition-all shadow-lg hover:scale-105 flex items-center justify-center"
         >
           <svg
-            className="w-6 h-6"
+            className="w-5 h-5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -74,23 +90,34 @@ export default function EventStoryModal({
         </button>
       </div>
 
-      {/* Story Poster Container - Strict 9:16 Aspect Ratio */}
-      <div className="relative w-full max-w-[380px] h-[82vh] max-h-[680px] flex flex-col items-center justify-center">
-        <div className="relative w-full h-full rounded-md overflow-hidden shadow-2xl border border-white/15 bg-black">
+      {/* Main Poster Container - Strict 9:16 Aspect Ratio */}
+      <div className="relative z-10 flex flex-col items-center justify-center max-h-[96vh] max-w-full">
+        {/* Strict 9:16 Frame */}
+        <div
+          className="relative aspect-[9/16] h-[min(80vh,760px)] w-auto max-w-[calc(100vw-2.5rem)] rounded-2xl overflow-hidden shadow-2xl border border-white/20 bg-neutral-950 flex items-center justify-center shrink-0 ring-1 ring-white/10"
+          style={{ aspectRatio: "9 / 16" }}
+        >
           <LoadingImage
             src={imageSrc}
-            alt={`Poster Instagram Story - ${eventName}`}
+            alt={`Poster kegiatan ${eventName}`}
             fill
-            className="object-contain sm:object-cover"
-            sizes="380px"
+            className="object-contain"
+            sizes="(max-height: 760px) 430px, 90vw"
             priority
           />
         </div>
-        <div className="mt-3 text-center">
+
+        {/* Caption & Metadata below frame */}
+        <div className="mt-2.5 text-center px-4 max-w-xs sm:max-w-md">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 border border-white/15 text-[11px] font-mono text-[#EAE6DD] font-medium mb-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C44341] animate-pulse" />
+            <span>Format 9:16</span>
+          </div>
           <p
-            className="text-white text-xs sm:text-sm font-semibold uppercase tracking-wider font-mono text-[#EAE6DD]"
+            className="text-white text-xs sm:text-sm font-bold uppercase tracking-wider font-mono text-[#EAE6DD] truncate"
+            title={eventName}
           >
-            Poster Story • {eventName}
+            {eventName}
           </p>
         </div>
       </div>
