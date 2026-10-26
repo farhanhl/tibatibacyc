@@ -22,21 +22,18 @@ export default function EventCard({
   const badgeLabel = isUpcoming ? (event.badge || "Akan Datang") : "Selesai";
   const formattedDate = formatIndonesianFullDate(event.date);
   const mainPhoto = event.photos && event.photos.length > 0 ? event.photos[0] : null;
-  const posterPhoto = event.instastoryImage || null;
 
   return (
     <article className="w-full h-full bg-black/45 backdrop-blur-md border border-white/20 rounded-xl overflow-hidden transition-all duration-300 hover:border-[#C44341] hover:shadow-2xl flex flex-col justify-between group text-white shadow-2xl">
       <div>
-        {/* Top Image Preview or Community Logo Fallback */}
+        {/* Top Image Preview or Cyclist Fallback (Never show poster on card) */}
         <div
           className={`relative w-full h-48 sm:h-52 bg-black overflow-hidden ${
-            mainPhoto || (posterPhoto && onOpenStory) ? "cursor-pointer" : ""
+            mainPhoto ? "cursor-pointer" : ""
           }`}
           onClick={() => {
             if (mainPhoto && onOpenPhoto) {
               onOpenPhoto(event.photos, event.name);
-            } else if (posterPhoto && onOpenStory) {
-              onOpenStory(posterPhoto, event.name);
             }
           }}
         >
@@ -52,33 +49,29 @@ export default function EventCard({
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none z-10" />
             </>
-          ) : posterPhoto ? (
-            <>
-              <LoadingImage
-                src={posterPhoto}
-                alt={`Poster kegiatan ${event.name}`}
-                fill
-                className="object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none z-10" />
-            </>
           ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-neutral-900 via-black to-neutral-950 flex items-center justify-center p-6 border-b border-white/10">
+            <div className="absolute inset-0 bg-gradient-to-br from-neutral-900 via-black to-neutral-950 flex flex-col items-center justify-center p-4 border-b border-white/10 select-none">
               {/* Subtle background radial glow */}
-              <div className="absolute w-32 h-32 bg-[#C44341]/15 rounded-full blur-2xl pointer-events-none" />
-              <div className="relative w-24 h-24 sm:w-28 sm:h-28 opacity-80 group-hover:scale-105 group-hover:opacity-100 transition-all duration-500">
+              <div className="absolute w-32 h-32 bg-[#C44341]/10 rounded-full blur-2xl pointer-events-none" />
+
+              {/* Cyclist illustration fallback */}
+              <div className="relative w-28 h-24 sm:w-32 sm:h-28 opacity-85 group-hover:scale-105 group-hover:opacity-100 transition-all duration-500">
                 <LoadingImage
-                  src="/images/logo.webp"
-                  alt="Logo Tiba-Tiba Cycling"
+                  src="/images/cyclist.png"
+                  alt="Foto belum tersedia"
                   fill
                   className="object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)]"
-                  sizes="120px"
+                  sizes="140px"
                   loading="lazy"
                 />
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none z-10" />
+
+              {/* Text label */}
+              <p className="mt-1 text-xs font-mono font-medium text-gray-400 tracking-wider">
+                Foto belum tersedia
+              </p>
+
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none z-10" />
             </div>
           )}
 
@@ -88,14 +81,6 @@ export default function EventCard({
               {badgeLabel}
             </Badge>
           </div>
-
-          {/* Poster Indicator if showing poster */}
-          {!mainPhoto && posterPhoto && (
-            <div className="absolute bottom-3 right-3 bg-black/80 px-2 py-0.5 rounded text-[11px] font-mono text-[#EAE6DD] flex items-center gap-1 border border-white/20 z-10">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C44341]" />
-              Poster 9:16
-            </div>
-          )}
 
           {/* Photo count indicator if > 1 */}
           {event.photos && event.photos.length > 1 && (
