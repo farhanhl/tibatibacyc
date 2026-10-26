@@ -1,21 +1,25 @@
 "use client";
 
 import React, { useState } from "react";
-import { saveMerchandiseOrder, formatWhatsAppOrderMessage } from "@/lib/merchandiseService";
+import { saveMerchandiseOrder } from "@/lib/merchandiseService";
+import { MerchandiseSize } from "@/types/merchandise";
+import SizeChartModal from "@/components/merchandise/SizeChartModal";
+
+const SIZES: MerchandiseSize[] = ["S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL"];
 
 export default function MerchandiseForm() {
   const [nama, setNama] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [furing, setFuring] = useState<"pakai" | "tanpa">("pakai");
   const [desainBelakang, setDesainBelakang] = useState<"sablon" | "bordir">("sablon");
-  const [ukuran, setUkuran] = useState<"S" | "M" | "L" | "XL" | "XXL" | "3XL">("L");
+  const [ukuran, setUkuran] = useState<MerchandiseSize>("L");
   const [qty, setQty] = useState(1);
   const [catatan, setCatatan] = useState("");
+  const [showSizeModal, setShowSizeModal] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [createdOrderId, setCreatedOrderId] = useState<string>("");
-  const [copiedText, setCopiedText] = useState(false);
 
   // Perhitungan Harga
   const basePrice = 185000;
@@ -68,31 +72,6 @@ export default function MerchandiseForm() {
     }
   };
 
-  const waMessage = formatWhatsAppOrderMessage({
-    nama,
-    whatsapp,
-    furing,
-    desainBelakang,
-    ukuran,
-    qty,
-    hargaSatuan,
-    totalHarga,
-    catatan,
-    orderId: createdOrderId,
-  });
-
-  const handleCopyText = () => {
-    navigator.clipboard.writeText(waMessage);
-    setCopiedText(true);
-    setTimeout(() => setCopiedText(false), 3000);
-  };
-
-  const handleOpenWhatsApp = () => {
-    const encoded = encodeURIComponent(waMessage);
-    // Buka wa.me link atau grup
-    window.open(`https://api.whatsapp.com/send?text=${encoded}`, "_blank");
-  };
-
   const handleResetForm = () => {
     setNama("");
     setWhatsapp("");
@@ -127,7 +106,6 @@ export default function MerchandiseForm() {
         <div className="space-y-1.5">
           <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-300 flex items-center justify-between">
             <span>Nama Lengkap / Panggilan Gowes *</span>
-            <span className="text-[10px] text-gray-500 font-normal">Wajib diisi</span>
           </label>
           <input
             type="text"
@@ -143,7 +121,6 @@ export default function MerchandiseForm() {
         <div className="space-y-1.5">
           <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-300 flex items-center justify-between">
             <span>Nomor WhatsApp / HP Aktif *</span>
-            <span className="text-[10px] text-gray-500 font-normal">Untuk konfirmasi & kabar produksi</span>
           </label>
           <input
             type="tel"
@@ -164,17 +141,15 @@ export default function MerchandiseForm() {
             <button
               type="button"
               onClick={() => setFuring("pakai")}
-              className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
-                furing === "pakai"
-                  ? "bg-[#C44341]/15 border-[#C44341] text-white ring-1 ring-[#C44341]"
-                  : "bg-black/50 border-white/10 text-gray-400 hover:border-white/30"
-              }`}
+              className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${furing === "pakai"
+                ? "bg-[#C44341]/15 border-[#C44341] text-white ring-1 ring-[#C44341]"
+                : "bg-black/50 border-white/10 text-gray-400 hover:border-white/30"
+                }`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold font-mono">Pakai Furing</span>
-                <span className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] ${
-                  furing === "pakai" ? "border-[#C44341] bg-[#C44341] text-white" : "border-white/30"
-                }`}>
+                <span className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] ${furing === "pakai" ? "border-[#C44341] bg-[#C44341] text-white" : "border-white/30"
+                  }`}>
                   {furing === "pakai" ? "✓" : ""}
                 </span>
               </div>
@@ -186,17 +161,15 @@ export default function MerchandiseForm() {
             <button
               type="button"
               onClick={() => setFuring("tanpa")}
-              className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
-                furing === "tanpa"
-                  ? "bg-[#C44341]/15 border-[#C44341] text-white ring-1 ring-[#C44341]"
-                  : "bg-black/50 border-white/10 text-gray-400 hover:border-white/30"
-              }`}
+              className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${furing === "tanpa"
+                ? "bg-[#C44341]/15 border-[#C44341] text-white ring-1 ring-[#C44341]"
+                : "bg-black/50 border-white/10 text-gray-400 hover:border-white/30"
+                }`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold font-mono">Tanpa Furing</span>
-                <span className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] ${
-                  furing === "tanpa" ? "border-[#C44341] bg-[#C44341] text-white" : "border-white/30"
-                }`}>
+                <span className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] ${furing === "tanpa" ? "border-[#C44341] bg-[#C44341] text-white" : "border-white/30"
+                  }`}>
                   {furing === "tanpa" ? "✓" : ""}
                 </span>
               </div>
@@ -216,20 +189,18 @@ export default function MerchandiseForm() {
             <button
               type="button"
               onClick={() => setDesainBelakang("sablon")}
-              className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
-                desainBelakang === "sablon"
-                  ? "bg-[#C44341]/15 border-[#C44341] text-white ring-1 ring-[#C44341]"
-                  : "bg-black/50 border-white/10 text-gray-400 hover:border-white/30"
-              }`}
+              className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${desainBelakang === "sablon"
+                ? "bg-[#C44341]/15 border-[#C44341] text-white ring-1 ring-[#C44341]"
+                : "bg-black/50 border-white/10 text-gray-400 hover:border-white/30"
+                }`}
             >
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-xs font-bold font-mono block">Sablon Grafis</span>
                   <span className="text-xs font-black text-[#C44341]">Rp 185.000</span>
                 </div>
-                <span className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] ${
-                  desainBelakang === "sablon" ? "border-[#C44341] bg-[#C44341] text-white" : "border-white/30"
-                }`}>
+                <span className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] ${desainBelakang === "sablon" ? "border-[#C44341] bg-[#C44341] text-white" : "border-white/30"
+                  }`}>
                   {desainBelakang === "sablon" ? "✓" : ""}
                 </span>
               </div>
@@ -241,20 +212,18 @@ export default function MerchandiseForm() {
             <button
               type="button"
               onClick={() => setDesainBelakang("bordir")}
-              className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
-                desainBelakang === "bordir"
-                  ? "bg-[#C44341]/15 border-[#C44341] text-white ring-1 ring-[#C44341]"
-                  : "bg-black/50 border-white/10 text-gray-400 hover:border-white/30"
-              }`}
+              className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${desainBelakang === "bordir"
+                ? "bg-[#C44341]/15 border-[#C44341] text-white ring-1 ring-[#C44341]"
+                : "bg-black/50 border-white/10 text-gray-400 hover:border-white/30"
+                }`}
             >
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-xs font-bold font-mono block">Bordir Komputer</span>
                   <span className="text-xs font-black text-amber-400">Rp 205.000 (+20k)</span>
                 </div>
-                <span className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] ${
-                  desainBelakang === "bordir" ? "border-[#C44341] bg-[#C44341] text-white" : "border-white/30"
-                }`}>
+                <span className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] ${desainBelakang === "bordir" ? "border-[#C44341] bg-[#C44341] text-white" : "border-white/30"
+                  }`}>
                   {desainBelakang === "bordir" ? "✓" : ""}
                 </span>
               </div>
@@ -267,20 +236,29 @@ export default function MerchandiseForm() {
 
         {/* Pilihan Ukuran (Size) */}
         <div className="space-y-2">
-          <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-300 block">
-            Pilih Ukuran (Size) *
-          </label>
-          <div className="grid grid-cols-6 gap-2">
-            {(["S", "M", "L", "XL", "XXL", "3XL"] as const).map((sz) => (
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-300 block">
+              Pilih Ukuran (Size) *
+            </label>
+            <button
+              type="button"
+              onClick={() => setShowSizeModal(true)}
+              className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-[#C44341] hover:text-white transition-colors"
+            >
+              <span>📏 Panduan Ukuran</span>
+              <span>→</span>
+            </button>
+          </div>
+          <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+            {SIZES.map((sz) => (
               <button
                 key={sz}
                 type="button"
                 onClick={() => setUkuran(sz)}
-                className={`py-2.5 rounded-xl border font-mono font-bold text-xs transition-all cursor-pointer ${
-                  ukuran === sz
-                    ? "bg-[#C44341] border-[#C44341] text-white shadow-md shadow-[#C44341]/30"
-                    : "bg-black/50 border-white/10 text-gray-300 hover:border-white/30"
-                }`}
+                className={`py-2.5 rounded-xl border font-mono font-bold text-xs transition-all cursor-pointer ${ukuran === sz
+                  ? "bg-[#C44341] border-[#C44341] text-white shadow-md shadow-[#C44341]/30"
+                  : "bg-black/50 border-white/10 text-gray-300 hover:border-white/30"
+                  }`}
               >
                 {sz}
               </button>
@@ -390,7 +368,7 @@ export default function MerchandiseForm() {
 
             <div className="text-center space-y-1">
               <span className="text-xs font-mono text-emerald-400 font-bold uppercase tracking-wider">
-                Pesanan Berhasil Dicatat!
+                Pesanan Berhasil Disimpan!
               </span>
               <h4
                 className="text-2xl sm:text-3xl font-black uppercase tracking-tight"
@@ -399,7 +377,7 @@ export default function MerchandiseForm() {
                 Terima Kasih, {nama}!
               </h4>
               <p className="text-xs text-gray-300 leading-relaxed pt-1">
-                Data pre-order rompi kamu sudah tercatat di sistem kami. Silakan lanjutkan konfirmasi melalui WhatsApp agar pesananmu segera diproses.
+                Data pre-order rompi kamu telah berhasil tersimpan di sistem kami. Kamu bisa mengecek status pesanan pada tabel pemesan di bawah.
               </p>
             </div>
 
@@ -430,35 +408,26 @@ export default function MerchandiseForm() {
             </div>
 
             {/* Action Buttons */}
-            <div className="space-y-2 pt-2">
-              <button
-                type="button"
-                onClick={handleOpenWhatsApp}
-                className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>💬 Kirim Rincian via WhatsApp</span>
-                <span>↗</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handleCopyText}
-                className="w-full py-2.5 px-4 bg-white/10 hover:bg-white/20 text-gray-300 font-mono text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>📋 {copiedText ? "Tersalin ke Clipboard!" : "Salin Teks Pesanan"}</span>
-              </button>
-
+            <div className="pt-2">
               <button
                 type="button"
                 onClick={handleResetForm}
-                className="w-full py-2.5 text-xs text-gray-400 hover:text-white transition-colors"
+                className="w-full py-3.5 px-4 bg-[#C44341] hover:bg-[#A93434] text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
               >
-                Tutup & Buat Pesanan Baru
+                <span>✓ Selesai & Tutup</span>
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* Size Chart Modal */}
+      <SizeChartModal
+        isOpen={showSizeModal}
+        onClose={() => setShowSizeModal(false)}
+        selectedSize={ukuran}
+        onSelectSize={(sz) => setUkuran(sz as MerchandiseSize)}
+      />
     </div>
   );
 }

@@ -2,16 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { SizeChartItem } from "@/types/merchandise";
-
-const SIZE_CHART: SizeChartItem[] = [
-  { size: "S", panjang: 64, lebarDada: 50, lingkarDada: 100 },
-  { size: "M", panjang: 66, lebarDada: 52, lingkarDada: 104 },
-  { size: "L", panjang: 68, lebarDada: 55, lingkarDada: 110 },
-  { size: "XL", panjang: 70, lebarDada: 58, lingkarDada: 116 },
-  { size: "XXL", panjang: 72, lebarDada: 61, lingkarDada: 122 },
-  { size: "3XL", panjang: 74, lebarDada: 64, lingkarDada: 128 },
-];
+import SizeChartModal, { SIZE_CHART } from "@/components/merchandise/SizeChartModal";
 
 export default function MerchandiseDetail({ onSelectOrder }: { onSelectOrder?: () => void }) {
   const [isZoomOpen, setIsZoomOpen] = useState(false);
@@ -252,75 +243,10 @@ export default function MerchandiseDetail({ onSelectOrder }: { onSelectOrder?: (
       )}
 
       {/* Size Chart Modal */}
-      {showSizeChart && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
-          onClick={() => setShowSizeChart(false)}
-        >
-          <div
-            className="relative max-w-lg w-full bg-[#12141A] rounded-2xl border border-white/20 p-6 space-y-4 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <div>
-                <span className="text-xs font-mono text-[#C44341] font-bold uppercase">Panduan Ukuran</span>
-                <h3
-                  className="text-2xl font-black uppercase text-white"
-                  style={{ fontFamily: "var(--font-display)" }}
-                >
-                  Size Chart Rompi (Vest)
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowSizeChart(false)}
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center"
-              >
-                ✕
-              </button>
-            </div>
-
-            <p className="text-xs text-gray-300">
-              Ukuran standar lokal dalam satuan centimeter (cm). Disarankan memilih 1 tingkat lebih besar jika ingin dipakai dengan jaket / hoodie tebal.
-            </p>
-
-            <div className="overflow-x-auto rounded-xl border border-white/10">
-              <table className="w-full text-xs font-mono text-left">
-                <thead className="bg-black/60 text-gray-300 uppercase">
-                  <tr>
-                    <th className="py-2.5 px-3">Size</th>
-                    <th className="py-2.5 px-3 text-center">Panjang (cm)</th>
-                    <th className="py-2.5 px-3 text-center">Lebar Dada (cm)</th>
-                    <th className="py-2.5 px-3 text-center">Lingkar Dada (cm)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5 text-gray-200">
-                  {SIZE_CHART.map((sc) => (
-                    <tr key={sc.size} className="hover:bg-white/5 transition-colors">
-                      <td className="py-2.5 px-3 font-bold text-[#C44341]">{sc.size}</td>
-                      <td className="py-2.5 px-3 text-center">{sc.panjang}</td>
-                      <td className="py-2.5 px-3 text-center">{sc.lebarDada}</td>
-                      <td className="py-2.5 px-3 text-center font-semibold text-white">{sc.lingkarDada}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="p-3 bg-white/5 rounded-xl border border-white/10 text-[11px] text-gray-400">
-              💡 *Toleransi ukuran jahitan sekitar 1-2 cm pada saat proses konveksi.*
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setShowSizeChart(false)}
-              className="w-full py-2.5 bg-[#C44341] hover:bg-[#A93434] text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-colors"
-            >
-              Tutup Panduan
-            </button>
-          </div>
-        </div>
-      )}
+      <SizeChartModal
+        isOpen={showSizeChart}
+        onClose={() => setShowSizeChart(false)}
+      />
     </div>
   );
 }

@@ -48,12 +48,17 @@ export default function MerchandiseAdminTab({
     M: 0,
     L: 0,
     XL: 0,
-    XXL: 0,
+    "2XL": 0,
     "3XL": 0,
+    "4XL": 0,
+    "5XL": 0,
   };
   orders.forEach((o) => {
-    if (sizeBreakdown[o.ukuran] !== undefined) {
-      sizeBreakdown[o.ukuran] += o.qty || 1;
+    const sz = o.ukuran === "XXL" ? "2XL" : o.ukuran;
+    if (sizeBreakdown[sz] !== undefined) {
+      sizeBreakdown[sz] += o.qty || 1;
+    } else {
+      sizeBreakdown[sz] = o.qty || 1;
     }
   });
 
@@ -251,7 +256,7 @@ export default function MerchandiseAdminTab({
             <span>{copiedSummary ? "Tersalin ke Clipboard!" : "Salin Rekap untuk Vendor"}</span>
           </button>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
           {Object.entries(sizeBreakdown).map(([sz, count]) => (
             <div
               key={sz}

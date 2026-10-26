@@ -127,9 +127,9 @@ export default function MerchandisePage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="p-4 rounded-xl bg-black/50 border border-white/10 space-y-1.5">
               <span className="text-xl">1️⃣</span>
-              <h4 className="text-sm font-bold text-white">Isi Form & Konfirmasi</h4>
+              <h4 className="text-sm font-bold text-white">Isi Form Pemesanan</h4>
               <p className="text-xs text-gray-400 leading-relaxed">
-                Pilih ukuran, furing, dan desain belakang. Setelah form dikirim, kamu akan diarahkan ke WhatsApp untuk verifikasi pesanan.
+                Pilih ukuran, furing, dan desain belakang. Begitu formulir dikirim, pesanan langsung tersimpan ke sistem database pre-order.
               </p>
             </div>
 
@@ -137,7 +137,7 @@ export default function MerchandisePage() {
               <span className="text-xl">2️⃣</span>
               <h4 className="text-sm font-bold text-white">Pembayaran & Produksi</h4>
               <p className="text-xs text-gray-400 leading-relaxed">
-                Pembayaran dilakukan via transfer bank. Begitu kuota minimal tercapai, proses potong kain & jahit vendor segera berjalan.
+                Pembayaran dilakukan via transfer bank. Begitu kuota minimal tercapai, proses potong kain & produksi rompi segera berjalan.
               </p>
             </div>
 
