@@ -109,10 +109,6 @@ export default function EventStoryModal({
 
         {/* Caption & Metadata below frame */}
         <div className="mt-2.5 text-center px-4 max-w-xs sm:max-w-md">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 border border-white/15 text-[11px] font-mono text-[#EAE6DD] font-medium mb-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#C44341] animate-pulse" />
-            <span>Format 9:16</span>
-          </div>
           <p
             className="text-white text-xs sm:text-sm font-bold uppercase tracking-wider font-mono text-[#EAE6DD] truncate"
             title={eventName}
