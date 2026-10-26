@@ -15,6 +15,7 @@ import JoinSection from "@/components/sections/JoinSection";
 import Lightbox, { LightboxImage } from "@/components/gallery/Lightbox";
 import EventStoryModal from "@/components/events/EventStoryModal";
 import ScrollCyclistProgress from "@/components/ui/ScrollCyclistProgress";
+import MerchandiseAnnouncementModal from "@/components/modal/MerchandiseAnnouncementModal";
 
 const profile = profileData as ProfileData;
 
@@ -108,6 +109,9 @@ export default function HomePage() {
         eventName={storyEventName}
         onClose={() => setStoryModalOpen(false)}
       />
+
+      {/* Merchandise Announcement Modal */}
+      <MerchandiseAnnouncementModal />
     </>
   );
 }
