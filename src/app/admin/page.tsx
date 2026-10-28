@@ -2,17 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { db } from "@/lib/firebase";
-import {
-  collection,
-  getDocs,
-  doc,
-} from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { EventItem } from "@/types/profile";
 import {
   formatIndonesianFullDate,
-  calculateDaysRemaining,
   getDaysDifference,
 } from "@/lib/scheduleService";
 import {
@@ -22,27 +16,19 @@ import {
   deleteEventFromDb,
 } from "@/lib/eventsService";
 import { uploadImageToCloudinary } from "@/lib/cloudinary";
-import { DEFAULT_START_COORDINATES } from "@/lib/routeLocations";
 import { MerchandiseOrder } from "@/types/merchandise";
 import { getMerchandiseOrders } from "@/lib/merchandiseService";
+
+import AdminLoginForm from "@/components/admin/AdminLoginForm";
+import AdminHeader from "@/components/admin/AdminHeader";
+import AdminMetricsCards from "@/components/admin/AdminMetricsCards";
+import OverviewAdminTab, { DailyStat } from "@/components/admin/OverviewAdminTab";
+import EventsAdminTab from "@/components/admin/EventsAdminTab";
+import SettingsAdminTab from "@/components/admin/SettingsAdminTab";
 import MerchandiseAdminTab from "@/components/admin/MerchandiseAdminTab";
 
-const ADMIN_PIN = process.env.NEXT_PUBLIC_ADMIN_PIN || "tibatiba2026";
-
-interface DailyStat {
-  dateKey: string;
-  formattedDate: string;
-  visitors: number;
-  joins: number;
-  conversionRate: string;
-}
-
 export default function AdminDashboardPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [pinInput, setPinInput] = useState("");
-  const [pinError, setPinError] = useState(false);
-
-  // Active Tab: 'overview' | 'events' | 'merchandise' | 'settings' (Unified 1-page management)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState<"overview" | "events" | "merchandise" | "settings">("overview");
 
   // Data States
@@ -58,7 +44,7 @@ export default function AdminDashboardPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  // Event & Schedule Unified Form State
+  // Event & Schedule Form State
   const [eventEditingId, setEventEditingId] = useState<string | null>(null);
   const [isUploadingPhotos, setIsUploadingPhotos] = useState(false);
   const [isUploadingStory, setIsUploadingStory] = useState(false);
@@ -84,52 +70,35 @@ export default function AdminDashboardPage() {
     instastoryImage: "",
   });
 
-  const AUTH_STORAGE_KEY = "tibatiba_admin_auth_expiry_v1";
-  const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000; // 7 hari dalam milidetik
-
-  // Cek sesi login tersimpan saat halaman dimuat
+  // Cek sesi autentikasi server saat halaman dimuat
   useEffect(() => {
-    try {
-      const storedExpiry = localStorage.getItem(AUTH_STORAGE_KEY);
-      if (storedExpiry) {
-        const expiryTime = parseInt(storedExpiry, 10);
-        if (Date.now() < expiryTime) {
-          setIsAuthenticated(true);
-          fetchAllDashboardData();
-        } else {
-          localStorage.removeItem(AUTH_STORAGE_KEY);
+    async function checkAuth() {
+      try {
+        const res = await fetch("/api/admin/auth");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.authenticated) {
+            setIsAuthenticated(true);
+            fetchAllDashboardData();
+            return;
+          }
         }
+      } catch (err) {
+        console.warn("Gagal cek auth:", err);
       }
-    } catch {
-      // abaikan jika localStorage diblokir
+      setIsAuthenticated(false);
     }
+
+    checkAuth();
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (pinInput.trim() === ADMIN_PIN) {
-      try {
-        const expiry = Date.now() + SEVEN_DAYS_MS;
-        localStorage.setItem(AUTH_STORAGE_KEY, expiry.toString());
-      } catch {
-        // abaikan
-      }
-      setIsAuthenticated(true);
-      setPinError(false);
-      fetchAllDashboardData();
-    } else {
-      setPinError(true);
-    }
-  };
-
-  const handleLogout = () => {
+  const handleLogout = async () => {
     try {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
+      await fetch("/api/admin/auth", { method: "DELETE" });
     } catch {
-      // abaikan
+      // ignore
     }
     setIsAuthenticated(false);
-    setPinInput("");
   };
 
   // Helper date keys (Jakarta)
@@ -159,7 +128,7 @@ export default function AdminDashboardPage() {
       const eventList = await getEventsFromDb();
       setEvents(eventList);
 
-      // 1b. Fetch Merchandise Orders from Firestore
+      // 1b. Fetch Merchandise Orders
       try {
         const orderList = await getMerchandiseOrders();
         setMerchOrders(orderList);
@@ -196,9 +165,9 @@ export default function AdminDashboardPage() {
       setYesterdayVisitors(visitorMap[yesterdayKey] || 0);
 
       // 4. Build Daily Stats List
-      const allDates = Array.from(new Set([...Object.keys(visitorMap), ...Object.keys(joinMap), todayKey])).sort(
-        (a, b) => b.localeCompare(a)
-      );
+      const allDates = Array.from(
+        new Set([...Object.keys(visitorMap), ...Object.keys(joinMap), todayKey])
+      ).sort((a, b) => b.localeCompare(a));
 
       const stats: DailyStat[] = allDates.map((dateKey) => {
         const v = visitorMap[dateKey] || 0;
@@ -222,9 +191,7 @@ export default function AdminDashboardPage() {
     }
   };
 
-  /* =========================================================================
-     UNIFIED EVENT & SCHEDULE HANDLERS
-  ========================================================================= */
+  // Upload handlers
   const handleUploadMultiplePhotos = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -296,7 +263,6 @@ export default function AdminDashboardPage() {
     setIsLoading(true);
     setMessage(null);
 
-    // Hitung status dan badge otomatis berdasarkan tanggal
     const diffDays = getDaysDifference(eventFormData.date);
     const isUpcoming = diffDays >= 0;
     const computedStatus: "upcoming" | "completed" = isUpcoming ? "upcoming" : "completed";
@@ -304,14 +270,16 @@ export default function AdminDashboardPage() {
 
     const generatedSlug =
       eventFormData.slug.trim() ||
-      eventFormData.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      eventFormData.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
 
     const dataToSave: Omit<EventItem, "id"> = {
       ...eventFormData,
       slug: generatedSlug,
       status: computedStatus,
       badge: computedBadge,
-      // Jika tanggal sudah lewat, pop-up otomatis false
       showPopup: isUpcoming ? (eventFormData.showPopup ?? true) : false,
     };
 
@@ -364,7 +332,8 @@ export default function AdminDashboardPage() {
       date: item.date,
       time: item.time || "05:30 WIB",
       startLocation: item.startLocation,
-      startCoordinates: item.startCoordinates || { lat: -6.2648671, lng: 107.0169006, name: item.startLocation },
+      startCoordinates:
+        item.startCoordinates || { lat: -6.2648671, lng: 107.0169006, name: item.startLocation },
       destinationCoordinates: item.destinationCoordinates || { lat: 0, lng: 0, name: item.name },
       distance: item.distance || "25 KM",
       bikePolicy: item.bikePolicy || "Semua jenis sepeda boleh ikut",
@@ -412,7 +381,6 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Find next active upcoming ride within H-5 that has showPopup !== false
   const activeUpcomingPopupEvent = events.find((e) => {
     if (e.showPopup === false) return false;
     const diff = getDaysDifference(e.date);
@@ -422,74 +390,34 @@ export default function AdminDashboardPage() {
   const formDiffDays = eventFormData.date ? getDaysDifference(eventFormData.date) : 0;
   const isFormDateUpcoming = formDiffDays >= 0;
 
-  // Login PIN Screen
-  if (!isAuthenticated) {
+  const upcomingEventsCount = events.filter((e) => getDaysDifference(e.date) >= 0).length;
+  const completedEventsCount = events.filter((e) => getDaysDifference(e.date) < 0).length;
+
+  // Sedang memeriksa autentikasi awal
+  if (isAuthenticated === null) {
     return (
-      <main className="relative min-h-screen bg-black text-white flex items-center justify-center p-4 overflow-hidden">
-        {/* Background Wallpaper */}
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="/images/background/hero-bg.webp"
-            alt="Tiba-Tiba Cycling Admin Background"
-            fill
-            sizes="100vw"
-            className="object-cover object-center filter brightness-40 contrast-110"
-            priority
-          />
-          <div className="absolute inset-0 bg-black/65 backdrop-blur-xs" />
-        </div>
-
-        {/* Login Box */}
-        <div className="relative z-10 w-full max-w-md bg-black/80 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl space-y-6">
-          <div className="text-center space-y-2">
-            <div className="w-14 h-14 rounded-2xl bg-[#C44341] flex items-center justify-center text-2xl mx-auto shadow-xl">
-              🚲
-            </div>
-            <h1 className="text-2xl font-black uppercase tracking-tight text-white" style={{ fontFamily: "var(--font-display)" }}>
-              Admin Tiba-Tiba Cycling
-            </h1>
-            <p className="text-xs text-gray-400 font-mono">Masuk ke Dashboard Pengelola Komunitas</p>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-xs font-mono text-gray-300 uppercase mb-1.5">
-                Masukkan PIN Admin
-              </label>
-              <input
-                type="password"
-                value={pinInput}
-                onChange={(e) => setPinInput(e.target.value)}
-                placeholder="Masukkan PIN Admin..."
-                className="w-full px-4 py-3 bg-black/70 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#C44341] focus:ring-1 focus:ring-[#C44341] text-sm font-mono"
-                autoFocus
-              />
-              {pinError && (
-                <p className="text-xs text-red-400 mt-1.5 font-medium">
-                  ❌ PIN yang Anda masukkan salah. Silakan coba lagi.
-                </p>
-              )}
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-3.5 bg-[#C44341] hover:bg-[#A93434] text-white font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer text-sm shadow-lg hover:shadow-[#C44341]/50"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              Buka Dashboard
-            </button>
-          </form>
+      <main className="min-h-screen bg-black text-[#EAE6DD] flex items-center justify-center p-4">
+        <div className="text-center space-y-3">
+          <div className="w-10 h-10 border-2 border-[#C44341] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-xs font-mono text-gray-400">Memeriksa sesi admin...</p>
         </div>
       </main>
     );
   }
 
-  // Calculate visitor growth compared to yesterday
-  const visitorDiff = todayVisitors - yesterdayVisitors;
-  const isPositiveGrowth = visitorDiff >= 0;
+  // Jika belum login
+  if (!isAuthenticated) {
+    return (
+      <AdminLoginForm
+        onSuccess={() => {
+          setIsAuthenticated(true);
+          fetchAllDashboardData();
+        }}
+      />
+    );
+  }
 
-  const upcomingEventsCount = events.filter((e) => getDaysDifference(e.date) >= 0).length;
-  const completedEventsCount = events.filter((e) => getDaysDifference(e.date) < 0).length;
+  const { todayKey } = getTodayAndYesterdayKeys();
 
   return (
     <main className="relative min-h-screen bg-black text-[#EAE6DD] py-8 sm:py-12 px-4 sm:px-6 lg:px-8 overflow-hidden font-sans">
@@ -503,7 +431,6 @@ export default function AdminDashboardPage() {
           className="object-cover object-center filter brightness-30 contrast-110"
           priority
         />
-        {/* Dark Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/25 to-black/10" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/30" />
         <div className="absolute top-0 inset-x-0 h-16 sm:h-20 bg-gradient-to-b from-black/60 to-transparent" />
@@ -512,157 +439,53 @@ export default function AdminDashboardPage() {
 
       <div className="relative z-10 max-w-6xl mx-auto space-y-6">
         {/* Top Navbar Header */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-black/55 backdrop-blur-md border border-white/20 p-5 sm:p-6 rounded-2xl shadow-2xl">
-          <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl bg-[#C44341] flex items-center justify-center text-xl text-white shadow-lg shrink-0">
-              🚲
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-black uppercase text-white tracking-tight leading-none" style={{ fontFamily: "var(--font-display)" }}>
-                  Admin Dashboard
-                </h1>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-[10px] font-mono font-bold text-emerald-300 uppercase">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Live
-                </span>
-              </div>
-              <p className="text-xs text-gray-400 font-mono mt-0.5">Tiba-Tiba Cycling Community Control Center</p>
-            </div>
-          </div>
+        <AdminHeader
+          isLoading={isLoading}
+          onRefresh={fetchAllDashboardData}
+          onLogout={handleLogout}
+        />
 
-          {/* Quick Action Buttons */}
-          <div className="flex items-center gap-2.5 self-start md:self-center">
-            <button
-              onClick={fetchAllDashboardData}
-              disabled={isLoading}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-mono text-white transition-colors border border-white/10 cursor-pointer disabled:opacity-50"
-            >
-              <span>🔄</span>
-              <span>{isLoading ? "Memuat..." : "Refresh"}</span>
-            </button>
-
-            <Link
-              href="/"
-              target="_blank"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#C44341] hover:bg-[#A93434] text-xs font-mono font-bold text-white uppercase tracking-wider transition-all shadow-md hover:shadow-[#C44341]/40"
-            >
-              <span>Lihat Website</span>
-              <span>↗</span>
-            </Link>
-
-            <button
-              onClick={handleLogout}
-              className="inline-flex items-center px-3.5 py-2 rounded-xl bg-red-950/60 hover:bg-red-900/60 border border-red-500/30 text-xs font-mono text-red-300 transition-colors cursor-pointer"
-              title="Keluar dari Admin"
-            >
-              Keluar
-            </button>
-          </div>
-        </header>
-
-        {/* Message Banner */}
+        {/* Global Alert Notification */}
         {message && (
           <div
-            className={`p-4 rounded-xl border text-sm font-medium backdrop-blur-md animate-in fade-in duration-300 ${message.type === "success"
-                ? "bg-emerald-950/80 border-emerald-500/50 text-emerald-300"
-                : "bg-red-950/80 border-red-500/50 text-red-300"
-              }`}
+            className={`p-4 rounded-xl text-xs font-mono flex items-center justify-between border ${
+              message.type === "success"
+                ? "bg-emerald-950/80 border-emerald-500/40 text-emerald-200"
+                : "bg-red-950/80 border-red-500/40 text-red-200"
+            }`}
           >
-            {message.text}
+            <span>{message.text}</span>
+            <button
+              onClick={() => setMessage(null)}
+              className="text-gray-400 hover:text-white cursor-pointer ml-3 font-bold"
+            >
+              ✕
+            </button>
           </div>
         )}
 
-        {/* 4 Stat Metric Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Card 1: Pengunjung Hari Ini */}
-          <div className="bg-black/55 backdrop-blur-md border border-white/20 p-5 rounded-2xl shadow-xl space-y-2">
-            <div className="flex items-center justify-between text-xs font-mono text-gray-400">
-              <span>PENGUNJUNG HARI INI</span>
-              <span className="text-base">👥</span>
-            </div>
-            <div className="flex items-baseline justify-between">
-              <p className="text-3xl font-black text-white" style={{ fontFamily: "var(--font-display)" }}>
-                {todayVisitors}
-              </p>
-              <span className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded ${isPositiveGrowth ? "text-emerald-400 bg-emerald-950/60" : "text-amber-400 bg-amber-950/60"}`}>
-                {isPositiveGrowth ? `+${visitorDiff}` : visitorDiff} vs kemarin ({yesterdayVisitors})
-              </span>
-            </div>
-            <p className="text-[11px] text-gray-400 font-mono">Tercatat di bot Telegram</p>
-          </div>
+        {/* 4 Metric Cards */}
+        <AdminMetricsCards
+          todayVisitors={todayVisitors}
+          yesterdayVisitors={yesterdayVisitors}
+          totalVisitorsAllTime={totalVisitorsAllTime}
+          todayJoins={todayJoins}
+          totalJoinsAllTime={totalJoinsAllTime}
+          eventsCount={events.length}
+          upcomingEventsCount={upcomingEventsCount}
+          completedEventsCount={completedEventsCount}
+          activeUpcomingPopupEvent={activeUpcomingPopupEvent}
+        />
 
-          {/* Card 2: Klik Join WhatsApp Hari Ini */}
-          <div className="bg-black/55 backdrop-blur-md border border-white/20 p-5 rounded-2xl shadow-xl space-y-2">
-            <div className="flex items-center justify-between text-xs font-mono text-gray-400">
-              <span>KLIK JOIN WA HARI INI</span>
-              <span className="text-base">🤝</span>
-            </div>
-            <div className="flex items-baseline justify-between">
-              <p className="text-3xl font-black text-[#C44341]" style={{ fontFamily: "var(--font-display)" }}>
-                {todayJoins}
-              </p>
-              <span className="text-[11px] font-mono text-gray-300 bg-black/60 px-2 py-0.5 rounded border border-white/10">
-                Konversi: {todayVisitors > 0 ? ((todayJoins / todayVisitors) * 100).toFixed(0) + "%" : "0%"}
-              </span>
-            </div>
-            <p className="text-[11px] text-gray-400 font-mono">Total All-Time: {totalJoinsAllTime} klik</p>
-          </div>
-
-          {/* Card 3: Total Kegiatan & Jadwal */}
-          <div className="bg-black/55 backdrop-blur-md border border-white/20 p-5 rounded-2xl shadow-xl space-y-2">
-            <div className="flex items-center justify-between text-xs font-mono text-gray-400">
-              <span>TOTAL KEGIATAN & JADWAL</span>
-              <span className="text-base">🚴</span>
-            </div>
-            <div className="flex items-baseline justify-between">
-              <p className="text-3xl font-black text-white" style={{ fontFamily: "var(--font-display)" }}>
-                {events.length}
-              </p>
-              <span className="text-[11px] font-mono text-emerald-300 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">
-                {upcomingEventsCount} Mendatang • {completedEventsCount} Selesai
-              </span>
-            </div>
-            <p className="text-[11px] text-gray-400 font-mono">Tersimpan di Firestore Database</p>
-          </div>
-
-          {/* Card 4: Status Pop-up Reminder Aktif */}
-          <div className="bg-black/55 backdrop-blur-md border border-white/20 p-5 rounded-2xl shadow-xl space-y-2">
-            <div className="flex items-center justify-between text-xs font-mono text-gray-400">
-              <span>POP-UP PENGINGAT H-5</span>
-              <span className="text-base">🔔</span>
-            </div>
-            <div>
-              {activeUpcomingPopupEvent ? (
-                <div className="space-y-1">
-                  <span className="inline-block text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#C44341] text-white">
-                    {calculateDaysRemaining(activeUpcomingPopupEvent.date, activeUpcomingPopupEvent.time).label}
-                  </span>
-                  <p className="text-sm font-bold text-white truncate max-w-[200px]">
-                    {activeUpcomingPopupEvent.name}
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-1">
-                  <span className="inline-block text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-gray-800 text-gray-400">
-                    TIDAK TAMPIL
-                  </span>
-                  <p className="text-xs text-gray-400 font-mono">Tidak ada jadwal H-5 aktif</p>
-                </div>
-              )}
-            </div>
-            <p className="text-[11px] text-gray-400 font-mono">Hanya muncul di halaman utama</p>
-          </div>
-        </div>
-
-        {/* 3 Unified Navigation Tabs */}
+        {/* 4 Unified Navigation Tabs */}
         <div className="flex flex-wrap border-b border-white/15 gap-2 pt-2">
           <button
             onClick={() => setActiveTab("overview")}
-            className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${activeTab === "overview"
+            className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
+              activeTab === "overview"
                 ? "border-[#C44341] text-white bg-white/5 rounded-t-xl"
                 : "border-transparent text-gray-400 hover:text-white"
-              }`}
+            }`}
             style={{ fontFamily: "var(--font-display)" }}
           >
             📊 Ringkasan Trafik ({dailyStats.length} Hari)
@@ -670,10 +493,11 @@ export default function AdminDashboardPage() {
 
           <button
             onClick={() => setActiveTab("events")}
-            className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${activeTab === "events"
+            className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
+              activeTab === "events"
                 ? "border-[#C44341] text-white bg-white/5 rounded-t-xl"
                 : "border-transparent text-gray-400 hover:text-white"
-              }`}
+            }`}
             style={{ fontFamily: "var(--font-display)" }}
           >
             🚴 Kelola Kegiatan & Jadwal Gowes ({events.length})
@@ -693,10 +517,11 @@ export default function AdminDashboardPage() {
 
           <button
             onClick={() => setActiveTab("settings")}
-            className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${activeTab === "settings"
+            className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
+              activeTab === "settings"
                 ? "border-[#C44341] text-white bg-white/5 rounded-t-xl"
                 : "border-transparent text-gray-400 hover:text-white"
-              }`}
+            }`}
             style={{ fontFamily: "var(--font-display)" }}
           >
             ⚙️ Sistem & Info
@@ -705,641 +530,56 @@ export default function AdminDashboardPage() {
 
         {/* TAB 1: Ringkasan Trafik */}
         {activeTab === "overview" && (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="bg-black/55 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-2xl space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-4">
-                <div>
-                  <h2 className="text-xl font-black uppercase text-white" style={{ fontFamily: "var(--font-display)" }}>
-                    Riwayat Pengunjung & Konversi Harian
-                  </h2>
-                  <p className="text-xs text-gray-400 font-mono">
-                    Data diambil langsung dari counter database setiap kali ada kunjungan / klik join.
-                  </p>
-                </div>
-              </div>
-
-              {dailyStats.length === 0 ? (
-                <div className="p-8 text-center text-gray-400 font-mono text-xs">
-                  Belum ada rekaman statistik trafik.
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs font-mono">
-                    <thead>
-                      <tr className="border-b border-white/15 text-gray-400 uppercase">
-                        <th className="py-3 px-4 font-bold">Tanggal</th>
-                        <th className="py-3 px-4 font-bold text-center">Pengunjung Web</th>
-                        <th className="py-3 px-4 font-bold text-center">Klik Join WhatsApp</th>
-                        <th className="py-3 px-4 font-bold text-center">Tingkat Konversi</th>
-                        <th className="py-3 px-4 font-bold text-right">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/10 text-gray-200">
-                      {dailyStats.map((stat) => {
-                        const isToday = stat.dateKey === getTodayAndYesterdayKeys().todayKey;
-                        return (
-                          <tr key={stat.dateKey} className={isToday ? "bg-[#C44341]/10 font-bold" : "hover:bg-white/5"}>
-                            <td className="py-3.5 px-4 text-white">
-                              <div className="flex items-center gap-2">
-                                {isToday && <span className="w-2 h-2 rounded-full bg-[#C44341] animate-ping" />}
-                                <span>{stat.formattedDate}</span>
-                                {isToday && (
-                                  <span className="text-[10px] bg-[#C44341] text-white px-1.5 py-0.5 rounded font-mono uppercase">
-                                    Hari Ini
-                                  </span>
-                                )}
-                              </div>
-                            </td>
-                            <td className="py-3.5 px-4 text-center">
-                              <span className="text-sm font-black text-white">{stat.visitors}</span>
-                            </td>
-                            <td className="py-3.5 px-4 text-center">
-                              <span className="text-sm font-black text-[#C44341]">{stat.joins}</span>
-                            </td>
-                            <td className="py-3.5 px-4 text-center">
-                              <span className="px-2 py-0.5 rounded bg-black/60 border border-white/10 text-xs">
-                                {stat.conversionRate}
-                              </span>
-                            </td>
-                            <td className="py-3.5 px-4 text-right">
-                              <span className="text-[10px] text-gray-400">Tersinkron</span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
+          <OverviewAdminTab dailyStats={dailyStats} todayKey={todayKey} />
         )}
 
-        {/* TAB 2: Kelola Kegiatan & Jadwal Gowes (Unified 1-Page) */}
+        {/* TAB 2: Kelola Kegiatan & Jadwal Gowes */}
         {activeTab === "events" && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-300">
-            {/* Form Column */}
-            <div className="lg:col-span-5 bg-black/55 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-2xl space-y-5 overflow-hidden min-w-0">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <div>
-                  <h2 className="text-lg font-black uppercase text-white" style={{ fontFamily: "var(--font-display)" }}>
-                    {eventEditingId ? "✏️ Edit Kegiatan / Jadwal" : "➕ Tambah Kegiatan / Jadwal Baru"}
-                  </h2>
-                  <p className="text-[11px] text-gray-400 font-mono">Status otomatis diatur berdasarkan tanggal</p>
-                </div>
-                {eventEditingId && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEventEditingId(null);
-                      setEventFormData({
-                        name: "",
-                        slug: "",
-                        date: "",
-                        time: "05:30 WIB",
-                        startLocation: "Alfamidi depan Tol Bekasi Timur",
-                        distance: "25 KM",
-                        bikePolicy: "Semua jenis sepeda boleh ikut",
-                        notes: "Gowes santai, jangan lupa helm, lampu & uang kopi!",
-                        joinUrl: "https://chat.whatsapp.com/Iec3x7imtTKI9DMXaJzP9z",
-                        description: "",
-                        badge: "Akan Datang",
-                        status: "upcoming",
-                        showPopup: true,
-                        photos: [],
-                        instastoryImage: "",
-                      });
-                    }}
-                    className="text-xs text-gray-400 hover:text-white underline cursor-pointer"
-                  >
-                    Batal Edit
-                  </button>
-                )}
-              </div>
-
-              <form onSubmit={handleSaveEvent} className="space-y-4 text-xs font-mono w-full min-w-0">
-                {/* Nama Kegiatan */}
-                <div>
-                  <label className="block text-gray-300 mb-1">NAMA KEGIATAN / DESTINASI GOWES *</label>
-                  <input
-                    type="text"
-                    required
-                    value={eventFormData.name}
-                    onChange={(e) => setEventFormData({ ...eventFormData, name: e.target.value })}
-                    placeholder="Contoh: Tiba-Tiba ke Kopi Kalean Kebonjati"
-                    className="w-full px-3.5 py-2.5 bg-black/60 border border-white/20 rounded-xl text-white text-xs placeholder-gray-600 focus:outline-none focus:border-[#C44341]"
-                  />
-                </div>
-
-                {/* Tanggal & Waktu */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0 w-full">
-                  <div className="min-w-0 w-full">
-                    <label className="block text-gray-300 mb-1">TANGGAL GOWES *</label>
-                    <input
-                      type="date"
-                      required
-                      value={eventFormData.date}
-                      onChange={(e) => setEventFormData({ ...eventFormData, date: e.target.value })}
-                      className="block w-full max-w-full min-w-0 box-border px-3.5 py-2.5 min-h-[42px] [color-scheme:dark] bg-black/60 border border-white/20 rounded-xl text-white text-xs focus:outline-none focus:border-[#C44341]"
-                    />
-                  </div>
-                  <div className="min-w-0 w-full">
-                    <label className="block text-gray-300 mb-1">JAM KUMPUL</label>
-                    <input
-                      type="text"
-                      value={eventFormData.time}
-                      onChange={(e) => setEventFormData({ ...eventFormData, time: e.target.value })}
-                      placeholder="05:30 WIB"
-                      className="block w-full max-w-full min-w-0 box-border px-3.5 py-2.5 min-h-[42px] bg-black/60 border border-white/20 rounded-xl text-white text-xs placeholder-gray-600 focus:outline-none focus:border-[#C44341]"
-                    />
-                  </div>
-                </div>
-
-                {/* Status Otomatis Info Box */}
-                {eventFormData.date && (
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-black/50 border border-white/10">
-                    <span className="text-gray-300">Status & Label Kegiatan:</span>
-                    <span
-                      className={`px-2.5 py-1 rounded-md text-[11px] font-bold ${isFormDateUpcoming
-                          ? "bg-emerald-950 text-emerald-300 border border-emerald-500/40"
-                          : "bg-gray-800 text-gray-300"
-                        }`}
-                    >
-                      {isFormDateUpcoming ? "● Otomatis: Akan Datang" : "○ Otomatis: Selesai"}
-                    </span>
-                  </div>
-                )}
-
-                {/* Titik Start & Jarak */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0 w-full">
-                  <div className="min-w-0 w-full">
-                    <label className="block text-gray-300 mb-1">TITIK KUMPUL (START) *</label>
-                    <input
-                      type="text"
-                      required
-                      value={eventFormData.startLocation}
-                      onChange={(e) => setEventFormData({ ...eventFormData, startLocation: e.target.value })}
-                      placeholder="Alfamidi Bekasi Timur"
-                      className="block w-full max-w-full min-w-0 box-border px-3.5 py-2.5 min-h-[42px] bg-black/60 border border-white/20 rounded-xl text-white text-xs placeholder-gray-600 focus:outline-none focus:border-[#C44341]"
-                    />
-                  </div>
-                  <div className="min-w-0 w-full">
-                    <label className="block text-gray-300 mb-1">JARAK TEMPUH</label>
-                    <input
-                      type="text"
-                      value={eventFormData.distance}
-                      onChange={(e) => setEventFormData({ ...eventFormData, distance: e.target.value })}
-                      placeholder="25 KM"
-                      className="block w-full max-w-full min-w-0 box-border px-3.5 py-2.5 min-h-[42px] bg-black/60 border border-white/20 rounded-xl text-white text-xs placeholder-gray-600 focus:outline-none focus:border-[#C44341]"
-                    />
-                  </div>
-                </div>
-
-                {/* Koordinat Destinasi untuk Peta (Murni dari Firebase) */}
-                <div className="p-3.5 bg-black/60 border border-white/15 rounded-xl space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <label className="text-gray-300 font-bold flex items-center gap-1.5 text-xs">
-                      <span>📍</span>
-                      <span>Koordinat Destinasi Peta (Tersimpan di Firebase)</span>
-                    </label>
-                    <span className="text-[10px] text-gray-400 font-mono">Latitude & Longitude</span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2.5 text-[11px]">
-                    <div>
-                      <span className="text-gray-400 block mb-1">Destinasi Latitude (Lat) *</span>
-                      <input
-                        type="number"
-                        step="any"
-                        placeholder="-6.289158"
-                        value={eventFormData.destinationCoordinates?.lat || ""}
-                        onChange={(e) =>
-                          setEventFormData((prev) => ({
-                            ...prev,
-                            destinationCoordinates: {
-                              lat: parseFloat(e.target.value) || 0,
-                              lng: prev.destinationCoordinates?.lng || 0,
-                              name: prev.destinationCoordinates?.name || prev.name,
-                            },
-                          }))
-                        }
-                        className="w-full px-3 py-2 bg-black/80 border border-white/20 rounded-lg text-white font-mono text-xs focus:outline-none focus:border-[#C44341]"
-                      />
-                    </div>
-                    <div>
-                      <span className="text-gray-400 block mb-1">Destinasi Longitude (Lng) *</span>
-                      <input
-                        type="number"
-                        step="any"
-                        placeholder="106.915626"
-                        value={eventFormData.destinationCoordinates?.lng || ""}
-                        onChange={(e) =>
-                          setEventFormData((prev) => ({
-                            ...prev,
-                            destinationCoordinates: {
-                              lat: prev.destinationCoordinates?.lat || 0,
-                              lng: parseFloat(e.target.value) || 0,
-                              name: prev.destinationCoordinates?.name || prev.name,
-                            },
-                          }))
-                        }
-                        className="w-full px-3 py-2 bg-black/80 border border-white/20 rounded-lg text-white font-mono text-xs focus:outline-none focus:border-[#C44341]"
-                      />
-                    </div>
-                  </div>
-                  <p className="text-[10px] text-gray-500">
-                    💡 Cara cari koordinat: Buka Google Maps, klik kanan tempat tujuan lalu pilih angka koordinat untuk disalin (contoh: -6.289158, 106.915626).
-                  </p>
-                </div>
-
-                {/* Ketentuan Sepeda */}
-                <div>
-                  <label className="block text-gray-300 mb-1">KETENTUAN SEPEDA</label>
-                  <input
-                    type="text"
-                    value={eventFormData.bikePolicy}
-                    onChange={(e) => setEventFormData({ ...eventFormData, bikePolicy: e.target.value })}
-                    placeholder="Semua jenis sepeda boleh ikut"
-                    className="w-full px-3.5 py-2.5 bg-black/60 border border-white/20 rounded-xl text-white text-xs focus:outline-none focus:border-[#C44341]"
-                  />
-                </div>
-
-                {/* Catatan / Tips Gowes */}
-                <div>
-                  <label className="block text-gray-300 mb-1">CATATAN / TIPS GOWES</label>
-                  <textarea
-                    rows={2}
-                    value={eventFormData.notes}
-                    onChange={(e) => setEventFormData({ ...eventFormData, notes: e.target.value })}
-                    placeholder="Gowes santai, bawa helm, uang kopi & lampu..."
-                    className="w-full px-3.5 py-2 bg-black/60 border border-white/20 rounded-xl text-white text-xs focus:outline-none focus:border-[#C44341]"
-                  />
-                </div>
-
-                {/* Toggle Pengingat Pop-up H-5 (Hanya muncul jika tanggal kegiatan di masa depan / hari ini) */}
-                {isFormDateUpcoming ? (
-                  <div className="flex items-center justify-between p-3.5 bg-black/60 rounded-xl border border-[#C44341]/40">
-                    <div>
-                      <span className="text-white font-bold block flex items-center gap-1.5">
-                        <span>🔔</span>
-                        <span>Tampilkan Pop-up Pengingat H-5?</span>
-                      </span>
-                      <span className="text-[11px] text-gray-400">
-                        Akan muncul di beranda saat masuk H-5 menuju tanggal gowes
-                      </span>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={eventFormData.showPopup !== false}
-                        onChange={(e) => setEventFormData({ ...eventFormData, showPopup: e.target.checked })}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C44341]"></div>
-                    </label>
-                  </div>
-                ) : (
-                  <div className="p-3 bg-black/40 rounded-xl border border-white/10 text-[11px] text-gray-400">
-                    ℹ️ Pengaturan pop-up dinonaktifkan karena tanggal kegiatan sudah lewat (selesai).
-                  </div>
-                )}
-
-                {/* UPLOAD FOTO DOKUMENTASI (CLOUDINARY) */}
-                <div className="p-4 rounded-xl bg-black/70 border border-white/15 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-gray-200 font-bold block">📸 Foto Dokumentasi Ride</span>
-                      <span className="text-[11px] text-gray-400">Upload beberapa foto sekaligus ke Cloudinary</span>
-                    </div>
-                    {isUploadingPhotos && (
-                      <span className="text-[11px] text-[#C44341] font-bold animate-pulse">
-                        {uploadStatusText || "Mengupload..."}
-                      </span>
-                    )}
-                  </div>
-
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    disabled={isUploadingPhotos}
-                    onChange={handleUploadMultiplePhotos}
-                    className="w-full text-xs text-gray-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-mono file:font-bold file:bg-[#C44341] file:text-white hover:file:bg-[#A93434] file:cursor-pointer cursor-pointer"
-                  />
-
-                  {/* Previews of Uploaded Photos */}
-                  {eventFormData.photos.length > 0 && (
-                    <div className="space-y-2 pt-2">
-                      <p className="text-[11px] text-gray-400 font-mono">
-                        Foto tersimpan ({eventFormData.photos.length}):
-                      </p>
-                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                        {eventFormData.photos.map((photoUrl, idx) => (
-                          <div key={idx} className="relative group rounded-lg overflow-hidden border border-white/20 aspect-video bg-black">
-                            <Image
-                              src={photoUrl}
-                              alt={`Foto ${idx + 1}`}
-                              fill
-                              className="object-cover"
-                              sizes="120px"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => handleRemovePhoto(idx)}
-                              className="absolute top-1 right-1 bg-red-600/90 text-white p-1 rounded-md text-[10px] opacity-90 hover:opacity-100 cursor-pointer shadow-md"
-                              title="Hapus foto ini"
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* UPLOAD POSTER / INSTASTORY */}
-                <div className="p-4 rounded-xl bg-black/70 border border-white/15 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-gray-200 font-bold block">📱 Poster Cerita / Flyer (Format 9:16)</span>
-                      <span className="text-[11px] text-gray-400">Upload poster kegiatan vertikal dalam format 9:16 (Instagram Story)</span>
-                    </div>
-                    {isUploadingStory && (
-                      <span className="text-[11px] text-[#C44341] font-bold animate-pulse">
-                        Mengupload poster...
-                      </span>
-                    )}
-                  </div>
-
-                  <input
-                    type="file"
-                    accept="image/*"
-                    disabled={isUploadingStory}
-                    onChange={handleUploadStoryImage}
-                    className="w-full text-xs text-gray-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-mono file:font-bold file:bg-white/10 file:text-white hover:file:bg-white/20 file:cursor-pointer cursor-pointer"
-                  />
-
-                  {eventFormData.instastoryImage && (
-                    <div className="space-y-1 mt-2">
-                      <div
-                        className="relative inline-block rounded-xl overflow-hidden border border-white/20 w-28 aspect-[9/16] bg-black shadow-lg"
-                        style={{ aspectRatio: "9 / 16" }}
-                      >
-                        <Image
-                          src={eventFormData.instastoryImage}
-                          alt="Poster cerita"
-                          fill
-                          className="object-contain"
-                          sizes="112px"
-                        />
-                        <div className="absolute bottom-1 left-1 right-1 bg-black/80 rounded px-1 text-[9px] text-center font-mono text-gray-300 pointer-events-none">
-                          9:16
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setEventFormData({ ...eventFormData, instastoryImage: "" })}
-                          className="absolute top-1 right-1 bg-red-600/90 hover:bg-red-600 text-white p-1 rounded-md text-[10px] cursor-pointer shadow-md transition-colors"
-                          title="Hapus poster ini"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={isLoading || isUploadingPhotos || isUploadingStory}
-                  className="w-full py-3.5 bg-[#C44341] hover:bg-[#A93434] disabled:opacity-50 text-white font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer text-xs shadow-lg hover:shadow-[#C44341]/50"
-                  style={{ fontFamily: "var(--font-display)" }}
-                >
-                  {isLoading ? "Menyimpan..." : eventEditingId ? "Simpan Perubahan Kegiatan" : "Publikasikan Kegiatan & Jadwal"}
-                </button>
-              </form>
-            </div>
-
-            {/* List Column */}
-            <div className="lg:col-span-7 space-y-4">
-              <div className="border-b border-white/10 pb-3">
-                <h2 className="text-lg font-black uppercase text-white" style={{ fontFamily: "var(--font-display)" }}>
-                  📋 Daftar Seluruh Kegiatan & Jadwal ({events.length})
-                </h2>
-                <p className="text-xs text-gray-400 font-mono">
-                  Kegiatan mendatang ({upcomingEventsCount}) otomatis menampilkan opsi pop-up reminder
-                </p>
-              </div>
-
-              {events.length === 0 ? (
-                <div className="p-10 bg-black/55 backdrop-blur-md rounded-2xl border border-white/20 text-center space-y-3">
-                  <div className="text-3xl">🚴‍♂️</div>
-                  <p className="text-base text-gray-200 font-bold">Belum ada kegiatan tersimpan di database</p>
-                  <p className="text-xs text-gray-400 font-mono max-w-md mx-auto">
-                    Gunakan formulir di samping untuk menambahkan jadwal gowes atau kegiatan pertama Anda.
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4 max-h-[850px] overflow-y-auto pr-1">
-                  {events
-                    .slice()
-                    .sort((a, b) => b.date.localeCompare(a.date))
-                    .map((item) => {
-                      const diffDays = getDaysDifference(item.date);
-                      const isUpcoming = diffDays >= 0;
-                      const countdown = calculateDaysRemaining(item.date, item.time);
-                      const fullDate = formatIndonesianFullDate(item.date);
-                      const thumbnail = item.photos && item.photos.length > 0 ? item.photos[0] : null;
-                      const isPopupActive = isUpcoming && item.showPopup !== false;
-
-                      return (
-                        <div
-                          key={item.id}
-                          className={`p-4 rounded-2xl border backdrop-blur-md transition-all space-y-3 ${isUpcoming
-                              ? "bg-black/65 border-[#C44341]/60 shadow-xl"
-                              : "bg-black/40 border-white/10 opacity-75 hover:opacity-100"
-                            }`}
-                        >
-                          <div className="flex gap-4">
-                            {/* Thumbnail */}
-                            {thumbnail ? (
-                              <div className="relative w-24 h-24 rounded-xl overflow-hidden shrink-0 border border-white/15 bg-black">
-                                <Image
-                                  src={thumbnail}
-                                  alt={item.name}
-                                  fill
-                                  className="object-cover"
-                                  sizes="96px"
-                                />
-                                {item.photos.length > 1 && (
-                                  <span className="absolute bottom-1 right-1 bg-black/80 px-1.5 py-0.5 rounded text-[9px] font-mono text-white border border-white/20">
-                                    +{item.photos.length - 1}
-                                  </span>
-                                )}
-                              </div>
-                            ) : (
-                              <div className="w-24 h-24 rounded-xl bg-gray-900 border border-white/10 flex items-center justify-center text-xl text-gray-500 shrink-0">
-                                📸
-                              </div>
-                            )}
-
-                            {/* Info */}
-                            <div className="space-y-1 flex-1 min-w-0">
-                              <div className="flex flex-wrap items-center gap-1.5">
-                                <span
-                                  className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold text-white uppercase ${countdown.badgeColor}`}
-                                >
-                                  {countdown.label}
-                                </span>
-
-                                {isUpcoming && (
-                                  <span
-                                    className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${isPopupActive
-                                        ? "bg-emerald-950 border border-emerald-500/40 text-emerald-300"
-                                        : "bg-gray-800 text-gray-400"
-                                      }`}
-                                  >
-                                    {isPopupActive ? "● POP-UP AKTIF" : "○ POP-UP MATI"}
-                                  </span>
-                                )}
-
-                                <span className="text-[10px] font-mono text-gray-400">
-                                  {item.photos?.length || 0} Foto
-                                </span>
-                              </div>
-
-                              <h3
-                                className="text-base font-black uppercase text-white truncate"
-                                style={{ fontFamily: "var(--font-display)" }}
-                              >
-                                {item.name}
-                              </h3>
-
-                              <p className="text-xs text-gray-300 font-mono">
-                                📅 {fullDate} • {item.time}
-                              </p>
-                              <p className="text-xs text-gray-400 font-mono truncate">
-                                📍 {item.startLocation} {item.distance ? `(${item.distance})` : ""}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Action Buttons */}
-                          <div className="flex items-center justify-between pt-2 border-t border-white/10 text-xs font-mono">
-                            <div>
-                              {isUpcoming ? (
-                                <button
-                                  onClick={() => handleTogglePopup(item)}
-                                  title="Nyalakan / Matikan Pop-up Pengingat H-5 di Beranda"
-                                  className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${isPopupActive
-                                      ? "bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/30"
-                                      : "bg-white/10 hover:bg-white/20 text-gray-300 border border-white/10"
-                                    }`}
-                                >
-                                  {isPopupActive ? "Matikan Pop-up" : "Aktifkan Pop-up"}
-                                </button>
-                              ) : (
-                                <span className="text-gray-500 text-[11px] italic">
-                                  Kegiatan telah selesai
-                                </span>
-                              )}
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => handleEditEvent(item)}
-                                className="px-3 py-1.5 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 border border-blue-500/30 cursor-pointer"
-                              >
-                                Edit
-                              </button>
-
-                              <button
-                                onClick={() => handleDeleteEvent(item.id)}
-                                className="px-3 py-1.5 rounded-xl bg-red-600/30 hover:bg-red-600/50 text-red-300 border border-red-500/30 cursor-pointer"
-                              >
-                                Hapus
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
-              )}
-            </div>
-          </div>
+          <EventsAdminTab
+            events={events}
+            upcomingEventsCount={upcomingEventsCount}
+            eventEditingId={eventEditingId}
+            eventFormData={eventFormData}
+            setEventFormData={setEventFormData}
+            isFormDateUpcoming={isFormDateUpcoming}
+            isLoading={isLoading}
+            isUploadingPhotos={isUploadingPhotos}
+            isUploadingStory={isUploadingStory}
+            uploadStatusText={uploadStatusText}
+            onSaveEvent={handleSaveEvent}
+            onCancelEdit={() => {
+              setEventEditingId(null);
+              setEventFormData({
+                name: "",
+                slug: "",
+                date: "",
+                time: "05:30 WIB",
+                startLocation: "Alfamidi depan Tol Bekasi Timur",
+                startCoordinates: { lat: -6.2648671, lng: 107.0169006, name: "Alfamidi depan Tol Bekasi Timur" },
+                destinationCoordinates: { lat: 0, lng: 0, name: "" },
+                distance: "25 KM",
+                bikePolicy: "Semua jenis sepeda boleh ikut",
+                notes: "Gowes santai, jangan lupa helm, lampu & uang kopi!",
+                joinUrl: "https://chat.whatsapp.com/Iec3x7imtTKI9DMXaJzP9z",
+                description: "",
+                badge: "Akan Datang",
+                status: "upcoming",
+                showPopup: true,
+                photos: [],
+                instastoryImage: "",
+              });
+            }}
+            onEditEvent={handleEditEvent}
+            onDeleteEvent={handleDeleteEvent}
+            onTogglePopup={handleTogglePopup}
+            onUploadPhotos={handleUploadMultiplePhotos}
+            onUploadStory={handleUploadStoryImage}
+            onRemovePhoto={handleRemovePhoto}
+          />
         )}
 
-        {/* TAB 3: Sistem & Pengaturan */}
-        {activeTab === "settings" && (
-          <div className="bg-black/55 backdrop-blur-md border border-white/20 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 animate-in fade-in duration-300">
-            <div>
-              <h2 className="text-xl font-black uppercase text-white" style={{ fontFamily: "var(--font-display)" }}>
-                ⚙️ Status Koneksi & Konfigurasi Sistem
-              </h2>
-              <p className="text-xs text-gray-400 font-mono mt-1">
-                Informasi layanan pihak ketiga yang terhubung ke website Tiba-Tiba Cycling.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
-              {/* Box 1: Bot Telegram */}
-              <div className="p-4 rounded-xl bg-black/60 border border-white/15 space-y-2">
-                <div className="flex items-center justify-between text-gray-300 font-bold">
-                  <span>🤖 BOT TELEGRAM NOTIFIKASI</span>
-                  <span className="text-emerald-400">● TERHUBUNG</span>
-                </div>
-                <p className="text-gray-400">
-                  Mengirim notifikasi otomatis saat ada pengunjung baru dan saat tombol Join WhatsApp diklik.
-                </p>
-                <div className="pt-2 text-[11px] text-gray-500 space-y-0.5">
-                  <p>Target Chat ID: 7101696494</p>
-                </div>
-              </div>
-
-              {/* Box 2: Database Online */}
-              <div className="p-4 rounded-xl bg-black/60 border border-white/15 space-y-2">
-                <div className="flex items-center justify-between text-gray-300 font-bold">
-                  <span>🗄️ DATABASE ONLINE (FIRESTORE)</span>
-                  <span className="text-emerald-400">● TERHUBUNG</span>
-                </div>
-                <p className="text-gray-400">
-                  Satu sistem database terpadu untuk kegiatan ride, foto, dan pengingat pop-up otomatis.
-                </p>
-                <div className="pt-2 text-[11px] text-gray-500 space-y-0.5">
-                  <p>Collections: events, visitor_counters, join_counters</p>
-                </div>
-              </div>
-
-              {/* Box 3: Cloudinary Media Storage */}
-              <div className="p-4 rounded-xl bg-black/60 border border-white/15 space-y-2">
-                <div className="flex items-center justify-between text-gray-300 font-bold">
-                  <span>☁️ PENYIMPANAN FOTO (CLOUDINARY)</span>
-                  <span className="text-emerald-400">● TERHUBUNG</span>
-                </div>
-                <p className="text-gray-400">
-                  Penyimpanan foto dokumentasi dan poster instastory gratis & cepat langsung dari form admin.
-                </p>
-                <div className="pt-2 text-[11px] text-gray-500 space-y-0.5">
-                  <p>Cloud Name: qxwi3ibh</p>
-                  <p>Preset: tibatiba_preset</p>
-                </div>
-              </div>
-
-              {/* Box 4: Keamanan Admin */}
-              <div className="p-4 rounded-xl bg-black/60 border border-white/15 space-y-2">
-                <div className="flex items-center justify-between text-gray-300 font-bold">
-                  <span>🔐 KEAMANAN ADMIN</span>
-                  <span className="text-emerald-400">● TERLINDUNGI PIN</span>
-                </div>
-                <p className="text-gray-400">
-                  Akses ke dashboard pengelola diamankan dengan PIN rahasia admin.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* TAB 3: Status Sistem & Info */}
+        {activeTab === "settings" && <SettingsAdminTab />}
 
         {/* TAB 4: Kelola Pre-Order Merchandise */}
         {activeTab === "merchandise" && (

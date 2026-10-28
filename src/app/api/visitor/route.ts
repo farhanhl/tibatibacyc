@@ -3,9 +3,8 @@ import { getJakartaDateInfo, incrementDailyVisitor } from "@/lib/visitorCount";
 
 export const dynamic = "force-dynamic";
 
-const TELEGRAM_BOT_TOKEN =
-  process.env.TELEGRAM_BOT_TOKEN || "7673904668:AAFbGmFQISyRy0Ub7Ae4AZxlEFZn1BtJXWE";
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || "7101696494";
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.tibatibacyc.my.id";
 const TELEGRAM_API_URL = process.env.TELEGRAM_API_URL || "https://api.telegram.org";
 
@@ -61,6 +60,18 @@ export async function POST(req: NextRequest) {
       `📊 Jumlah pengunjung tanggal ${formattedDate} : ${visitorTodayCount} Pengunjung`;
 
     // 4. Send Telegram Notification
+    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+      return NextResponse.json({
+        success: true,
+        delivered: false,
+        message: messageText,
+        location,
+        visitorTodayCount,
+        formattedDate,
+        note: "Notifikasi Telegram dilewati karena TELEGRAM_BOT_TOKEN atau TELEGRAM_CHAT_ID belum disetel.",
+      });
+    }
+
     try {
       const telegramResponse = await fetch(
         `${TELEGRAM_API_URL}/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
