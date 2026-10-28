@@ -33,7 +33,7 @@ export default function WeatherSection() {
             number="06"
             tag="Prakiraan Cuaca & Kualitas Udara"
             title="Cuaca & Udara Gowes Bekasi"
-            subtitle="Prakiraan cuaca & indeks kualitas udara (AQI) pagi akhir pekan (05:30 – 08:30 WIB) di seluruh penjuru Bekasi."
+            subtitle="Prakiraan cuaca & indeks kualitas udara (AQI) gowes malam Jumat (20:00 – 22:00 WIB) & pagi akhir pekan (05:30 – 08:30 WIB) di seluruh penjuru Bekasi."
             theme="dark"
             subtitleClassName="text-white font-medium"
             className="mb-0"

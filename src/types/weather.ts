@@ -51,7 +51,10 @@ export interface RegionWeatherInfo {
 }
 
 export interface WeekendDayWeather {
-  dayLabel: "Sabtu Gowes" | "Minggu Gowes";
+  dayLabel: "Jumat Malam" | "Sabtu Gowes" | "Minggu Gowes" | string;
+  timeSlot?: string;
+  timeSlotBadge?: string;
+  isNight?: boolean;
   dateFormatted: string;
   dateStr: string;
   overallStatus: CyclingConditionStatus;
@@ -60,3 +63,4 @@ export interface WeekendDayWeather {
   overallAqiLabel?: string;
   regions: RegionWeatherInfo[];
 }
+

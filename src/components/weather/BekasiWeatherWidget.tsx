@@ -48,28 +48,41 @@ function getWeatherMeta(code: number): { desc: string; icon: "sun" | "cloud-sun"
   }
 }
 
-function evaluateCycling(maxRain: number, maxCode: number, avgAqi: number): { status: CyclingConditionStatus; rec: string } {
+function evaluateCycling(
+  maxRain: number,
+  maxCode: number,
+  avgAqi: number,
+  isNight = false
+): { status: CyclingConditionStatus; rec: string } {
   if (maxCode >= 95 || maxRain >= 50) {
     return {
       status: "warning",
-      rec: "Waspada potensi hujan deras / aspal licin — Disarankan tunda atau gowes indoor",
+      rec: isNight
+        ? "Waspada potensi hujan deras & jalanan malam licin — Disarankan tunda night ride atau gowes indoor"
+        : "Waspada potensi hujan deras / aspal licin — Disarankan tunda atau gowes indoor",
     };
   }
   if (maxRain >= 25 || maxCode >= 51) {
     return {
       status: "caution",
-      rec: "Bisa gowes santai — Siapkan pelindung hujan & jaga jarak pengereman",
+      rec: isNight
+        ? "Bisa gowes malam santai — Pasang lampu sepeda terang, siapkan jas hujan & jaga jarak pengereman"
+        : "Bisa gowes santai — Siapkan pelindung hujan & jaga jarak pengereman",
     };
   }
   if (avgAqi > 150) {
     return {
       status: "caution",
-      rec: "Cuaca cerah, namun udara pagi agak berdebu — Disarankan gunakan buff / masker",
+      rec: isNight
+        ? "Cuaca cerah, namun udara malam agak berdebu — Disarankan gunakan masker / buff & kacamata bening"
+        : "Cuaca cerah, namun udara pagi agak berdebu — Disarankan gunakan buff / masker",
     };
   }
   return {
     status: "ideal",
-    rec: "Kondisi cuaca & udara pagi sangat bagus untuk gowes bersama di Bekasi",
+    rec: isNight
+      ? "Kondisi cuaca malam cerah & sejuk, sangat aman untuk gowes malam (Night Ride) keliling Bekasi"
+      : "Kondisi cuaca & udara pagi sangat bagus untuk gowes bersama di Bekasi",
   };
 }
 
@@ -131,14 +144,20 @@ function evaluateAirQuality(aqi: number, pm2_5: number): AirQualityInfo {
 
 export default function BekasiWeatherWidget() {
   const [weekendData, setWeekendData] = useState<WeekendDayWeather[]>([]);
-  const [activeDayTab, setActiveDayTab] = useState<0 | 1>(0); // 0 = Sabtu, 1 = Minggu
+  const [activeDayTab, setActiveDayTab] = useState<number>(() => {
+    const day = new Date().getDay();
+    if (day === 5) return 0; // Jumat
+    if (day === 6) return 1; // Sabtu
+    if (day === 0) return 2; // Minggu
+    return 0; // Default Jumat
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchWeekendWeatherAndAirQuality = async () => {
     setIsLoading(true);
     try {
-      const cached = sessionStorage.getItem("tibatiba_bekasi_weather_v4");
-      const cachedTime = sessionStorage.getItem("tibatiba_bekasi_weather_time_v4");
+      const cached = sessionStorage.getItem("tibatiba_bekasi_weather_v5");
+      const cachedTime = sessionStorage.getItem("tibatiba_bekasi_weather_time_v5");
 
       if (cached && cachedTime && Date.now() - parseInt(cachedTime, 10) < 30 * 60 * 1000) {
         setWeekendData(JSON.parse(cached));
@@ -149,10 +168,10 @@ export default function BekasiWeatherWidget() {
       const lats = BEKASI_REGIONS.map((r) => r.lat).join(",");
       const lons = BEKASI_REGIONS.map((r) => r.lon).join(",");
 
-      // 1. Weather Forecast URL
+      // 1. Weather Forecast URL (up to 7 days forecast)
       const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m&timezone=Asia%2FJakarta&forecast_days=7`;
 
-      // 2. Air Quality URL
+      // 2. Air Quality URL (up to 7 days forecast)
       const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lats}&longitude=${lons}&hourly=us_aqi,pm2_5&timezone=Asia%2FJakarta&forecast_days=7`;
 
       const [weatherRes, aqiRes] = await Promise.all([
@@ -163,25 +182,65 @@ export default function BekasiWeatherWidget() {
       const weatherResponses: OpenMeteoLocationResponse[] = Array.isArray(weatherRes) ? weatherRes : weatherRes ? [weatherRes] : [];
       const aqiResponses: OpenMeteoAirQualityResponse[] = Array.isArray(aqiRes) ? aqiRes : aqiRes ? [aqiRes] : [];
 
-      // Find upcoming Saturday & Sunday dates
+      // Find upcoming Friday, Saturday & Sunday dates
       const now = new Date();
-      const currentDayOfWeek = now.getDay(); // 0 = Sun, 6 = Sat
+      const currentDayOfWeek = now.getDay(); // 0 = Sun, 1 = Mon, ..., 5 = Fri, 6 = Sat
 
-      let daysUntilSat = (6 - currentDayOfWeek + 7) % 7;
-      let daysUntilSun = (0 - currentDayOfWeek + 7) % 7;
-      if (daysUntilSun === 0 && currentDayOfWeek === 0) daysUntilSun = 0; // Today is Sunday
+      const daysUntilFri = (5 - currentDayOfWeek + 7) % 7;
+      const daysUntilSat = (6 - currentDayOfWeek + 7) % 7;
+      const daysUntilSun = (0 - currentDayOfWeek + 7) % 7;
 
-      const satDate = new Date(now);
-      satDate.setDate(now.getDate() + daysUntilSat);
-      const satDateStr = satDate.toISOString().split("T")[0];
+      const getDateObj = (offsetDays: number) => {
+        const d = new Date(now);
+        d.setDate(now.getDate() + offsetDays);
+        return d;
+      };
 
-      const sunDate = new Date(now);
-      sunDate.setDate(now.getDate() + daysUntilSun);
-      const sunDateStr = sunDate.toISOString().split("T")[0];
+      const formatLocalDateStr = (d: Date) => {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      };
+
+      const friDate = getDateObj(daysUntilFri);
+      const satDate = getDateObj(daysUntilSat);
+      const sunDate = getDateObj(daysUntilSun);
 
       const weekendTargetDays = [
-        { label: "Sabtu Gowes" as const, dateStr: satDateStr, dObj: satDate },
-        { label: "Minggu Gowes" as const, dateStr: sunDateStr, dObj: sunDate },
+        {
+          label: "Jumat Malam" as const,
+          tabLabel: "Jumat",
+          timeSlotBadge: "Malam 20:00 – 22:00 WIB",
+          timeSlot: "20:00 – 22:00 WIB",
+          targetHours: ["20:00", "21:00", "22:00"],
+          fallbackIndices: [20, 21, 22],
+          isNight: true,
+          dateStr: formatLocalDateStr(friDate),
+          dObj: friDate,
+        },
+        {
+          label: "Sabtu Gowes" as const,
+          tabLabel: "Sabtu",
+          timeSlotBadge: "Pagi 05:30 – 08:30 WIB",
+          timeSlot: "05:30 – 08:30 WIB",
+          targetHours: ["05:00", "06:00", "07:00", "08:00"],
+          fallbackIndices: [5, 6, 7, 8],
+          isNight: false,
+          dateStr: formatLocalDateStr(satDate),
+          dObj: satDate,
+        },
+        {
+          label: "Minggu Gowes" as const,
+          tabLabel: "Minggu",
+          timeSlotBadge: "Pagi 05:30 – 08:30 WIB",
+          timeSlot: "05:30 – 08:30 WIB",
+          targetHours: ["05:00", "06:00", "07:00", "08:00"],
+          fallbackIndices: [5, 6, 7, 8],
+          isNight: false,
+          dateStr: formatLocalDateStr(sunDate),
+          dObj: sunDate,
+        },
       ];
 
       const processedWeekend: WeekendDayWeather[] = weekendTargetDays.map((target) => {
@@ -199,21 +258,19 @@ export default function BekasiWeatherWidget() {
           const locData = weatherResponses[rIdx] || weatherResponses[0];
           const aqiData = aqiResponses[rIdx] || aqiResponses[0];
 
-          // Ambil index waktu yang tepat pada pagi hari 05:00 - 08:00 WIB
+          // Ambil index waktu yang tepat sesuai jam target sesi
           const timeArray: string[] = locData?.hourly?.time || [];
-          const morningIndices: number[] = [];
+          const matchedIndices: number[] = [];
 
           timeArray.forEach((t, idx) => {
             if (t.startsWith(target.dateStr)) {
-              if (t.endsWith("05:00") || t.endsWith("06:00") || t.endsWith("07:00") || t.endsWith("08:00")) {
-                morningIndices.push(idx);
+              if (target.targetHours.some((h) => t.endsWith(h))) {
+                matchedIndices.push(idx);
               }
             }
           });
 
-          // Fallback jika tidak ditemukan index persis
-          const fallbackIndices = [6, 7, 8];
-          const indicesToUse = morningIndices.length > 0 ? morningIndices : fallbackIndices;
+          const indicesToUse = matchedIndices.length > 0 ? matchedIndices : target.fallbackIndices;
 
           const temps = indicesToUse.map((i) => locData?.hourly?.temperature_2m?.[i] ?? 26);
           const rains = indicesToUse.map((i) => locData?.hourly?.precipitation_probability?.[i] ?? 0);
@@ -231,7 +288,7 @@ export default function BekasiWeatherWidget() {
           const aqiIndices: number[] = [];
           aqiTimeArray.forEach((t, idx) => {
             if (t.startsWith(target.dateStr)) {
-              if (t.endsWith("05:00") || t.endsWith("06:00") || t.endsWith("07:00") || t.endsWith("08:00")) {
+              if (target.targetHours.some((h) => t.endsWith(h))) {
                 aqiIndices.push(idx);
               }
             }
@@ -266,11 +323,14 @@ export default function BekasiWeatherWidget() {
         });
 
         const avgWeekendAqi = Math.round(totalAqi / regions.length);
-        const { status, rec } = evaluateCycling(highestRain, highestCode, avgWeekendAqi);
+        const { status, rec } = evaluateCycling(highestRain, highestCode, avgWeekendAqi, target.isNight);
         const overallAqi = evaluateAirQuality(avgWeekendAqi, 20);
 
         return {
           dayLabel: target.label,
+          timeSlot: target.timeSlot,
+          timeSlotBadge: target.timeSlotBadge,
+          isNight: target.isNight,
           dateFormatted,
           dateStr: target.dateStr,
           overallStatus: status,
@@ -282,14 +342,35 @@ export default function BekasiWeatherWidget() {
       });
 
       setWeekendData(processedWeekend);
-      sessionStorage.setItem("tibatiba_bekasi_weather_clean_v3", JSON.stringify(processedWeekend));
-      sessionStorage.setItem("tibatiba_bekasi_weather_clean_time_v3", Date.now().toString());
+      sessionStorage.setItem("tibatiba_bekasi_weather_v5", JSON.stringify(processedWeekend));
+      sessionStorage.setItem("tibatiba_bekasi_weather_time_v5", Date.now().toString());
     } catch {
       // Clean fallback offline data
       const defaultAqi = evaluateAirQuality(65, 20);
       const fallback: WeekendDayWeather[] = [
         {
+          dayLabel: "Jumat Malam",
+          timeSlot: "20:00 – 22:00 WIB",
+          timeSlotBadge: "Malam 20:00 – 22:00 WIB",
+          isNight: true,
+          dateFormatted: "Jumat Malam",
+          dateStr: "fri",
+          overallStatus: "ideal",
+          overallRecommendation: "Kondisi cuaca malam cerah & sejuk, sangat aman untuk gowes malam (Night Ride) keliling Bekasi",
+          overallAqiLevel: "moderate",
+          overallAqiLabel: "Sedang",
+          regions: [
+            { regionName: "Bekasi Timur", landmark: "Tol Timur • Bulak Kapal", temp: 27, rainProb: 5, weatherCode: 1, weatherDescription: "Cerah Berawan", windSpeed: 6, airQuality: defaultAqi },
+            { regionName: "Bekasi Barat", landmark: "MM • Kranji • Patriot", temp: 27, rainProb: 0, weatherCode: 0, weatherDescription: "Cerah", windSpeed: 7, airQuality: defaultAqi },
+            { regionName: "Bekasi Selatan", landmark: "Grand Galaxy • Pekayon", temp: 26, rainProb: 5, weatherCode: 1, weatherDescription: "Cerah Berawan", windSpeed: 6, airQuality: defaultAqi },
+            { regionName: "Bekasi Utara", landmark: "Summarecon • Harapan Indah", temp: 27, rainProb: 0, weatherCode: 0, weatherDescription: "Cerah", windSpeed: 8, airQuality: defaultAqi },
+          ],
+        },
+        {
           dayLabel: "Sabtu Gowes",
+          timeSlot: "05:30 – 08:30 WIB",
+          timeSlotBadge: "Pagi 05:30 – 08:30 WIB",
+          isNight: false,
           dateFormatted: "Akhir Pekan",
           dateStr: "sat",
           overallStatus: "ideal",
@@ -305,6 +386,9 @@ export default function BekasiWeatherWidget() {
         },
         {
           dayLabel: "Minggu Gowes",
+          timeSlot: "05:30 – 08:30 WIB",
+          timeSlotBadge: "Pagi 05:30 – 08:30 WIB",
+          isNight: false,
           dateFormatted: "Akhir Pekan",
           dateStr: "sun",
           overallStatus: "ideal",
@@ -405,7 +489,7 @@ export default function BekasiWeatherWidget() {
                   Prakiraan Cuaca & Kualitas Udara
                 </span>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/10 text-[#EAE6DD] font-semibold">
-                  Pagi 05:30 – 08:30 WIB
+                  Jumat Malam & Akhir Pekan
                 </span>
               </div>
               <div className="flex items-center gap-2 mt-1">
@@ -420,6 +504,9 @@ export default function BekasiWeatherWidget() {
           <div className="flex items-center gap-2 self-start sm:self-auto">
             <div className="flex items-center bg-black/50 p-1 rounded-md border border-white/15">
               <div className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-xs bg-[#C44341]/40 text-white/50 font-mono">
+                Jumat
+              </div>
+              <div className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-xs text-[#868B96]/50 font-mono">
                 Sabtu
               </div>
               <div className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-xs text-[#868B96]/50 font-mono">
@@ -453,9 +540,9 @@ export default function BekasiWeatherWidget() {
 
   return (
     <div className="bg-black/45 backdrop-blur-md rounded-xl border border-white/20 shadow-2xl overflow-hidden transition-all duration-300 hover:border-[#C44341]">
-      {/* Top Header: Title & Weekend Day Switcher */}
+      {/* Top Header: Title, Time Badge & Day Switcher */}
       <div className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/15">
-        {/* Left: Title & Morning Hours */}
+        {/* Left: Title & Session Hours Badge */}
         <div className="flex items-center gap-2.5">
           <div className="p-1.5 rounded-lg bg-[#C44341]/20 border border-[#C44341]/40 text-[#C44341] shrink-0">
             <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -468,7 +555,7 @@ export default function BekasiWeatherWidget() {
                 Prakiraan Cuaca & Kualitas Udara
               </span>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/10 text-[#EAE6DD] font-semibold">
-                Pagi 05:30 – 08:30 WIB
+                {activeWeekend.timeSlotBadge || (activeWeekend.isNight ? "Malam 20:00 – 22:00 WIB" : "Pagi 05:30 – 08:30 WIB")}
               </span>
             </div>
             <p className="text-[11px] text-[#868B96] mt-0.5">
@@ -477,38 +564,30 @@ export default function BekasiWeatherWidget() {
           </div>
         </div>
 
-        {/* Right: Sabtu / Minggu Switcher & Refresh Button */}
+        {/* Right: Jumat / Sabtu / Minggu Switcher & Refresh Button */}
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <div className="flex items-center bg-black/50 p-1 rounded-md border border-white/15">
-            <button
-              type="button"
-              onClick={() => setActiveDayTab(0)}
-              className={`cursor-pointer px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-xs transition-all font-mono ${
-                activeDayTab === 0
-                  ? "bg-[#C44341] text-white shadow-xs"
-                  : "text-[#868B96] hover:text-white hover:bg-white/5"
-              }`}
-            >
-              Sabtu
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveDayTab(1)}
-              className={`cursor-pointer px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-xs transition-all font-mono ${
-                activeDayTab === 1
-                  ? "bg-[#C44341] text-white shadow-xs"
-                  : "text-[#868B96] hover:text-white hover:bg-white/5"
-              }`}
-            >
-              Minggu
-            </button>
+            {["Jumat", "Sabtu", "Minggu"].map((tabName, idx) => (
+              <button
+                key={tabName}
+                type="button"
+                onClick={() => setActiveDayTab(idx)}
+                className={`cursor-pointer px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-xs transition-all font-mono ${
+                  activeDayTab === idx
+                    ? "bg-[#C44341] text-white shadow-xs"
+                    : "text-[#868B96] hover:text-white hover:bg-white/5"
+                }`}
+              >
+                {tabName}
+              </button>
+            ))}
           </div>
 
           <button
             type="button"
             onClick={() => {
-              sessionStorage.removeItem("tibatiba_bekasi_weather_v4");
-              sessionStorage.removeItem("tibatiba_bekasi_weather_time_v4");
+              sessionStorage.removeItem("tibatiba_bekasi_weather_v5");
+              sessionStorage.removeItem("tibatiba_bekasi_weather_time_v5");
               fetchWeekendWeatherAndAirQuality();
             }}
             title="Perbarui data cuaca & kualitas udara"
@@ -523,7 +602,7 @@ export default function BekasiWeatherWidget() {
 
       {/* Summary Banner & Readiness Recommendation */}
       <div className="px-3.5 sm:px-4 py-2.5 border-b border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="font-bold text-white font-mono uppercase tracking-wide">
             {activeWeekend.dayLabel} ({activeWeekend.dateFormatted})
           </span>
