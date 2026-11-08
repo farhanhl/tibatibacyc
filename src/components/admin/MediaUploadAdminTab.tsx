@@ -64,8 +64,6 @@ export default function MediaUploadAdminTab() {
   const [isLoadingFiles, setIsLoadingFiles] = useState<boolean>(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const photoInputRef = useRef<HTMLInputElement>(null);
-  const videoInputRef = useRef<HTMLInputElement>(null);
   const isCancelledRef = useRef<boolean>(false);
   const activeWorkersRef = useRef<number>(0);
 
@@ -961,35 +959,13 @@ export default function MediaUploadAdminTab() {
 
       {/* 3. Drag & Drop File Picker */}
       <div className="bg-black/60 backdrop-blur-md border border-white/20 p-5 sm:p-6 rounded-2xl shadow-xl space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <h3
-            className="text-sm font-black uppercase text-white tracking-wider flex items-center gap-2"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            <span>📤</span>
-            <span>2. Pilih File Foto & Video</span>
-          </h3>
-
-          {/* Quick Buttons for Mobile User Convenience */}
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => !isLoadingFiles && photoInputRef.current?.click()}
-              className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white text-xs font-mono font-medium border border-white/20 transition-all flex items-center gap-1.5 cursor-pointer"
-            >
-              <span>📸</span>
-              <span>Pilih Foto</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => !isLoadingFiles && videoInputRef.current?.click()}
-              className="px-3.5 py-1.5 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 active:scale-95 text-blue-200 text-xs font-mono font-medium border border-blue-400/40 transition-all flex items-center gap-1.5 cursor-pointer"
-            >
-              <span>🎬</span>
-              <span>Pilih Video</span>
-            </button>
-          </div>
-        </div>
+        <h3
+          className="text-sm font-black uppercase text-white tracking-wider flex items-center gap-2"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          <span>📤</span>
+          <span>2. Pilih File Foto & Video</span>
+        </h3>
 
         <div
           onDragOver={handleDragOver}
@@ -1004,32 +980,12 @@ export default function MediaUploadAdminTab() {
               : "border-white/20 hover:border-white/40 bg-white/5 cursor-pointer"
           }`}
         >
-          {/* Input Gabungan (Foto & Video) */}
+          {/* Input File Tunggal (Foto & Video) */}
           <input
             ref={fileInputRef}
             type="file"
             multiple
             accept="image/*,video/mp4,video/quicktime,.jpg,.jpeg,.png,.heic,.heif,.mp4,.mov,.webm"
-            onChange={handleFileInputChange}
-            className="hidden"
-          />
-
-          {/* Input Khusus Foto */}
-          <input
-            ref={photoInputRef}
-            type="file"
-            multiple
-            accept="image/jpeg,image/png,image/heic,image/*,.jpg,.jpeg,.png,.heic"
-            onChange={handleFileInputChange}
-            className="hidden"
-          />
-
-          {/* Input Khusus Video: Dioptimasi khusus native container Apple QuickTime MOV & MP4 untuk mencegah transcoding WebKit */}
-          <input
-            ref={videoInputRef}
-            type="file"
-            multiple
-            accept="video/mp4,video/quicktime,.mov,.mp4"
             onChange={handleFileInputChange}
             className="hidden"
           />
@@ -1068,20 +1024,6 @@ export default function MediaUploadAdminTab() {
             </>
           )}
         </div>
-
-        {/* Tips Edukasi untuk Pengguna iPhone */}
-        <div className="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs font-mono space-y-1 text-blue-200">
-          <div className="font-bold flex items-center gap-1.5 text-blue-300">
-            <span>ℹ️</span>
-            <span>Tips Upload Banyak Video di iPhone:</span>
-          </div>
-          <p className="text-[11px] leading-relaxed text-gray-300">
-            Input video telah dioptimalkan khusus format asli Apple (<code>.mov</code> / <code>.mp4</code>) agar tidak memicu transcoding di browser.
-          </p>
-          <p className="text-[11px] leading-relaxed text-blue-300">
-            💡 <strong>Rekomendasi Terbaik:</strong> Anda bisa memilih <strong>3–5 video per kloter</strong>, lalu klik tombol <code>+ Tambah Video</code> lagi di antrean untuk mengumpulkan seluruh video sebelum menekan tombol upload sekaligus.
-          </p>
-        </div>
       </div>
 
       {/* 4. Queue List & Upload Actions */}
@@ -1110,28 +1052,17 @@ export default function MediaUploadAdminTab() {
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
-              {/* Tombol Akumulator Tambah File ke Antrean */}
+              {/* Tombol Tambah File ke Antrean */}
               {!isUploadingActive && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => !isLoadingFiles && videoInputRef.current?.click()}
-                    className="px-3 py-1.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 font-mono text-xs border border-blue-500/30 transition-all flex items-center gap-1.5 cursor-pointer"
-                    title="Tambah video lagi ke antrean"
-                  >
-                    <span>🎬</span>
-                    <span>+ Tambah Video</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => !isLoadingFiles && photoInputRef.current?.click()}
-                    className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-gray-200 font-mono text-xs border border-white/20 transition-all flex items-center gap-1.5 cursor-pointer"
-                    title="Tambah foto lagi ke antrean"
-                  >
-                    <span>📸</span>
-                    <span>+ Tambah Foto</span>
-                  </button>
-                </>
+                <button
+                  type="button"
+                  onClick={() => !isLoadingFiles && fileInputRef.current?.click()}
+                  className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs border border-white/20 transition-all flex items-center gap-1.5 cursor-pointer"
+                  title="Tambah file foto/video ke antrean"
+                >
+                  <span>➕</span>
+                  <span>Tambah File</span>
+                </button>
               )}
 
               {isUploadingActive ? (
