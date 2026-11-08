@@ -218,7 +218,43 @@ export async function listDriveKegiatanFolders(): Promise<DriveFolderItem[]> {
 }
 
 /**
+ * Mengubah izin akses folder/file menjadi 'Siapa saja yang memiliki link: Pelihat (Viewer)'
+ */
+export async function setFolderPublicViewer(
+  fileId: string,
+  passedToken?: string
+): Promise<boolean> {
+  const token = passedToken || (await getGoogleAccessToken());
+  try {
+    const res = await fetch(
+      `https://www.googleapis.com/drive/v3/files/${fileId}/permissions`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          role: "reader",
+          type: "anyone",
+        }),
+      }
+    );
+    if (!res.ok) {
+      const errText = await res.text();
+      console.warn(`Gagal set permission public viewer untuk ${fileId}:`, errText);
+      return false;
+    }
+    return true;
+  } catch (err: unknown) {
+    console.warn("Gagal set permission public viewer:", err);
+    return false;
+  }
+}
+
+/**
  * Membuat atau memakai ulang folder kegiatan: YYYY-MM-DD Nama Kegiatan
+ * Otomatis mengatur izin akses menjadi 'Siapa saja yang memiliki link: Pelihat'
  */
 export async function getOrCreateKegiatanFolder(
   date: string,
@@ -247,8 +283,11 @@ export async function getOrCreateKegiatanFolder(
   if (searchRes.ok) {
     const data = await searchRes.json();
     if (data.files && data.files.length > 0) {
+      const existingId = data.files[0].id;
+      // Pastikan folder yang sudah ada juga berizin 'anyone with link: viewer'
+      await setFolderPublicViewer(existingId, token);
       return {
-        id: data.files[0].id,
+        id: existingId,
         name: data.files[0].name,
         isNew: false,
       };
@@ -275,6 +314,9 @@ export async function getOrCreateKegiatanFolder(
   }
 
   const created = await createRes.json();
+  // Otomatis ubah izin akses folder menjadi 'Siapa saja yang memiliki link: Pelihat'
+  await setFolderPublicViewer(created.id, token);
+
   return {
     id: created.id,
     name: folderName,
