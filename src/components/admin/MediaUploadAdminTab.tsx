@@ -264,6 +264,31 @@ export default function MediaUploadAdminTab() {
     }, 50);
   };
 
+  /**
+   * Handler pemilihan file decoupled dari event loop sinkron WebKit iOS
+   * untuk mencegah browser freeze saat memindahkan FileList berukuran gigabyte.
+   */
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputElement = e.target;
+    const fileList = inputElement.files;
+    if (!fileList || fileList.length === 0) return;
+
+    // Salin objek file ke array sebelum event loop me-reset input
+    const filesArray = Array.from(fileList);
+    setIsLoadingFiles(true);
+
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        handleAddFiles(filesArray);
+        try {
+          inputElement.value = "";
+        } catch {
+          // ignore
+        }
+      }, 30);
+    });
+  };
+
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setDragActive(true);
@@ -676,6 +701,8 @@ export default function MediaUploadAdminTab() {
   const totalQueueBytes = queue.reduce((acc, curr) => acc + curr.totalBytes, 0);
   const successCount = queue.filter((q) => q.status === "berhasil").length;
   const failedCount = queue.filter((q) => q.status === "gagal").length;
+  const photoQueueCount = queue.filter((q) => q.kind === "foto").length;
+  const videoQueueCount = queue.filter((q) => q.kind === "video").length;
   const isStorageWarning =
     storageData?.freeBytes !== null &&
     storageData?.freeBytes !== undefined &&
@@ -948,7 +975,7 @@ export default function MediaUploadAdminTab() {
             <button
               type="button"
               onClick={() => !isLoadingFiles && photoInputRef.current?.click()}
-              className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white text-xs font-mono font-medium border border-white/20 transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white text-xs font-mono font-medium border border-white/20 transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <span>📸</span>
               <span>Pilih Foto</span>
@@ -956,10 +983,10 @@ export default function MediaUploadAdminTab() {
             <button
               type="button"
               onClick={() => !isLoadingFiles && videoInputRef.current?.click()}
-              className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white text-xs font-mono font-medium border border-white/20 transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-1.5 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 active:scale-95 text-blue-200 text-xs font-mono font-medium border border-blue-400/40 transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <span>🎬</span>
-              <span>Pilih Video (3–5 per kloter)</span>
+              <span>Pilih Video</span>
             </button>
           </div>
         </div>
@@ -969,23 +996,21 @@ export default function MediaUploadAdminTab() {
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={() => !isLoadingFiles && fileInputRef.current?.click()}
-          className={`border-2 border-dashed rounded-2xl p-6 sm:p-10 text-center transition-all ${isLoadingFiles
+          className={`border-2 border-dashed rounded-2xl p-6 sm:p-10 text-center transition-all ${
+            isLoadingFiles
               ? "border-blue-400/60 bg-blue-400/5 cursor-wait"
               : dragActive
-                ? "border-[#C44341] bg-[#C44341]/10 scale-[1.01] cursor-pointer"
-                : "border-white/20 hover:border-white/40 bg-white/5 cursor-pointer"
-            }`}
+              ? "border-[#C44341] bg-[#C44341]/10 scale-[1.01] cursor-pointer"
+              : "border-white/20 hover:border-white/40 bg-white/5 cursor-pointer"
+          }`}
         >
-          {/* Input Gabungan */}
+          {/* Input Gabungan (Foto & Video) */}
           <input
             ref={fileInputRef}
             type="file"
             multiple
-            accept=".jpg,.jpeg,.png,.heic,.heif,.mp4,.mov,.webm,image/*,video/*"
-            onChange={(e) => {
-              if (e.target.files) handleAddFiles(e.target.files);
-              e.target.value = "";
-            }}
+            accept="image/*,video/mp4,video/quicktime,.jpg,.jpeg,.png,.heic,.heif,.mp4,.mov,.webm"
+            onChange={handleFileInputChange}
             className="hidden"
           />
 
@@ -994,24 +1019,18 @@ export default function MediaUploadAdminTab() {
             ref={photoInputRef}
             type="file"
             multiple
-            accept=".jpg,.jpeg,.png,.heic,.heif,image/*"
-            onChange={(e) => {
-              if (e.target.files) handleAddFiles(e.target.files);
-              e.target.value = "";
-            }}
+            accept="image/jpeg,image/png,image/heic,image/*,.jpg,.jpeg,.png,.heic"
+            onChange={handleFileInputChange}
             className="hidden"
           />
 
-          {/* Input Khusus Video */}
+          {/* Input Khusus Video: Dioptimasi khusus native container Apple QuickTime MOV & MP4 untuk mencegah transcoding WebKit */}
           <input
             ref={videoInputRef}
             type="file"
             multiple
-            accept=".mp4,.mov,.webm,video/*"
-            onChange={(e) => {
-              if (e.target.files) handleAddFiles(e.target.files);
-              e.target.value = "";
-            }}
+            accept="video/mp4,video/quicktime,.mov,.mp4"
+            onChange={handleFileInputChange}
             className="hidden"
           />
 
@@ -1026,10 +1045,10 @@ export default function MediaUploadAdminTab() {
                 Sedang memuat file dari galeri…
               </p>
               <p className="text-xs text-gray-400 font-mono">
-                Video berukuran besar perlu waktu beberapa detik untuk dipindahkan dari iPhone ke browser.
+                Menyimpan referensi media ke antrean tanpa membebani browser.
               </p>
               <p className="text-[11px] text-gray-500 font-mono">
-                Harap tunggu, jangan tutup halaman ini.
+                Harap tunggu sebentar…
               </p>
             </div>
           ) : (
@@ -1049,6 +1068,20 @@ export default function MediaUploadAdminTab() {
             </>
           )}
         </div>
+
+        {/* Tips Edukasi untuk Pengguna iPhone */}
+        <div className="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs font-mono space-y-1 text-blue-200">
+          <div className="font-bold flex items-center gap-1.5 text-blue-300">
+            <span>ℹ️</span>
+            <span>Tips Upload Banyak Video di iPhone:</span>
+          </div>
+          <p className="text-[11px] leading-relaxed text-gray-300">
+            Input video telah dioptimalkan khusus format asli Apple (<code>.mov</code> / <code>.mp4</code>) agar tidak memicu transcoding di browser.
+          </p>
+          <p className="text-[11px] leading-relaxed text-blue-300">
+            💡 <strong>Rekomendasi Terbaik:</strong> Anda bisa memilih <strong>3–5 video per kloter</strong>, lalu klik tombol <code>+ Tambah Video</code> lagi di antrean untuk mengumpulkan seluruh video sebelum menekan tombol upload sekaligus.
+          </p>
+        </div>
       </div>
 
       {/* 4. Queue List & Upload Actions */}
@@ -1061,7 +1094,13 @@ export default function MediaUploadAdminTab() {
                 style={{ fontFamily: "var(--font-display)" }}
               >
                 <span>📋</span>
-                <span>Antrean Upload ({queue.length} file · {formatBytes(totalQueueBytes)})</span>
+                <span>
+                  Antrean Upload ({queue.length} file
+                  {photoQueueCount > 0 ? ` · ${photoQueueCount} Foto` : ""}
+                  {videoQueueCount > 0 ? ` · ${videoQueueCount} Video` : ""}
+                  {" · "}
+                  {formatBytes(totalQueueBytes)})
+                </span>
               </h3>
               <p className="text-xs text-gray-400 font-mono mt-0.5">
                 Berhasil: <span className="text-emerald-400 font-bold">{successCount}</span> · Gagal:{" "}
@@ -1071,6 +1110,30 @@ export default function MediaUploadAdminTab() {
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
+              {/* Tombol Akumulator Tambah File ke Antrean */}
+              {!isUploadingActive && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => !isLoadingFiles && videoInputRef.current?.click()}
+                    className="px-3 py-1.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 font-mono text-xs border border-blue-500/30 transition-all flex items-center gap-1.5 cursor-pointer"
+                    title="Tambah video lagi ke antrean"
+                  >
+                    <span>🎬</span>
+                    <span>+ Tambah Video</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => !isLoadingFiles && photoInputRef.current?.click()}
+                    className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-gray-200 font-mono text-xs border border-white/20 transition-all flex items-center gap-1.5 cursor-pointer"
+                    title="Tambah foto lagi ke antrean"
+                  >
+                    <span>📸</span>
+                    <span>+ Tambah Foto</span>
+                  </button>
+                </>
+              )}
+
               {isUploadingActive ? (
                 <button
                   type="button"
