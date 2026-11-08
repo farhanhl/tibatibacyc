@@ -26,10 +26,11 @@ import OverviewAdminTab, { DailyStat } from "@/components/admin/OverviewAdminTab
 import EventsAdminTab from "@/components/admin/EventsAdminTab";
 import SettingsAdminTab from "@/components/admin/SettingsAdminTab";
 import MerchandiseAdminTab from "@/components/admin/MerchandiseAdminTab";
+import MediaUploadAdminTab from "@/components/admin/MediaUploadAdminTab";
 
 export default function AdminDashboardPage() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [activeTab, setActiveTab] = useState<"overview" | "events" | "merchandise" | "settings">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "events" | "media" | "merchandise" | "settings">("overview");
 
   // Data States
   const [events, setEvents] = useState<EventItem[]>([]);
@@ -504,6 +505,18 @@ export default function AdminDashboardPage() {
           </button>
 
           <button
+            onClick={() => setActiveTab("media")}
+            className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
+              activeTab === "media"
+                ? "border-[#C44341] text-white bg-white/5 rounded-t-xl"
+                : "border-transparent text-gray-400 hover:text-white"
+            }`}
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            📸 Upload Media Dokumentasi
+          </button>
+
+          <button
             onClick={() => setActiveTab("merchandise")}
             className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
               activeTab === "merchandise"
@@ -578,10 +591,13 @@ export default function AdminDashboardPage() {
           />
         )}
 
-        {/* TAB 3: Status Sistem & Info */}
+        {/* TAB 3: Upload Media Dokumentasi ke Google Drive */}
+        {activeTab === "media" && <MediaUploadAdminTab />}
+
+        {/* TAB 4: Status Sistem & Info */}
         {activeTab === "settings" && <SettingsAdminTab />}
 
-        {/* TAB 4: Kelola Pre-Order Merchandise */}
+        {/* TAB 5: Kelola Pre-Order Merchandise */}
         {activeTab === "merchandise" && (
           <MerchandiseAdminTab
             orders={merchOrders}

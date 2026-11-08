@@ -49,25 +49,39 @@ export default function SettingsAdminTab() {
         {/* Box 3: Cloudinary Media Storage */}
         <div className="p-4 rounded-xl bg-black/60 border border-white/15 space-y-2">
           <div className="flex items-center justify-between text-gray-300 font-bold">
-            <span>☁️ PENYIMPANAN FOTO (CLOUDINARY)</span>
+            <span>☁️ PENYIMPANAN FOTO WEBSITE (CLOUDINARY)</span>
             <span className="text-emerald-400">● TERHUBUNG</span>
           </div>
           <p className="text-gray-400">
-            Penyimpanan foto dokumentasi dan poster instastory cepat langsung dari form admin.
+            Penyimpanan foto galeri website dan poster instastory langsung dari form admin.
           </p>
           <div className="pt-2 text-[11px] text-gray-500 space-y-0.5">
             <p>Unggah Langsung via Cloudinary Preset</p>
           </div>
         </div>
 
-        {/* Box 4: Keamanan Admin */}
+        {/* Box 4: Google Drive Dokumentasi */}
         <div className="p-4 rounded-xl bg-black/60 border border-white/15 space-y-2">
           <div className="flex items-center justify-between text-gray-300 font-bold">
-            <span>🔐 KEAMANAN ADMIN</span>
+            <span>📁 GOOGLE DRIVE DOKUMENTASI (OAUTH 2.0)</span>
+            <span className="text-sky-400">● ARSIP MEDIA</span>
+          </div>
+          <p className="text-gray-400">
+            Upload dokumentasi foto (auto-konversi HEIC ke JPG) dan video berukuran besar langsung ke Google Drive komunitas.
+          </p>
+          <div className="pt-2 text-[11px] text-gray-500 space-y-0.5">
+            <p>Folder: Kegiatan / [Tanggal-Nama] / [foto & video]</p>
+          </div>
+        </div>
+
+        {/* Box 5: Keamanan Admin */}
+        <div className="p-4 rounded-xl bg-black/60 border border-white/15 space-y-2">
+          <div className="flex items-center justify-between text-gray-300 font-bold">
+            <span>🔐 KEAMANAN ADMIN & RATE LIMIT</span>
             <span className="text-emerald-400">● TERLINDUNGI COOKIE & PIN</span>
           </div>
           <p className="text-gray-400">
-            Akses ke dashboard pengelola diamankan dengan PIN server-side dan HTTP-Only secure cookie.
+            Akses dashboard diamankan dengan PIN server-side, HMAC-SHA256 session cookie, dan proteksi anti brute-force login.
           </p>
         </div>
       </div>

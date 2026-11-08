@@ -5,15 +5,28 @@ export const ADMIN_COOKIE_NAME = "tibatiba_admin_session";
 const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 hari
 
 function getSecretKey(): string {
-  return (
-    process.env.ADMIN_SESSION_SECRET ||
-    process.env.ADMIN_PIN ||
-    "tibatiba_2026_cycling_session_fallback_secret"
-  );
+  if (process.env.ADMIN_SESSION_SECRET) {
+    return process.env.ADMIN_SESSION_SECRET;
+  }
+  if (process.env.ADMIN_PIN) {
+    return process.env.ADMIN_PIN;
+  }
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("ADMIN_SESSION_SECRET wajib dikonfigurasi di Environment Variables!");
+  }
+  return "tibatiba_dev_fallback_secret_only";
 }
 
 export function verifyAdminPin(pin: string): boolean {
-  const configuredPin = process.env.ADMIN_PIN || "tibatiba2026";
+  const configuredPin = process.env.ADMIN_PIN;
+  if (!configuredPin) {
+    if (process.env.NODE_ENV === "production") {
+      console.error("CRITICAL: ADMIN_PIN belum dikonfigurasi di environment variables!");
+      return false;
+    }
+    // Fallback khusus development lokal
+    return typeof pin === "string" && pin.trim() === "tibatiba2026";
+  }
   if (!pin || typeof pin !== "string") return false;
   return pin.trim() === configuredPin.trim();
 }
