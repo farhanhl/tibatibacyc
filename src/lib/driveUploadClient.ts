@@ -63,24 +63,76 @@ export function detectMediaKind(file: File): MediaKind | null {
 }
 
 /**
- * Konversi HEIC ke JPEG di browser (client-side) dengan kualitas 0.92
+ * Format error apa pun (Error, object libheif, string) menjadi pesan teks yang jelas.
+ * Mencegah munculnya string "[object Object]" pada antarmuka admin.
+ */
+export function formatUploadError(err: unknown): string {
+  if (!err) return "Terjadi kesalahan tidak diketahui.";
+  if (err instanceof Error) return err.message;
+  if (typeof err === "object") {
+    const obj = err as Record<string, unknown>;
+    if (typeof obj.message === "string" && obj.message) return obj.message;
+    if (typeof obj.error === "string" && obj.error) return obj.error;
+    try {
+      return JSON.stringify(err);
+    } catch {
+      return String(err);
+    }
+  }
+  return String(err);
+}
+
+/**
+ * Konversi HEIC ke JPEG di browser (client-side) dengan kualitas 0.92.
+ * Menggunakan heic-to (libheif 1.23+ modern) yang mendukung foto iPhone terbaru (iOS 16/17/18+),
+ * dengan fallback ke heic2any bila diperlukan.
  */
 export async function convertHeicToJpeg(file: File): Promise<File> {
-  // Dynamic import heic2any karena membutuhkan objek browser window & canvas
-  const heic2anyModule = await import("heic2any");
-  const heic2any = (heic2anyModule.default || heic2anyModule) as (options: {
-    blob: Blob;
-    toType?: string;
-    quality?: number;
-  }) => Promise<Blob | Blob[]>;
+  let finalBlob: Blob | null = null;
+  let lastError: unknown = null;
 
-  const result = await heic2any({
-    blob: file,
-    toType: "image/jpeg",
-    quality: 0.92,
-  });
+  // 1. Coba menggunakan heic-to (versi libheif modern)
+  try {
+    const { heicTo } = await import("heic-to");
+    finalBlob = await heicTo({
+      blob: file,
+      type: "image/jpeg",
+      quality: 0.92,
+    });
+  } catch (err: unknown) {
+    lastError = err;
+    console.warn("heic-to gagal mengonversi, mencoba fallback heic2any...", err);
+  }
 
-  const finalBlob: Blob = Array.isArray(result) ? result[0] : result;
+  // 2. Fallback ke heic2any jika heic-to gagal
+  if (!finalBlob) {
+    try {
+      const heic2anyModule = await import("heic2any");
+      const heic2any = (heic2anyModule.default || heic2anyModule) as (options: {
+        blob: Blob;
+        toType?: string;
+        quality?: number;
+      }) => Promise<Blob | Blob[]>;
+
+      const result = await heic2any({
+        blob: file,
+        toType: "image/jpeg",
+        quality: 0.92,
+      });
+
+      finalBlob = Array.isArray(result) ? result[0] : result;
+    } catch (fallbackErr: unknown) {
+      console.error("heic2any fallback juga gagal:", fallbackErr);
+      const detail = formatUploadError(lastError || fallbackErr);
+      throw new Error(detail || "Gagal mendekode format HEIC.");
+    }
+  }
+
+  if (!finalBlob) {
+    const detail = formatUploadError(lastError);
+    throw new Error(detail || "Hasil konversi HEIC kosong.");
+  }
+
   const newName = file.name.replace(/\.(heic|heif)$/i, ".jpg");
 
   return new File([finalBlob], newName, {

@@ -9,6 +9,7 @@ import {
   detectMediaKind,
   convertHeicToJpeg,
   formatBytes,
+  formatUploadError,
   sendChunkWithFallback,
   queryResumePosition,
 } from "@/lib/driveUploadClient";
@@ -348,7 +349,7 @@ export default function MediaUploadAdminTab() {
         );
       } catch (convErr: unknown) {
         console.error("Gagal konversi HEIC:", convErr);
-        const message = convErr instanceof Error ? convErr.message : String(convErr);
+        const message = formatUploadError(convErr);
         setQueue((prev) =>
           prev.map((q) =>
             q.id === item.id
