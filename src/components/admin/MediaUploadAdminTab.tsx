@@ -58,10 +58,23 @@ export default function MediaUploadAdminTab() {
   const [queue, setQueue] = useState<QueueItem[]>([]);
   const [isUploadingActive, setIsUploadingActive] = useState<boolean>(false);
   const [dragActive, setDragActive] = useState<boolean>(false);
+  const [copiedLink, setCopiedLink] = useState<boolean>(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isCancelledRef = useRef<boolean>(false);
   const activeWorkersRef = useRef<number>(0);
+
+  const handleCopyFolderLink = async () => {
+    if (!selectedFolderId) return;
+    const folderUrl = `https://drive.google.com/drive/folders/${selectedFolderId}`;
+    try {
+      await navigator.clipboard.writeText(folderUrl);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2500);
+    } catch {
+      prompt("Salin link folder Google Drive berikut:", folderUrl);
+    }
+  };
 
   // 1. Refresh Google Drive data & storage info on demand
   const handleRefreshDriveData = useCallback(async () => {
@@ -875,19 +888,39 @@ export default function MediaUploadAdminTab() {
         )}
 
         {selectedFolderId && (
-          <div className="p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-xs font-mono flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <span className="text-emerald-300">
-              📂 Target: <strong>Kegiatan / {selectedFolderName || selectedFolderId} / [foto | video]</strong>
-            </span>
-            <a
-              href={`https://drive.google.com/drive/folders/${selectedFolderId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-emerald-400 hover:text-emerald-300 underline font-bold inline-flex items-center gap-1"
-            >
-              <span>Buka di Google Drive</span>
-              <span>↗</span>
-            </a>
+          <div className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-xs font-mono flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-base shrink-0">📂</span>
+              <span className="text-emerald-300 truncate">
+                Target: <strong>Kegiatan / {selectedFolderName || selectedFolderId} / [foto | video]</strong>
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={handleCopyFolderLink}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono font-bold transition-all shadow-sm cursor-pointer ${
+                  copiedLink
+                    ? "bg-emerald-600 text-white border-emerald-400"
+                    : "bg-emerald-900/60 hover:bg-emerald-800 text-emerald-200 border-emerald-500/40"
+                }`}
+                title="Salin link Google Drive untuk dibagikan ke anggota"
+              >
+                <span>{copiedLink ? "✓" : "📋"}</span>
+                <span>{copiedLink ? "Link Disalin!" : "Salin Link"}</span>
+              </button>
+
+              <a
+                href={`https://drive.google.com/drive/folders/${selectedFolderId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-mono font-bold transition-all"
+              >
+                <span>Buka di Drive</span>
+                <span>↗</span>
+              </a>
+            </div>
           </div>
         )}
       </div>
@@ -979,11 +1012,27 @@ export default function MediaUploadAdminTab() {
                 </button>
               )}
 
+              {successCount > 0 && selectedFolderId && (
+                <button
+                  type="button"
+                  onClick={handleCopyFolderLink}
+                  className={`px-3.5 py-2 rounded-xl border text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    copiedLink
+                      ? "bg-emerald-600 text-white border-emerald-400"
+                      : "bg-emerald-950/60 hover:bg-emerald-900 border-emerald-500/40 text-emerald-300"
+                  }`}
+                  title="Salin link Google Drive untuk dibagikan"
+                >
+                  <span>{copiedLink ? "✓" : "📋"}</span>
+                  <span>{copiedLink ? "Link Disalin!" : "Salin Link Folder"}</span>
+                </button>
+              )}
+
               {successCount > 0 && !isUploadingActive && (
                 <button
                   type="button"
                   onClick={handleClearCompleted}
-                  className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-mono text-gray-300 transition-colors"
+                  className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-mono text-gray-300 transition-colors cursor-pointer"
                 >
                   Hapus yg Selesai
                 </button>
