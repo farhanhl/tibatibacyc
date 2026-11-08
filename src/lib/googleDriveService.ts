@@ -286,6 +286,9 @@ export async function getOrCreateKegiatanFolder(
       const existingId = data.files[0].id;
       // Pastikan folder yang sudah ada juga berizin 'anyone with link: viewer'
       await setFolderPublicViewer(existingId, token);
+      // Pastikan kedua subfolder 'foto' dan 'video' siap digunakan
+      await getOrCreateSubfolder(existingId, "foto", token);
+      await getOrCreateSubfolder(existingId, "video", token);
       return {
         id: existingId,
         name: data.files[0].name,
@@ -317,6 +320,10 @@ export async function getOrCreateKegiatanFolder(
   // Otomatis ubah izin akses folder menjadi 'Siapa saja yang memiliki link: Pelihat'
   await setFolderPublicViewer(created.id, token);
 
+  // Buat subfolder 'foto' dan 'video' di awal secara sekuensial agar tidak terjadi race condition
+  await getOrCreateSubfolder(created.id, "foto", token);
+  await getOrCreateSubfolder(created.id, "video", token);
+
   return {
     id: created.id,
     name: folderName,
@@ -325,9 +332,39 @@ export async function getOrCreateKegiatanFolder(
 }
 
 /**
- * Memastikan subfolder 'foto' atau 'video' ada di dalam folder kegiatan
+ * In-memory Promise lock untuk mencegah race condition saat beberapa upload paralel
+ * mencoba mencari atau membuat subfolder 'foto' atau 'video' di waktu yang bersamaan.
+ */
+const subfolderInFlight = new Map<string, Promise<{ id: string; name: string }>>();
+
+/**
+ * Memastikan subfolder 'foto' atau 'video' ada di dalam folder kegiatan secara thread-safe,
+ * serta otomatis mengonsolidasikan dan menghapus subfolder duplikat jika pernah terbentuk sebelumnya.
  */
 export async function getOrCreateSubfolder(
+  parentFolderId: string,
+  kind: "foto" | "video",
+  passedToken?: string
+): Promise<{ id: string; name: string }> {
+  const lockKey = `${parentFolderId}:${kind}`;
+  const existingPromise = subfolderInFlight.get(lockKey);
+  if (existingPromise) {
+    return existingPromise;
+  }
+
+  const promise = (async () => {
+    try {
+      return await internalGetOrCreateSubfolder(parentFolderId, kind, passedToken);
+    } finally {
+      subfolderInFlight.delete(lockKey);
+    }
+  })();
+
+  subfolderInFlight.set(lockKey, promise);
+  return promise;
+}
+
+async function internalGetOrCreateSubfolder(
   parentFolderId: string,
   kind: "foto" | "video",
   passedToken?: string
@@ -337,7 +374,7 @@ export async function getOrCreateSubfolder(
   const query = `'${parentFolderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and name = '${kind}' and trashed = false`;
   const searchUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
     query
-  )}&fields=files(id,name)`;
+  )}&fields=files(id,name,createdTime)&orderBy=createdTime&supportsAllDrives=true&includeItemsFromAllDrives=true`;
 
   const searchRes = await fetch(searchUrl, {
     headers: { Authorization: `Bearer ${token}` },
@@ -346,12 +383,60 @@ export async function getOrCreateSubfolder(
   if (searchRes.ok) {
     const data = await searchRes.json();
     if (data.files && data.files.length > 0) {
-      return { id: data.files[0].id, name: kind };
+      // Folder pertama (terlama) adalah folder utama
+      const primaryFolder = data.files[0];
+
+      // Jika terdapat lebih dari 1 folder bernama sama (duplikat), konsolidasikan filenya ke folder utama
+      if (data.files.length > 1) {
+        for (let i = 1; i < data.files.length; i++) {
+          const duplicate = data.files[i];
+          try {
+            // Ambil file di dalam folder duplikat
+            const fileQuery = `'${duplicate.id}' in parents and trashed = false`;
+            const fileUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
+              fileQuery
+            )}&fields=files(id)&supportsAllDrives=true&includeItemsFromAllDrives=true`;
+            const fileRes = await fetch(fileUrl, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (fileRes.ok) {
+              const fileData = await fileRes.json();
+              if (fileData.files && fileData.files.length > 0) {
+                for (const f of fileData.files) {
+                  await fetch(
+                    `https://www.googleapis.com/drive/v3/files/${f.id}?addParents=${primaryFolder.id}&removeParents=${duplicate.id}&supportsAllDrives=true`,
+                    {
+                      method: "PATCH",
+                      headers: { Authorization: `Bearer ${token}` },
+                    }
+                  );
+                }
+              }
+            }
+            // Hapus folder duplikat yang sudah dikosongkan
+            await fetch(
+              `https://www.googleapis.com/drive/v3/files/${duplicate.id}?supportsAllDrives=true`,
+              {
+                method: "PATCH",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ trashed: true }),
+              }
+            );
+          } catch (cleanupErr) {
+            console.warn("Gagal membersihkan duplikat subfolder:", cleanupErr);
+          }
+        }
+      }
+
+      return { id: primaryFolder.id, name: kind };
     }
   }
 
   // Buat subfolder jika belum ada
-  const createRes = await fetch("https://www.googleapis.com/drive/v3/files", {
+  const createRes = await fetch("https://www.googleapis.com/drive/v3/files?supportsAllDrives=true", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -370,6 +455,9 @@ export async function getOrCreateSubfolder(
   }
 
   const created = await createRes.json();
+  // Pastikan subfolder yang baru dibuat juga memiliki izin publik 'viewer'
+  await setFolderPublicViewer(created.id, token);
+
   return { id: created.id, name: kind };
 }
 
