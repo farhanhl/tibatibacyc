@@ -60,8 +60,12 @@ export default function MediaUploadAdminTab() {
   const [isUploadingActive, setIsUploadingActive] = useState<boolean>(false);
   const [dragActive, setDragActive] = useState<boolean>(false);
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
+  // State untuk mendeteksi proses transfer file dari galeri iOS (bisa makan waktu lama untuk video banyak/besar)
+  const [isLoadingFiles, setIsLoadingFiles] = useState<boolean>(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const isCancelledRef = useRef<boolean>(false);
   const activeWorkersRef = useRef<number>(0);
 
@@ -207,50 +211,57 @@ export default function MediaUploadAdminTab() {
 
   // 3. Handle File Selection & Validation
   const handleAddFiles = (files: FileList | File[]) => {
-    const newItems: QueueItem[] = [];
-    const rejectedMessages: string[] = [];
+    setIsLoadingFiles(true);
+    setTimeout(() => {
+      try {
+        const newItems: QueueItem[] = [];
+        const rejectedMessages: string[] = [];
 
-    Array.from(files).forEach((file) => {
-      const kind = detectMediaKind(file);
-      if (!kind) {
-        rejectedMessages.push(
-          `"${file.name}": Format tidak didukung. Hanya menerima foto (HEIC, JPG, PNG) dan video (MP4, MOV, WebM).`
-        );
-        return;
+        Array.from(files).forEach((file) => {
+          const kind = detectMediaKind(file);
+          if (!kind) {
+            rejectedMessages.push(
+              `"${file.name}": Format tidak didukung. Hanya menerima foto (HEIC, JPG, PNG) dan video (MP4, MOV, WebM).`
+            );
+            return;
+          }
+
+          const isHeic = isHeicFile(file);
+
+          // Validasi batas ukuran foto sebelum konversi (50 MB)
+          if (kind === "foto" && file.size > MAX_PHOTO_SIZE_BYTES) {
+            rejectedMessages.push(
+              `"${file.name}": Ukuran foto melebihi batas 50 MB (${formatBytes(file.size)}).`
+            );
+            return;
+          }
+
+          const item: QueueItem = {
+            id: `${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+            originalFile: file,
+            fileToUpload: file,
+            kind,
+            isHeic,
+            status: "menunggu",
+            progressPercent: 0,
+            uploadedBytes: 0,
+            totalBytes: file.size,
+          };
+
+          newItems.push(item);
+        });
+
+        if (rejectedMessages.length > 0) {
+          alert("Beberapa file dilewati:\n\n" + rejectedMessages.join("\n"));
+        }
+
+        if (newItems.length > 0) {
+          setQueue((prev) => [...prev, ...newItems]);
+        }
+      } finally {
+        setIsLoadingFiles(false);
       }
-
-      const isHeic = isHeicFile(file);
-
-      // Validasi batas ukuran foto sebelum konversi (50 MB)
-      if (kind === "foto" && file.size > MAX_PHOTO_SIZE_BYTES) {
-        rejectedMessages.push(
-          `"${file.name}": Ukuran foto melebihi batas 50 MB (${formatBytes(file.size)}).`
-        );
-        return;
-      }
-
-      const item: QueueItem = {
-        id: `${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-        originalFile: file,
-        fileToUpload: file,
-        kind,
-        isHeic,
-        status: "menunggu",
-        progressPercent: 0,
-        uploadedBytes: 0,
-        totalBytes: file.size,
-      };
-
-      newItems.push(item);
-    });
-
-    if (rejectedMessages.length > 0) {
-      alert("Beberapa file dilewati:\n\n" + rejectedMessages.join("\n"));
-    }
-
-    if (newItems.length > 0) {
-      setQueue((prev) => [...prev, ...newItems]);
-    }
+    }, 50);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -928,25 +939,50 @@ export default function MediaUploadAdminTab() {
 
       {/* 3. Drag & Drop File Picker */}
       <div className="bg-black/60 backdrop-blur-md border border-white/20 p-5 sm:p-6 rounded-2xl shadow-xl space-y-4">
-        <h3
-          className="text-sm font-black uppercase text-white tracking-wider flex items-center gap-2"
-          style={{ fontFamily: "var(--font-display)" }}
-        >
-          <span>📤</span>
-          <span>2. Pilih File Foto & Video</span>
-        </h3>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <h3
+            className="text-sm font-black uppercase text-white tracking-wider flex items-center gap-2"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            <span>📤</span>
+            <span>2. Pilih File Foto & Video</span>
+          </h3>
+
+          {/* Quick Buttons for Mobile User Convenience */}
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => !isLoadingFiles && photoInputRef.current?.click()}
+              className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white text-xs font-mono font-medium border border-white/20 transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <span>📸</span>
+              <span>Pilih Foto</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => !isLoadingFiles && videoInputRef.current?.click()}
+              className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white text-xs font-mono font-medium border border-white/20 transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <span>🎬</span>
+              <span>Pilih Video (3–5 per kloter)</span>
+            </button>
+          </div>
+        </div>
 
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          onClick={() => fileInputRef.current?.click()}
-          className={`border-2 border-dashed rounded-2xl p-6 sm:p-10 text-center transition-all cursor-pointer ${
-            dragActive
-              ? "border-[#C44341] bg-[#C44341]/10 scale-[1.01]"
-              : "border-white/20 hover:border-white/40 bg-white/5"
+          onClick={() => !isLoadingFiles && fileInputRef.current?.click()}
+          className={`border-2 border-dashed rounded-2xl p-6 sm:p-10 text-center transition-all ${
+            isLoadingFiles
+              ? "border-blue-400/60 bg-blue-400/5 cursor-wait"
+              : dragActive
+              ? "border-[#C44341] bg-[#C44341]/10 scale-[1.01] cursor-pointer"
+              : "border-white/20 hover:border-white/40 bg-white/5 cursor-pointer"
           }`}
         >
+          {/* Input Gabungan */}
           <input
             ref={fileInputRef}
             type="file"
@@ -959,17 +995,78 @@ export default function MediaUploadAdminTab() {
             className="hidden"
           />
 
-          <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-2xl mx-auto mb-3">
-            🚴
+          {/* Input Khusus Foto */}
+          <input
+            ref={photoInputRef}
+            type="file"
+            multiple
+            accept=".jpg,.jpeg,.png,.heic,.heif,image/*"
+            onChange={(e) => {
+              if (e.target.files) handleAddFiles(e.target.files);
+              e.target.value = "";
+            }}
+            className="hidden"
+          />
+
+          {/* Input Khusus Video */}
+          <input
+            ref={videoInputRef}
+            type="file"
+            multiple
+            accept=".mp4,.mov,.webm,video/*"
+            onChange={(e) => {
+              if (e.target.files) handleAddFiles(e.target.files);
+              e.target.value = "";
+            }}
+            className="hidden"
+          />
+
+          {isLoadingFiles ? (
+            <div className="flex flex-col items-center justify-center gap-3">
+              {/* Spinner animasi */}
+              <div className="relative w-12 h-12">
+                <div className="absolute inset-0 rounded-full border-4 border-blue-400/20" />
+                <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-blue-400 animate-spin" />
+              </div>
+              <p className="text-sm font-bold text-blue-300">
+                Sedang memuat file dari galeri…
+              </p>
+              <p className="text-xs text-gray-400 font-mono">
+                Video berukuran besar perlu waktu beberapa detik untuk dipindahkan dari iPhone ke browser.
+              </p>
+              <p className="text-[11px] text-gray-500 font-mono">
+                Harap tunggu, jangan tutup halaman ini.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-2xl mx-auto mb-3">
+                🚴
+              </div>
+              <p className="text-sm font-bold text-white mb-1">
+                Tarik &amp; Jatuhkan foto atau video ke sini, atau klik untuk memilih file
+              </p>
+              <p className="text-xs text-gray-400 font-mono">
+                Format didukung: <strong>HEIC, JPG, PNG</strong> (Foto max 50MB) dan <strong>MP4, MOV, WebM</strong> (Video tanpa batas).
+              </p>
+              <p className="text-[11px] text-amber-300/90 font-mono mt-2">
+                💡 Foto HEIC dari iPhone akan otomatis dikonversi ke JPG saat upload agar bisa dibuka di Android.
+              </p>
+            </>
+          )}
+        </div>
+
+        {/* Tips Edukasi untuk Pengguna iPhone */}
+        <div className="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs font-mono space-y-1 text-blue-200">
+          <div className="font-bold flex items-center gap-1.5 text-blue-300">
+            <span>ℹ️</span>
+            <span>Kenapa tombol ceklis video di iPhone terasa lama?</span>
           </div>
-          <p className="text-sm font-bold text-white mb-1">
-            Tarik & Jatuhkan foto atau video ke sini, atau klik untuk memilih file
+          <p className="text-[11px] leading-relaxed text-gray-300">
+            Video iPhone berukuran sangat besar (100–500MB per file). Saat memilih 15 video, iPhone memerlukan waktu untuk <strong>mengeksport dan mengunduh dari iCloud</strong> sebelum menyerahkannya ke browser.
           </p>
-          <p className="text-xs text-gray-400 font-mono">
-            Format didukung: <strong>HEIC, JPG, PNG</strong> (Foto max 50MB) dan <strong>MP4, MOV, WebM</strong> (Video tanpa batas).
-          </p>
-          <p className="text-[11px] text-amber-300/90 font-mono mt-2">
-            💡 Foto HEIC dari iPhone akan otomatis dikonversi ke JPG saat upload agar bisa dibuka di Android.
+          <p className="text-[11px] leading-relaxed text-amber-300 font-semibold">
+            💡 <strong>Saran:</strong> Pilih <strong>3–5 video per kloter</strong>. Anda bisa memilih berkali-kali dan video akan otomatis bertambah ke antrean di bawah.
           </p>
         </div>
       </div>
