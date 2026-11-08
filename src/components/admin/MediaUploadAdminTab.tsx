@@ -350,11 +350,11 @@ export default function MediaUploadAdminTab() {
           prev.map((q) =>
             q.id === item.id
               ? {
-                  ...q,
-                  fileToUpload: converted,
-                  convertedBlob: converted,
-                  totalBytes: converted.size,
-                }
+                ...q,
+                fileToUpload: converted,
+                convertedBlob: converted,
+                totalBytes: converted.size,
+              }
               : q
           )
         );
@@ -365,10 +365,10 @@ export default function MediaUploadAdminTab() {
           prev.map((q) =>
             q.id === item.id
               ? {
-                  ...q,
-                  status: "gagal",
-                  error: "Gagal mengonversi file HEIC ke JPG: " + message,
-                }
+                ...q,
+                status: "gagal",
+                error: "Gagal mengonversi file HEIC ke JPG: " + message,
+              }
               : q
           )
         );
@@ -416,10 +416,10 @@ export default function MediaUploadAdminTab() {
           prev.map((q) =>
             q.id === item.id
               ? {
-                  ...q,
-                  uploadUrl,
-                  targetFileName,
-                }
+                ...q,
+                uploadUrl,
+                targetFileName,
+              }
               : q
           )
         );
@@ -429,10 +429,10 @@ export default function MediaUploadAdminTab() {
           prev.map((q) =>
             q.id === item.id
               ? {
-                  ...q,
-                  status: "gagal",
-                  error: message,
-                }
+                ...q,
+                status: "gagal",
+                error: message,
+              }
               : q
           )
         );
@@ -489,11 +489,11 @@ export default function MediaUploadAdminTab() {
               prev.map((q) =>
                 q.id === item.id
                   ? {
-                      ...q,
-                      status: "mengupload",
-                      uploadedBytes: startByte,
-                      progressPercent: percent,
-                    }
+                    ...q,
+                    status: "mengupload",
+                    uploadedBytes: startByte,
+                    progressPercent: percent,
+                  }
                   : q
               )
             );
@@ -514,13 +514,13 @@ export default function MediaUploadAdminTab() {
               prev.map((q) =>
                 q.id === item.id
                   ? {
-                      ...q,
-                      status: "berhasil",
-                      uploadedBytes: totalSize,
-                      progressPercent: 100,
-                      driveFileId: fileId,
-                      error: undefined,
-                    }
+                    ...q,
+                    status: "berhasil",
+                    uploadedBytes: totalSize,
+                    progressPercent: 100,
+                    driveFileId: fileId,
+                    error: undefined,
+                  }
                   : q
               )
             );
@@ -550,10 +550,10 @@ export default function MediaUploadAdminTab() {
           prev.map((q) =>
             q.id === item.id
               ? {
-                  ...q,
-                  status: "gagal",
-                  error: "Koneksi terputus setelah 3x percobaan.",
-                }
+                ...q,
+                status: "gagal",
+                error: "Koneksi terputus setelah 3x percobaan.",
+              }
               : q
           )
         );
@@ -764,13 +764,12 @@ export default function MediaUploadAdminTab() {
                 )}
               </span>
               <span
-                className={`font-bold ${
-                  storageData.percentUsed > 90
+                className={`font-bold ${storageData.percentUsed > 90
                     ? "text-red-400"
                     : storageData.percentUsed > 70
-                    ? "text-amber-400"
-                    : "text-emerald-400"
-                }`}
+                      ? "text-amber-400"
+                      : "text-emerald-400"
+                  }`}
               >
                 Sisa:{" "}
                 {storageData.freeBytes !== null
@@ -783,13 +782,12 @@ export default function MediaUploadAdminTab() {
             {/* Storage Progress Bar */}
             <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
               <div
-                className={`h-full transition-all duration-500 ${
-                  storageData.percentUsed > 90
+                className={`h-full transition-all duration-500 ${storageData.percentUsed > 90
                     ? "bg-red-500"
                     : storageData.percentUsed > 70
-                    ? "bg-amber-500"
-                    : "bg-emerald-500"
-                }`}
+                      ? "bg-amber-500"
+                      : "bg-emerald-500"
+                  }`}
                 style={{ width: `${Math.max(2, storageData.percentUsed)}%` }}
               />
             </div>
@@ -812,22 +810,20 @@ export default function MediaUploadAdminTab() {
           <button
             type="button"
             onClick={() => setEventSelectionMode("existing")}
-            className={`px-4 py-2 text-xs font-mono font-bold rounded-lg transition-colors cursor-pointer ${
-              eventSelectionMode === "existing"
+            className={`px-4 py-2 text-xs font-mono font-bold rounded-lg transition-colors cursor-pointer ${eventSelectionMode === "existing"
                 ? "bg-[#C44341] text-white"
                 : "bg-white/5 text-gray-400 hover:text-white"
-            }`}
+              }`}
           >
             Pilih Folder Yang Ada ({driveFolders.length})
           </button>
           <button
             type="button"
             onClick={() => setEventSelectionMode("new")}
-            className={`px-4 py-2 text-xs font-mono font-bold rounded-lg transition-colors cursor-pointer ${
-              eventSelectionMode === "new"
+            className={`px-4 py-2 text-xs font-mono font-bold rounded-lg transition-colors cursor-pointer ${eventSelectionMode === "new"
                 ? "bg-[#C44341] text-white"
                 : "bg-white/5 text-gray-400 hover:text-white"
-            }`}
+              }`}
           >
             + Buat Kegiatan Baru
           </button>
@@ -912,11 +908,10 @@ export default function MediaUploadAdminTab() {
               <button
                 type="button"
                 onClick={handleCopyFolderLink}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono font-bold transition-all shadow-sm cursor-pointer ${
-                  copiedLink
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono font-bold transition-all shadow-sm cursor-pointer ${copiedLink
                     ? "bg-emerald-600 text-white border-emerald-400"
                     : "bg-emerald-900/60 hover:bg-emerald-800 text-emerald-200 border-emerald-500/40"
-                }`}
+                  }`}
                 title="Salin link Google Drive untuk dibagikan ke anggota"
               >
                 <span>{copiedLink ? "✓" : "📋"}</span>
@@ -974,13 +969,12 @@ export default function MediaUploadAdminTab() {
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={() => !isLoadingFiles && fileInputRef.current?.click()}
-          className={`border-2 border-dashed rounded-2xl p-6 sm:p-10 text-center transition-all ${
-            isLoadingFiles
+          className={`border-2 border-dashed rounded-2xl p-6 sm:p-10 text-center transition-all ${isLoadingFiles
               ? "border-blue-400/60 bg-blue-400/5 cursor-wait"
               : dragActive
-              ? "border-[#C44341] bg-[#C44341]/10 scale-[1.01] cursor-pointer"
-              : "border-white/20 hover:border-white/40 bg-white/5 cursor-pointer"
-          }`}
+                ? "border-[#C44341] bg-[#C44341]/10 scale-[1.01] cursor-pointer"
+                : "border-white/20 hover:border-white/40 bg-white/5 cursor-pointer"
+            }`}
         >
           {/* Input Gabungan */}
           <input
@@ -1055,20 +1049,6 @@ export default function MediaUploadAdminTab() {
             </>
           )}
         </div>
-
-        {/* Tips Edukasi untuk Pengguna iPhone */}
-        <div className="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs font-mono space-y-1 text-blue-200">
-          <div className="font-bold flex items-center gap-1.5 text-blue-300">
-            <span>ℹ️</span>
-            <span>Kenapa tombol ceklis video di iPhone terasa lama?</span>
-          </div>
-          <p className="text-[11px] leading-relaxed text-gray-300">
-            Video iPhone berukuran sangat besar (100–500MB per file). Saat memilih 15 video, iPhone memerlukan waktu untuk <strong>mengeksport dan mengunduh dari iCloud</strong> sebelum menyerahkannya ke browser.
-          </p>
-          <p className="text-[11px] leading-relaxed text-amber-300 font-semibold">
-            💡 <strong>Saran:</strong> Pilih <strong>3–5 video per kloter</strong>. Anda bisa memilih berkali-kali dan video akan otomatis bertambah ke antrean di bawah.
-          </p>
-        </div>
       </div>
 
       {/* 4. Queue List & Upload Actions */}
@@ -1114,11 +1094,10 @@ export default function MediaUploadAdminTab() {
                 <button
                   type="button"
                   onClick={handleCopyFolderLink}
-                  className={`px-3.5 py-2 rounded-xl border text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                    copiedLink
+                  className={`px-3.5 py-2 rounded-xl border text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${copiedLink
                       ? "bg-emerald-600 text-white border-emerald-400"
                       : "bg-emerald-950/60 hover:bg-emerald-900 border-emerald-500/40 text-emerald-300"
-                  }`}
+                    }`}
                   title="Salin link Google Drive untuk dibagikan"
                 >
                   <span>{copiedLink ? "✓" : "📋"}</span>
@@ -1181,11 +1160,10 @@ export default function MediaUploadAdminTab() {
 
                     {/* Kind & HEIC Badge */}
                     <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase shrink-0 ${
-                        item.kind === "video"
+                      className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase shrink-0 ${item.kind === "video"
                           ? "bg-purple-950 text-purple-300 border border-purple-500/30"
                           : "bg-blue-950 text-blue-300 border border-blue-500/30"
-                      }`}
+                        }`}
                     >
                       {item.kind}
                     </span>
