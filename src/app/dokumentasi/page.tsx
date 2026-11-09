@@ -7,21 +7,43 @@ import { listDriveKegiatanFolders, DriveFolderItem } from "@/lib/googleDriveServ
 import DokumentasiClientView from "@/components/dokumentasi/DokumentasiClientView";
 
 const profile = profileData as ProfileData;
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.includes("localhost")
+    ? process.env.NEXT_PUBLIC_SITE_URL
+    : "https://www.tibatibacyc.my.id";
 
 // Revalidasi setiap 60 detik (ISR) agar selalu update tanpa membebani limit API
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: `Arsip Dokumentasi Gowes — ${profile.site.name} Bekasi`,
-  description: `Koleksi foto dan video dokumentasi kegiatan gowes bersama ${profile.site.name} Bekasi. Tersimpan rapi di Google Drive dan dapat diakses bebas oleh seluruh anggota.`,
+  title: `📸 Dokumentasi Kegiatan Gowes — ${profile.site.name} Bekasi`,
+  description: `Koleksi foto & video dokumentasi gowes bersama ${profile.site.name} Bekasi di Google Drive. Tersimpan rapi per kegiatan, resolusi asli, dan bebas diakses seluruh goweser! 🚴‍♂️💨`,
   openGraph: {
-    title: `Arsip Dokumentasi Gowes — ${profile.site.name}`,
-    description: `Koleksi foto dan video dokumentasi kegiatan gowes bersama ${profile.site.name} Bekasi di Google Drive.`,
-    url: "https://www.tibatibacyc.my.id/dokumentasi",
-    siteName: profile.site.name,
+    type: "website",
+    locale: "id_ID",
+    url: `${SITE_URL}/dokumentasi`,
+    siteName: `${profile.site.name} Bekasi`,
+    title: `📸 Dokumentasi Kegiatan Gowes — ${profile.site.name} Bekasi`,
+    description: `Koleksi foto & video gowes bareng ${profile.site.name} Bekasi di Google Drive. Tersimpan rapi per kegiatan, kualitas HD, bebas diunduh & dilihat siapa saja! 🚴‍♂️💨`,
+    images: [
+      {
+        url: `${SITE_URL}/images/og-dokumentasi.jpg`,
+        secureUrl: `${SITE_URL}/images/og-dokumentasi.jpg`,
+        width: 1200,
+        height: 630,
+        type: "image/jpeg",
+        alt: `Dokumentasi Kegiatan Gowes ${profile.site.name} Bekasi`,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `📸 Dokumentasi Kegiatan Gowes — ${profile.site.name} Bekasi`,
+    description: `Koleksi foto & video gowes bareng ${profile.site.name} Bekasi di Google Drive. Tersimpan rapi, kualitas HD, bebas diunduh! 🚴‍♂️💨`,
+    images: [`${SITE_URL}/images/og-dokumentasi.jpg`],
   },
   alternates: {
-    canonical: "https://www.tibatibacyc.my.id/dokumentasi",
+    canonical: `${SITE_URL}/dokumentasi`,
   },
 };
 
