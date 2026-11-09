@@ -4,18 +4,43 @@ import { db } from "@/lib/firebase";
 import {
   collection,
   getDocs,
+  getDoc,
   addDoc,
   updateDoc,
   deleteDoc,
   doc,
   query,
   where,
+  limit,
 } from "firebase/firestore";
 import { AdminPinRecord, AdminTabId } from "@/types/admin";
 
 export const dynamic = "force-dynamic";
 
 const COLLECTION_NAME = "admin_pins";
+const DB_TIMEOUT_MS = 8000;
+
+/**
+ * Helper untuk mencegah request Firebase menggantung tanpa batas waktu.
+ */
+function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number = DB_TIMEOUT_MS,
+  errorMsg: string = "Operasi database timeout."
+): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => {
+      const timer = setTimeout(() => {
+        reject(new Error(errorMsg));
+      }, timeoutMs);
+      // Hindari process timer hanging
+      if (typeof timer.unref === "function") {
+        timer.unref();
+      }
+    }),
+  ]);
+}
 
 /**
  * GET /api/admin/pins
@@ -31,7 +56,11 @@ export async function GET() {
   }
 
   try {
-    const snap = await getDocs(collection(db, COLLECTION_NAME));
+    const snap = await withTimeout(
+      getDocs(collection(db, COLLECTION_NAME)),
+      DB_TIMEOUT_MS,
+      "Waktu koneksi database Firestore habis saat mengambil daftar PIN."
+    );
     const items: AdminPinRecord[] = [];
 
     snap.forEach((d) => {
@@ -115,9 +144,14 @@ export async function POST(req: NextRequest) {
     // Periksa apakah PIN sudah dipakai oleh akun admin kustom lain yang aktif
     const duplicateQuery = query(
       collection(db, COLLECTION_NAME),
-      where("pin", "==", pin)
+      where("pin", "==", pin),
+      limit(1)
     );
-    const dupSnap = await getDocs(duplicateQuery);
+    const dupSnap = await withTimeout(
+      getDocs(duplicateQuery),
+      6000,
+      "Waktu habis saat memeriksa ketersediaan PIN di database."
+    );
     if (!dupSnap.empty) {
       return NextResponse.json(
         { success: false, error: "PIN ini sudah digunakan oleh admin lain. Silakan buat PIN yang berbeda." },
@@ -126,14 +160,18 @@ export async function POST(req: NextRequest) {
     }
 
     const now = new Date().toISOString();
-    const docRef = await addDoc(collection(db, COLLECTION_NAME), {
-      label,
-      pin,
-      allowedTabs,
-      isActive,
-      createdAt: now,
-      updatedAt: now,
-    });
+    const docRef = await withTimeout(
+      addDoc(collection(db, COLLECTION_NAME), {
+        label,
+        pin,
+        allowedTabs,
+        isActive,
+        createdAt: now,
+        updatedAt: now,
+      }),
+      DB_TIMEOUT_MS,
+      "Waktu habis saat menyimpan data PIN ke database Firestore."
+    );
 
     return NextResponse.json({
       success: true,
@@ -191,28 +229,53 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    // Periksa apakah PIN baru dipakai oleh ID lain
-    const duplicateQuery = query(
-      collection(db, COLLECTION_NAME),
-      where("pin", "==", pin)
+    const targetDoc = doc(db, COLLECTION_NAME, id);
+    const currentSnap = await withTimeout(
+      getDoc(targetDoc),
+      6000,
+      "Waktu habis saat membaca data PIN dari database."
     );
-    const dupSnap = await getDocs(duplicateQuery);
-    const duplicateOther = dupSnap.docs.some((d) => d.id !== id);
-    if (duplicateOther) {
+
+    if (!currentSnap.exists()) {
       return NextResponse.json(
-        { success: false, error: "PIN ini sudah digunakan oleh admin lain. Silakan buat PIN yang berbeda." },
-        { status: 400 }
+        { success: false, error: "Data PIN tidak ditemukan atau telah dihapus." },
+        { status: 404 }
       );
     }
 
-    const targetDoc = doc(db, COLLECTION_NAME, id);
-    await updateDoc(targetDoc, {
-      label,
-      pin,
-      allowedTabs,
-      isActive,
-      updatedAt: new Date().toISOString(),
-    });
+    const currentData = currentSnap.data();
+
+    // Optimasi performa: Cek duplikasi HANYA jika PIN berubah
+    if (currentData.pin !== pin) {
+      const duplicateQuery = query(
+        collection(db, COLLECTION_NAME),
+        where("pin", "==", pin),
+        limit(1)
+      );
+      const dupSnap = await withTimeout(
+        getDocs(duplicateQuery),
+        6000,
+        "Waktu habis saat memeriksa duplikasi PIN."
+      );
+      if (!dupSnap.empty) {
+        return NextResponse.json(
+          { success: false, error: "PIN ini sudah digunakan oleh admin lain. Silakan buat PIN yang berbeda." },
+          { status: 400 }
+        );
+      }
+    }
+
+    await withTimeout(
+      updateDoc(targetDoc, {
+        label,
+        pin,
+        allowedTabs,
+        isActive,
+        updatedAt: new Date().toISOString(),
+      }),
+      DB_TIMEOUT_MS,
+      "Waktu habis saat memperbarui data PIN di database Firestore."
+    );
 
     return NextResponse.json({
       success: true,
@@ -252,7 +315,11 @@ export async function DELETE(req: NextRequest) {
     }
 
     const targetDoc = doc(db, COLLECTION_NAME, id);
-    await deleteDoc(targetDoc);
+    await withTimeout(
+      deleteDoc(targetDoc),
+      DB_TIMEOUT_MS,
+      "Waktu habis saat menghapus data PIN dari Firestore."
+    );
 
     return NextResponse.json({
       success: true,
@@ -266,4 +333,3 @@ export async function DELETE(req: NextRequest) {
     );
   }
 }
-

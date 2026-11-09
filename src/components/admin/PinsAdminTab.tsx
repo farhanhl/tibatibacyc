@@ -3,6 +3,30 @@
 import React, { useState, useEffect } from "react";
 import { AdminPinRecord, AdminTabId, ADMIN_MODULES } from "@/types/admin";
 
+/**
+ * Fetch wrapper dengan batasan waktu timeout (default 10 detik)
+ * agar UI tidak pernah stuck loading jika koneksi internet terputus atau lambat.
+ */
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 10000): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    return response;
+  } catch (err: any) {
+    if (err.name === "AbortError") {
+      throw new Error("Koneksi timeout. Server atau database membutuhkan waktu terlalu lama untuk merespons.");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 export default function PinsAdminTab() {
   const [pins, setPins] = useState<AdminPinRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,16 +54,15 @@ export default function PinsAdminTab() {
   const fetchPins = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch("/api/admin/pins");
+      const res = await fetchWithTimeout("/api/admin/pins", {}, 10000);
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
         throw new Error(data.error || `HTTP error ${res.status}`);
       }
-      const data = await res.json();
       setPins(data.pins || []);
     } catch (err: any) {
-      console.error(err);
-      setMessage({ type: "error", text: "Gagal memuat master PIN: " + err.message });
+      console.error("Gagal memuat master PIN:", err);
+      setMessage({ type: "error", text: "Gagal memuat master PIN: " + (err.message || "Gangguan koneksi.") });
     } finally {
       setIsLoading(false);
     }
@@ -115,13 +138,17 @@ export default function PinsAdminTab() {
       const method = isEditing ? "PUT" : "POST";
       const payload = isEditing ? { id: editingId, ...formData } : formData;
 
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const res = await fetchWithTimeout(
+        url,
+        {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+        12000
+      );
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         throw new Error(data.error || "Gagal menyimpan PIN.");
       }
@@ -131,7 +158,7 @@ export default function PinsAdminTab() {
       setEditingId(null);
       await fetchPins();
     } catch (err: any) {
-      console.error(err);
+      console.error("Gagal simpan PIN:", err);
       setMessage({ type: "error", text: err.message || "Gagal menyimpan data PIN." });
     } finally {
       setIsSubmitting(false);
@@ -145,10 +172,14 @@ export default function PinsAdminTab() {
 
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/admin/pins?id=${encodeURIComponent(id)}`, {
-        method: "DELETE",
-      });
-      const data = await res.json();
+      const res = await fetchWithTimeout(
+        `/api/admin/pins?id=${encodeURIComponent(id)}`,
+        {
+          method: "DELETE",
+        },
+        10000
+      );
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         throw new Error(data.error || "Gagal menghapus PIN.");
       }

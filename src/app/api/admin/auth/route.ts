@@ -39,6 +39,20 @@ function cleanOldRateLimitRecords() {
   }
 }
 
+function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number = 6000,
+  errorMsg: string = "Timeout koneksi database Firestore."
+): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => {
+      const timer = setTimeout(() => reject(new Error(errorMsg)), timeoutMs);
+      if (typeof timer.unref === "function") timer.unref();
+    }),
+  ]);
+}
+
 /**
  * GET /api/admin/auth
  * Cek apakah session cookie admin saat ini masih valid dan ambil info role & hak akses
@@ -121,7 +135,11 @@ export async function POST(req: NextRequest) {
           where("isActive", "==", true),
           limit(1)
         );
-        const snap = await getDocs(q);
+        const snap = await withTimeout(
+          getDocs(q),
+          5000,
+          "Waktu verifikasi database habis."
+        );
 
         if (!snap.empty) {
           const docData = snap.docs[0].data();
