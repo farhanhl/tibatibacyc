@@ -71,16 +71,6 @@ export default async function DokumentasiPage() {
             >
               ← Kembali ke Beranda
             </Link>
-
-            <a
-              href={profile.community.joinUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/40 text-xs font-mono font-bold text-emerald-300 transition-colors"
-            >
-              <span>💬</span>
-              <span>Grup WA</span>
-            </a>
           </div>
         </div>
       </header>
@@ -102,7 +92,7 @@ export default async function DokumentasiPage() {
           </h1>
 
           <p className="text-sm sm:text-base text-gray-400 max-w-2xl font-mono">
-            Kumpulan arsip foto dan video dari setiap rute gowes bersama Tiba-Tiba Cycling. Silakan cari kegiatan dan buka folder Google Drive untuk mengunduh dokumentasi Anda.
+            Kumpulan arsip foto dan video dari setiap kegiatan gowes Tiba-Tiba Cycling.
           </p>
         </div>
 

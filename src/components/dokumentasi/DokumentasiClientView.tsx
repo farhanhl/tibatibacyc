@@ -84,7 +84,7 @@ export default function DokumentasiClientView({
           </span>
           <input
             type="text"
-            placeholder="Cari dokumentasi gowes (contoh: Kopitagram, 2026, Cikarang)..."
+            placeholder="Cari dokumentasi gowes"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-white/5 border border-white/15 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#C44341] font-mono transition-colors"
@@ -169,7 +169,6 @@ export default function DokumentasiClientView({
                     <span className="px-2 py-0.5 rounded bg-purple-950/60 border border-purple-500/30 text-purple-300">
                       🎬 Video
                     </span>
-                    <span className="text-gray-500">• Akses Publik</span>
                   </div>
 
                   {/* Actions: Open Drive & Copy Link */}
@@ -187,11 +186,10 @@ export default function DokumentasiClientView({
                     <button
                       type="button"
                       onClick={() => handleCopyLink(folder.id)}
-                      className={`px-3 py-2.5 rounded-xl border text-xs font-mono font-bold transition-all shrink-0 cursor-pointer ${
-                        isCopied
-                          ? "bg-emerald-600 text-white border-emerald-400"
-                          : "bg-white/5 hover:bg-white/15 border-white/15 text-gray-300 hover:text-white"
-                      }`}
+                      className={`px-3 py-2.5 rounded-xl border text-xs font-mono font-bold transition-all shrink-0 cursor-pointer ${isCopied
+                        ? "bg-emerald-600 text-white border-emerald-400"
+                        : "bg-white/5 hover:bg-white/15 border-white/15 text-gray-300 hover:text-white"
+                        }`}
                       title="Salin link Google Drive untuk dibagikan"
                     >
                       <span>{isCopied ? "✓" : "📋"}</span>
@@ -228,23 +226,6 @@ export default function DokumentasiClientView({
           )}
         </div>
       )}
-
-      {/* Info Callout */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono text-gray-400">
-        <div className="flex items-center gap-2">
-          <span className="text-base shrink-0">💡</span>
-          <p>
-            Semua foto iPhone (HEIC) telah otomatis dikonversi ke JPG agar dapat dibuka di perangkat Android, iPhone, dan Laptop.
-          </p>
-        </div>
-        <Link
-          href="/"
-          className="text-[#C44341] hover:underline font-bold shrink-0 inline-flex items-center gap-1"
-        >
-          <span>Kembali ke Beranda</span>
-          <span>→</span>
-        </Link>
-      </div>
     </div>
   );
 }
