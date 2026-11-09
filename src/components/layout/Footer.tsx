@@ -103,6 +103,18 @@ export default function Footer({ profile }: FooterProps) {
                 </a>
               </li>
               <li>
+                <Link
+                  href="/dokumentasi"
+                  className={`transition-colors ${
+                    pathname.startsWith("/dokumentasi")
+                      ? "text-[#C44341] font-semibold"
+                      : "text-[#868B96] hover:text-[#C44341]"
+                  }`}
+                >
+                  Dokumentasi
+                </Link>
+              </li>
+              <li>
                 <a
                   href={isHomePage ? "#join" : "/#join"}
                   className="text-[#868B96] hover:text-[#C44341] transition-colors"

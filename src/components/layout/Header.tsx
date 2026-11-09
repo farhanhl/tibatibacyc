@@ -28,11 +28,18 @@ export default function Header({ profile }: HeaderProps) {
     { label: "Home", href: isHomePage ? "#home" : "/" },
     { label: "Tentang", href: isHomePage ? "#about" : "/#about" },
     { label: "Kegiatan", href: isHomePage ? "#events" : "/#events" },
+    { label: "Dokumentasi", href: "/dokumentasi" },
     { label: "Peta Rute", href: isHomePage ? "#route-map" : "/#route-map" },
     { label: "Join", href: isHomePage ? "#join" : "/#join" },
     { label: "Cuaca", href: isHomePage ? "#cuaca" : "/#cuaca" },
     { label: "Twibbon", href: "/twibbon" },
   ];
+
+  const isLinkActive = (href: string) => {
+    if (href === "/dokumentasi") return pathname.startsWith("/dokumentasi");
+    if (href === "/twibbon") return pathname === "/twibbon";
+    return false;
+  };
 
   const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (isHomePage) {
@@ -88,16 +95,35 @@ export default function Header({ profile }: HeaderProps) {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-1 lg:gap-2" aria-label="Main Navigation">
+        <nav className="hidden md:flex items-center gap-0.5 lg:gap-1.5" aria-label="Main Navigation">
           {navLinks.map((link) => {
-            const isCurrentTwibbon = link.href === "/twibbon" && pathname === "/twibbon";
+            const isActive = isLinkActive(link.href);
+            const isHashLink = link.href.includes("#");
+
+            if (!isHashLink) {
+              return (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className={`px-2.5 lg:px-3 py-2 text-xs lg:text-sm font-bold uppercase tracking-wider rounded-sm transition-colors cursor-pointer ${
+                    isActive
+                      ? "text-[#C44341] bg-white/5 border-b-2 border-[#C44341]"
+                      : "text-[#EAE6DD] hover:text-[#C44341] hover:bg-white/5"
+                  }`}
+                  style={{ fontFamily: "var(--font-display)" }}
+                >
+                  {link.label}
+                </Link>
+              );
+            }
+
             return (
               <a
                 key={link.label}
                 href={link.href}
                 onClick={link.href === "#home" ? handleHomeClick : undefined}
-                className={`px-3 py-2 text-sm font-bold uppercase tracking-wider rounded-sm transition-colors cursor-pointer ${
-                  isCurrentTwibbon
+                className={`px-2.5 lg:px-3 py-2 text-xs lg:text-sm font-bold uppercase tracking-wider rounded-sm transition-colors cursor-pointer ${
+                  isActive
                     ? "text-[#C44341] bg-white/5 border-b-2 border-[#C44341]"
                     : "text-[#EAE6DD] hover:text-[#C44341] hover:bg-white/5"
                 }`}
@@ -174,14 +200,34 @@ export default function Header({ profile }: HeaderProps) {
         <div className="md:hidden bg-black/95 backdrop-blur-xl border-b border-white/10 px-4 pt-2 pb-6 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
           <nav className="flex flex-col space-y-1">
             {navLinks.map((link) => {
-              const isCurrentTwibbon = link.href === "/twibbon" && pathname === "/twibbon";
+              const isActive = isLinkActive(link.href);
+              const isHashLink = link.href.includes("#");
+
+              if (!isHashLink) {
+                return (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    onClick={handleNavClick}
+                    className={`px-3 py-2.5 text-base font-bold uppercase tracking-wider rounded-sm transition-colors cursor-pointer ${
+                      isActive
+                        ? "text-[#C44341] bg-white/10"
+                        : "text-[#EAE6DD] hover:text-[#C44341] hover:bg-white/5"
+                    }`}
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              }
+
               return (
                 <a
                   key={link.label}
                   href={link.href}
                   onClick={link.href === "#home" ? handleHomeClick : handleNavClick}
                   className={`px-3 py-2.5 text-base font-bold uppercase tracking-wider rounded-sm transition-colors cursor-pointer ${
-                    isCurrentTwibbon
+                    isActive
                       ? "text-[#C44341] bg-white/10"
                       : "text-[#EAE6DD] hover:text-[#C44341] hover:bg-white/5"
                   }`}
