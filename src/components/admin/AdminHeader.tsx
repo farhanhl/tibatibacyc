@@ -7,13 +7,19 @@ interface AdminHeaderProps {
   isLoading: boolean;
   onRefresh: () => void;
   onLogout: () => void;
+  role?: "super_admin" | "custom_admin";
+  roleLabel?: string;
 }
 
 export default function AdminHeader({
   isLoading,
   onRefresh,
   onLogout,
+  role = "super_admin",
+  roleLabel = "Super Admin",
 }: AdminHeaderProps) {
+  const isSuper = role === "super_admin";
+
   return (
     <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-black/55 backdrop-blur-md border border-white/20 p-5 sm:p-6 rounded-2xl shadow-2xl">
       <div className="flex items-center gap-3.5">
@@ -21,16 +27,28 @@ export default function AdminHeader({
           🚲
         </div>
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <h1
               className="text-xl sm:text-2xl font-black uppercase text-white tracking-tight leading-none"
               style={{ fontFamily: "var(--font-display)" }}
             >
               Admin Dashboard
             </h1>
+
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-[10px] font-mono font-bold text-emerald-300 uppercase">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
               Live
+            </span>
+
+            {/* Role Badge */}
+            <span
+              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase border ${isSuper
+                  ? "bg-[#C44341]/25 border-[#C44341]/60 text-white shadow-sm"
+                  : "bg-blue-950/80 border-blue-500/40 text-blue-300"
+                }`}
+            >
+              <span>{isSuper ? "👑" : "👤"}</span>
+              <span>{roleLabel}</span>
             </span>
           </div>
           <p className="text-xs text-gray-400 font-mono mt-0.5">

@@ -10,6 +10,7 @@ interface AdminLoginFormProps {
 export default function AdminLoginForm({ onSuccess }: AdminLoginFormProps) {
   const [pinInput, setPinInput] = useState("");
   const [pinError, setPinError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -18,6 +19,7 @@ export default function AdminLoginForm({ onSuccess }: AdminLoginFormProps) {
 
     setIsLoading(true);
     setPinError(false);
+    setErrorMessage("");
 
     try {
       const res = await fetch("/api/admin/auth", {
@@ -26,12 +28,16 @@ export default function AdminLoginForm({ onSuccess }: AdminLoginFormProps) {
         body: JSON.stringify({ pin: pinInput }),
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (res.ok) {
         onSuccess();
       } else {
+        setErrorMessage(data.error || "PIN salah! Silakan periksa kembali.");
         setPinError(true);
       }
     } catch {
+      setErrorMessage("Gagal terhubung ke server. Silakan coba lagi.");
       setPinError(true);
     } finally {
       setIsLoading(false);
@@ -89,7 +95,7 @@ export default function AdminLoginForm({ onSuccess }: AdminLoginFormProps) {
             />
             {pinError && (
               <p className="text-xs text-red-400 font-mono mt-2 animate-bounce">
-                ❌ PIN salah! Silakan periksa kembali.
+                ❌ {errorMessage || "PIN salah! Silakan periksa kembali."}
               </p>
             )}
           </div>

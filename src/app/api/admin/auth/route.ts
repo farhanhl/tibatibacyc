@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  verifyAdminPin,
+  verifySuperAdminPin,
   generateAdminSessionToken,
   verifyAdminSessionToken,
   ADMIN_COOKIE_NAME,
+  ALL_ADMIN_TABS,
 } from "@/lib/adminAuth";
+import { db } from "@/lib/firebase";
+import { collection, query, where, getDocs, limit } from "firebase/firestore";
 
 export const dynamic = "force-dynamic";
 
@@ -38,20 +41,29 @@ function cleanOldRateLimitRecords() {
 
 /**
  * GET /api/admin/auth
- * Cek apakah session cookie admin saat ini masih valid
+ * Cek apakah session cookie admin saat ini masih valid dan ambil info role & hak akses
  */
 export async function GET(req: NextRequest) {
   const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
-  const isValid = verifyAdminSessionToken(token);
+  const session = verifyAdminSessionToken(token);
+
+  if (!session) {
+    return NextResponse.json({
+      authenticated: false,
+    });
+  }
 
   return NextResponse.json({
-    authenticated: isValid,
+    authenticated: true,
+    role: session.role,
+    label: session.label,
+    allowedTabs: session.allowedTabs,
   });
 }
 
 /**
  * POST /api/admin/auth
- * Verifikasi PIN Admin dan terbitkan HTTP-only session cookie
+ * Verifikasi PIN Admin (Super Admin Master PIN atau PIN Custom dari Database)
  * Dilengkapi pembatasan percobaan gagal (Rate Limit) per IP
  */
 export async function POST(req: NextRequest) {
@@ -66,7 +78,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: `Terlalu banyak percobaan login yang gagal. Silakan coba lagi dalam ${remainingMinutes} menit.`,
+        error: `Terlalu banyak percobaan login yang gagal. Akses dikunci sementara selama ${remainingMinutes} menit.`,
       },
       { status: 429 }
     );
@@ -74,9 +86,60 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json().catch(() => ({}));
-    const pin = body?.pin;
+    const rawPin = body?.pin;
 
-    if (!pin || !verifyAdminPin(pin)) {
+    if (!rawPin || typeof rawPin !== "string" || !rawPin.trim()) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "PIN Admin wajib diisi",
+        },
+        { status: 400 }
+      );
+    }
+
+    const pin = rawPin.trim();
+    let sessionPayload: {
+      role: "super_admin" | "custom_admin";
+      label: string;
+      allowedTabs: any[];
+    } | null = null;
+
+    // 1. Cek apakah cocok dengan Super Admin Master PIN (.env)
+    if (verifySuperAdminPin(pin)) {
+      sessionPayload = {
+        role: "super_admin",
+        label: "Super Admin",
+        allowedTabs: ALL_ADMIN_TABS,
+      };
+    } else {
+      // 2. Cek apakah cocok dengan salah satu PIN kustom di Firestore
+      try {
+        const q = query(
+          collection(db, "admin_pins"),
+          where("pin", "==", pin),
+          where("isActive", "==", true),
+          limit(1)
+        );
+        const snap = await getDocs(q);
+
+        if (!snap.empty) {
+          const docData = snap.docs[0].data();
+          sessionPayload = {
+            role: "custom_admin",
+            label: docData.label || "Admin",
+            allowedTabs: Array.isArray(docData.allowedTabs) && docData.allowedTabs.length > 0
+              ? docData.allowedTabs
+              : ["events"],
+          };
+        }
+      } catch (dbErr) {
+        console.error("Gagal memeriksa PIN di Firestore:", dbErr);
+      }
+    }
+
+    // Jika PIN tidak cocok dengan Master PIN maupun PIN Kustom
+    if (!sessionPayload) {
       const currentRecord = record || { failedAttempts: 0, lockedUntil: 0, lastAttempt: now };
       currentRecord.failedAttempts += 1;
       currentRecord.lastAttempt = now;
@@ -108,10 +171,13 @@ export async function POST(req: NextRequest) {
     // Login berhasil: reset rate limit IP
     loginAttemptsMap.delete(ip);
 
-    const sessionToken = generateAdminSessionToken();
+    const sessionToken = generateAdminSessionToken(sessionPayload);
     const response = NextResponse.json({
       success: true,
-      message: "Login berhasil",
+      message: `Login berhasil sebagai ${sessionPayload.label}`,
+      role: sessionPayload.role,
+      label: sessionPayload.label,
+      allowedTabs: sessionPayload.allowedTabs,
     });
 
     const isProduction = process.env.NODE_ENV === "production";
@@ -129,6 +195,7 @@ export async function POST(req: NextRequest) {
 
     return response;
   } catch (error: any) {
+    console.error("Admin Auth Error:", error);
     return NextResponse.json(
       {
         success: false,
@@ -161,4 +228,3 @@ export async function DELETE() {
 
   return response;
 }
-

@@ -27,10 +27,15 @@ import EventsAdminTab from "@/components/admin/EventsAdminTab";
 import SettingsAdminTab from "@/components/admin/SettingsAdminTab";
 import MerchandiseAdminTab from "@/components/admin/MerchandiseAdminTab";
 import MediaUploadAdminTab from "@/components/admin/MediaUploadAdminTab";
+import PinsAdminTab from "@/components/admin/PinsAdminTab";
+import { AdminTabId, AdminSessionInfo } from "@/types/admin";
 
 export default function AdminDashboardPage() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [activeTab, setActiveTab] = useState<"overview" | "events" | "media" | "merchandise" | "settings">("overview");
+  const [sessionInfo, setSessionInfo] = useState<AdminSessionInfo>({
+    authenticated: false,
+  });
+  const [activeTab, setActiveTab] = useState<AdminTabId>("overview");
 
   // Data States
   const [events, setEvents] = useState<EventItem[]>([]);
@@ -71,25 +76,43 @@ export default function AdminDashboardPage() {
     instastoryImage: "",
   });
 
+  const checkAuth = async () => {
+    try {
+      const res = await fetch("/api/admin/auth");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.authenticated) {
+          setIsAuthenticated(true);
+          const allowed: AdminTabId[] = Array.isArray(data.allowedTabs) ? data.allowedTabs : [];
+          setSessionInfo({
+            authenticated: true,
+            role: data.role,
+            label: data.label,
+            allowedTabs: allowed,
+          });
+
+          // Otomatis pilih tab pertama yang diizinkan jika activeTab saat ini tidak diizinkan
+          setActiveTab((prevTab) => {
+            if (data.role === "super_admin") return prevTab;
+            if (allowed.length > 0 && !allowed.includes(prevTab)) {
+              return allowed[0];
+            }
+            return prevTab;
+          });
+
+          fetchAllDashboardData();
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn("Gagal cek auth:", err);
+    }
+    setIsAuthenticated(false);
+    setSessionInfo({ authenticated: false });
+  };
+
   // Cek sesi autentikasi server saat halaman dimuat
   useEffect(() => {
-    async function checkAuth() {
-      try {
-        const res = await fetch("/api/admin/auth");
-        if (res.ok) {
-          const data = await res.json();
-          if (data.authenticated) {
-            setIsAuthenticated(true);
-            fetchAllDashboardData();
-            return;
-          }
-        }
-      } catch (err) {
-        console.warn("Gagal cek auth:", err);
-      }
-      setIsAuthenticated(false);
-    }
-
     checkAuth();
   }, []);
 
@@ -100,6 +123,7 @@ export default function AdminDashboardPage() {
       // ignore
     }
     setIsAuthenticated(false);
+    setSessionInfo({ authenticated: false });
   };
 
   // Helper date keys (Jakarta)
@@ -411,14 +435,15 @@ export default function AdminDashboardPage() {
     return (
       <AdminLoginForm
         onSuccess={() => {
-          setIsAuthenticated(true);
-          fetchAllDashboardData();
+          checkAuth();
         }}
       />
     );
   }
 
   const { todayKey } = getTodayAndYesterdayKeys();
+  const allowedTabs = sessionInfo.allowedTabs || [];
+  const isSuper = sessionInfo.role === "super_admin";
 
   return (
     <main className="relative min-h-screen bg-black text-[#EAE6DD] py-8 sm:py-12 px-4 sm:px-6 lg:px-8 overflow-hidden font-sans">
@@ -444,6 +469,8 @@ export default function AdminDashboardPage() {
           isLoading={isLoading}
           onRefresh={fetchAllDashboardData}
           onLogout={handleLogout}
+          role={sessionInfo.role}
+          roleLabel={sessionInfo.label}
         />
 
         {/* Global Alert Notification */}
@@ -478,76 +505,100 @@ export default function AdminDashboardPage() {
           activeUpcomingPopupEvent={activeUpcomingPopupEvent}
         />
 
-        {/* 4 Unified Navigation Tabs */}
+        {/* Unified Navigation Tabs (Dinamis berdasarkan Hak Akses PIN) */}
         <div className="flex flex-wrap border-b border-white/15 gap-2 pt-2">
-          <button
-            onClick={() => setActiveTab("overview")}
-            className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
-              activeTab === "overview"
-                ? "border-[#C44341] text-white bg-white/5 rounded-t-xl"
-                : "border-transparent text-gray-400 hover:text-white"
-            }`}
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            📊 Ringkasan Trafik ({dailyStats.length} Hari)
-          </button>
+          {allowedTabs.includes("overview") && (
+            <button
+              onClick={() => setActiveTab("overview")}
+              className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
+                activeTab === "overview"
+                  ? "border-[#C44341] text-white bg-white/5 rounded-t-xl"
+                  : "border-transparent text-gray-400 hover:text-white"
+              }`}
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              📊 Ringkasan Trafik ({dailyStats.length} Hari)
+            </button>
+          )}
 
-          <button
-            onClick={() => setActiveTab("events")}
-            className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
-              activeTab === "events"
-                ? "border-[#C44341] text-white bg-white/5 rounded-t-xl"
-                : "border-transparent text-gray-400 hover:text-white"
-            }`}
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            🚴 Kelola Kegiatan & Jadwal Gowes ({events.length})
-          </button>
+          {allowedTabs.includes("events") && (
+            <button
+              onClick={() => setActiveTab("events")}
+              className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
+                activeTab === "events"
+                  ? "border-[#C44341] text-white bg-white/5 rounded-t-xl"
+                  : "border-transparent text-gray-400 hover:text-white"
+              }`}
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              🚴 Kelola Kegiatan & Jadwal Gowes ({events.length})
+            </button>
+          )}
 
-          <button
-            onClick={() => setActiveTab("media")}
-            className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
-              activeTab === "media"
-                ? "border-[#C44341] text-white bg-white/5 rounded-t-xl"
-                : "border-transparent text-gray-400 hover:text-white"
-            }`}
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            📸 Upload Media Dokumentasi
-          </button>
+          {allowedTabs.includes("media") && (
+            <button
+              onClick={() => setActiveTab("media")}
+              className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
+                activeTab === "media"
+                  ? "border-[#C44341] text-white bg-white/5 rounded-t-xl"
+                  : "border-transparent text-gray-400 hover:text-white"
+              }`}
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              📸 Upload Media Dokumentasi
+            </button>
+          )}
 
-          <button
-            onClick={() => setActiveTab("merchandise")}
-            className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
-              activeTab === "merchandise"
-                ? "border-[#C44341] text-white bg-white/5 rounded-t-xl"
-                : "border-transparent text-gray-400 hover:text-white"
-            }`}
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            👕 Pre-Order Merchandise ({merchOrders.length})
-          </button>
+          {allowedTabs.includes("merchandise") && (
+            <button
+              onClick={() => setActiveTab("merchandise")}
+              className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
+                activeTab === "merchandise"
+                  ? "border-[#C44341] text-white bg-white/5 rounded-t-xl"
+                  : "border-transparent text-gray-400 hover:text-white"
+              }`}
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              👕 Pre-Order Merchandise ({merchOrders.length})
+            </button>
+          )}
 
-          <button
-            onClick={() => setActiveTab("settings")}
-            className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
-              activeTab === "settings"
-                ? "border-[#C44341] text-white bg-white/5 rounded-t-xl"
-                : "border-transparent text-gray-400 hover:text-white"
-            }`}
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            ⚙️ Sistem & Info
-          </button>
+          {allowedTabs.includes("settings") && (
+            <button
+              onClick={() => setActiveTab("settings")}
+              className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
+                activeTab === "settings"
+                  ? "border-[#C44341] text-white bg-white/5 rounded-t-xl"
+                  : "border-transparent text-gray-400 hover:text-white"
+              }`}
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              ⚙️ Sistem & Info
+            </button>
+          )}
+
+          {(isSuper || allowedTabs.includes("pins")) && (
+            <button
+              onClick={() => setActiveTab("pins")}
+              className={`px-5 py-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
+                activeTab === "pins"
+                  ? "border-[#C44341] text-white bg-white/5 rounded-t-xl"
+                  : "border-transparent text-gray-400 hover:text-white"
+              }`}
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              🔐 Master Akses & PIN
+            </button>
+          )}
         </div>
 
         {/* TAB 1: Ringkasan Trafik */}
-        {activeTab === "overview" && (
+        {activeTab === "overview" && allowedTabs.includes("overview") && (
           <OverviewAdminTab dailyStats={dailyStats} todayKey={todayKey} />
         )}
 
         {/* TAB 2: Kelola Kegiatan & Jadwal Gowes */}
-        {activeTab === "events" && (
+        {activeTab === "events" && allowedTabs.includes("events") && (
           <EventsAdminTab
             events={events}
             upcomingEventsCount={upcomingEventsCount}
@@ -592,17 +643,22 @@ export default function AdminDashboardPage() {
         )}
 
         {/* TAB 3: Upload Media Dokumentasi ke Google Drive */}
-        {activeTab === "media" && <MediaUploadAdminTab />}
+        {activeTab === "media" && allowedTabs.includes("media") && <MediaUploadAdminTab />}
 
         {/* TAB 4: Status Sistem & Info */}
-        {activeTab === "settings" && <SettingsAdminTab />}
+        {activeTab === "settings" && allowedTabs.includes("settings") && <SettingsAdminTab />}
 
         {/* TAB 5: Kelola Pre-Order Merchandise */}
-        {activeTab === "merchandise" && (
+        {activeTab === "merchandise" && allowedTabs.includes("merchandise") && (
           <MerchandiseAdminTab
             orders={merchOrders}
             onRefresh={fetchAllDashboardData}
           />
+        )}
+
+        {/* TAB 6: Master Akses & PIN Admin (Super Admin) */}
+        {activeTab === "pins" && (isSuper || allowedTabs.includes("pins")) && (
+          <PinsAdminTab />
         )}
       </div>
     </main>
