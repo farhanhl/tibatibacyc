@@ -20,8 +20,6 @@ export default function MerchandiseForm() {
   const [createdOrderId, setCreatedOrderId] = useState<string>("");
 
   // Spesifikasi Fixed & Harga Fix Rp 190.000 (Ripstop, Pakai Furing, Bordir Belakang, Sablon DTF Depan)
-  const furing = "pakai" as const;
-  const desainBelakang = "bordir" as const;
   const hargaSatuan = 190000;
   const totalHarga = hargaSatuan * qty;
 
@@ -51,8 +49,6 @@ export default function MerchandiseForm() {
       const orderId = await saveMerchandiseOrder({
         nama: nama.trim(),
         whatsapp: whatsapp.trim(),
-        furing,
-        desainBelakang,
         ukuran,
         qty,
         hargaSatuan,

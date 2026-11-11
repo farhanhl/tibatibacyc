@@ -115,8 +115,6 @@ export async function deleteMerchandiseOrder(orderId: string): Promise<void> {
 export function formatWhatsAppOrderMessage(order: {
   nama: string;
   whatsapp: string;
-  furing?: "pakai" | "tanpa";
-  desainBelakang?: "sablon" | "bordir";
   ukuran: string;
   qty: number;
   hargaSatuan: number;

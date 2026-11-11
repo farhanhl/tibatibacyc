@@ -13,8 +13,6 @@ export interface MerchandiseOrder {
   id?: string;
   nama: string;
   whatsapp: string;
-  furing: "pakai" | "tanpa";
-  desainBelakang: "sablon" | "bordir";
   ukuran: MerchandiseSize;
   qty: number;
   hargaSatuan: number;

@@ -28,18 +28,11 @@ export default function MerchandiseAdminTab({
   const totalPcs = orders.reduce((sum, o) => sum + (o.qty || 1), 0);
   const totalNominal = orders.reduce((sum, o) => sum + (o.totalHarga || 0), 0);
 
-  const totalFuring = orders
-    .filter((o) => o.furing === "pakai")
+  const totalConfirmed = orders
+    .filter((o) => o.status === "confirmed" || o.status === "completed")
     .reduce((sum, o) => sum + (o.qty || 1), 0);
-  const totalTanpaFuring = orders
-    .filter((o) => o.furing === "tanpa")
-    .reduce((sum, o) => sum + (o.qty || 1), 0);
-
-  const totalBordir = orders
-    .filter((o) => o.desainBelakang === "bordir")
-    .reduce((sum, o) => sum + (o.qty || 1), 0);
-  const totalSablon = orders
-    .filter((o) => o.desainBelakang === "sablon")
+  const totalPending = orders
+    .filter((o) => o.status === "pending")
     .reduce((sum, o) => sum + (o.qty || 1), 0);
 
   // Breakdown Ukuran
@@ -154,14 +147,9 @@ export default function MerchandiseAdminTab({
     Object.entries(sizeBreakdown).forEach(([sz, count]) => {
       text += `- Size ${sz}: ${count} pcs\n`;
     });
-    text += `\nBREAKDOWN SPESIFIKASI:\n`;
-    text += `- Pakai Furing: ${totalFuring} pcs\n`;
-    text += `- Tanpa Furing: ${totalTanpaFuring} pcs\n`;
-    text += `- Bordir Belakang: ${totalBordir} pcs\n`;
-    text += `- Sablon Belakang: ${totalSablon} pcs\n\n`;
-    text += `DAFTAR PEMESAN:\n`;
+    text += `\nDAFTAR PEMESAN:\n`;
     orders.forEach((o, i) => {
-      text += `${i + 1}. ${o.nama} (${o.whatsapp}) - Size ${o.ukuran} x${o.qty} [${o.furing === "pakai" ? "Furing" : "No-Furing"}] [${o.desainBelakang}]\n`;
+      text += `${i + 1}. ${o.nama} (${o.whatsapp}) - Size ${o.ukuran} x${o.qty}\n`;
     });
 
     navigator.clipboard.writeText(text);
@@ -202,25 +190,22 @@ export default function MerchandiseAdminTab({
           >
             {totalPcs} <span className="text-xs font-normal text-gray-400">Pcs</span>
           </div>
-          <div className="flex items-center gap-2 text-[11px] text-gray-400 font-mono">
-            <span>Furing: {totalFuring}</span>
-            <span>•</span>
-            <span>No-Furing: {totalTanpaFuring}</span>
-          </div>
+          <p className="text-[11px] text-gray-400">
+            Total rompi yang akan diproduksi
+          </p>
         </div>
 
-        {/* Card 3: Desain Belakang */}
+        {/* Card 3: Status Terkonfirmasi */}
         <div className="p-5 rounded-2xl bg-black/60 border border-white/15 space-y-2">
           <div className="flex items-center justify-between text-xs font-mono text-gray-400">
-            <span>DESAIN BELAKANG</span>
-            <span className="text-base">🪡</span>
+            <span>STATUS PESANAN</span>
+            <span className="text-base">✅</span>
           </div>
-          <div className="text-xl font-black text-amber-400 font-mono pt-1">
-            {totalBordir} <span className="text-xs text-gray-300 font-normal">Bordir</span> /{" "}
-            {totalSablon} <span className="text-xs text-gray-300 font-normal">Sablon</span>
+          <div className="text-2xl font-black text-emerald-400 font-mono pt-1">
+            {totalConfirmed} <span className="text-xs text-gray-300 font-normal">Pcs Terkonfirmasi</span>
           </div>
-          <p className="text-[11px] text-gray-400">
-            Selisih bordir komputer +Rp 20.000/pcs
+          <p className="text-[11px] text-gray-400 font-mono">
+            {totalPending} pcs masih pending
           </p>
         </div>
 
@@ -343,8 +328,6 @@ export default function MerchandiseAdminTab({
                   <th className="py-3 px-3 text-center w-10">#</th>
                   <th className="py-3 px-4">Nama & WhatsApp</th>
                   <th className="py-3 px-3 text-center">Ukuran</th>
-                  <th className="py-3 px-3">Furing</th>
-                  <th className="py-3 px-3">Desain</th>
                   <th className="py-3 px-3 text-center">Qty</th>
                   <th className="py-3 px-4">Total Biaya</th>
                   <th className="py-3 px-3">Waktu</th>
@@ -399,26 +382,6 @@ export default function MerchandiseAdminTab({
                         <span className="px-2 py-0.5 rounded-md bg-white/10 text-white font-bold">
                           {ord.ukuran}
                         </span>
-                      </td>
-
-                      {/* Furing */}
-                      <td className="py-3 px-3">
-                        {ord.furing === "pakai" ? (
-                          <span className="text-emerald-400">Pakai Furing</span>
-                        ) : (
-                          <span className="text-gray-400">Tanpa Furing</span>
-                        )}
-                      </td>
-
-                      {/* Desain Belakang */}
-                      <td className="py-3 px-3">
-                        {ord.desainBelakang === "bordir" ? (
-                          <span className="text-amber-400 font-semibold">
-                            Bordir (+20k)
-                          </span>
-                        ) : (
-                          <span className="text-gray-300">Sablon</span>
-                        )}
                       </td>
 
                       {/* Qty */}
