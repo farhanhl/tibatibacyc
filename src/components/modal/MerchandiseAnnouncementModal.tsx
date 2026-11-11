@@ -115,13 +115,13 @@ export default function MerchandiseAnnouncementModal() {
                   className="object-cover"
                 />
                 <div className="absolute bottom-2 right-2 px-2.5 py-1 rounded-md bg-black/85 backdrop-blur-md border border-white/10 text-xs font-mono font-bold text-[#C44341]">
-                  Mulai Rp 185.000
+                  Rp 190.000
                 </div>
               </div>
 
               {/* Brief Information */}
               <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-                Tiba-Tiba Cycling sedang membuka pre-order <strong className="text-white">Tactical Riding Vest</strong> resmi! Dibuat dengan bahan American Drill, lapisan furing nyaman, reflektor keselamatan, & saku utility colorblock.
+                Tiba-Tiba Cycling sedang membuka pre-order <strong className="text-white">Tactical Riding Vest</strong> resmi! Dibuat dengan bahan Ripstop premium, lapisan furing dalam, tulisan bordir punggung, & logo sablon DTF.
               </p>
 
               {/* Action Buttons */}

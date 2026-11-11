@@ -10,8 +10,6 @@ const SIZES: MerchandiseSize[] = ["S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL
 export default function MerchandiseForm() {
   const [nama, setNama] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
-  const [furing, setFuring] = useState<"pakai" | "tanpa">("pakai");
-  const [desainBelakang, setDesainBelakang] = useState<"sablon" | "bordir">("sablon");
   const [ukuran, setUkuran] = useState<MerchandiseSize>("L");
   const [qty, setQty] = useState(1);
   const [catatan, setCatatan] = useState("");
@@ -21,10 +19,10 @@ export default function MerchandiseForm() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [createdOrderId, setCreatedOrderId] = useState<string>("");
 
-  // Perhitungan Harga
-  const basePrice = 185000;
-  const bordirAddition = desainBelakang === "bordir" ? 20000 : 0;
-  const hargaSatuan = basePrice + bordirAddition;
+  // Spesifikasi Fixed & Harga Fix Rp 190.000 (Ripstop, Pakai Furing, Bordir Belakang, Sablon DTF Depan)
+  const furing = "pakai" as const;
+  const desainBelakang = "bordir" as const;
+  const hargaSatuan = 190000;
   const totalHarga = hargaSatuan * qty;
 
   const formatCurrency = (val: number) => {
@@ -132,105 +130,46 @@ export default function MerchandiseForm() {
           />
         </div>
 
-        {/* Pilihan Furing (Wajib / Opsi) */}
-        <div className="space-y-2">
-          <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-300 block">
-            Lapisan Furing Dalam (Furring) *
-          </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => setFuring("pakai")}
-              className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${furing === "pakai"
-                ? "bg-[#C44341]/15 border-[#C44341] text-white ring-1 ring-[#C44341]"
-                : "bg-black/50 border-white/10 text-gray-400 hover:border-white/30"
-                }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold font-mono">Pakai Furing</span>
-                <span className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] ${furing === "pakai" ? "border-[#C44341] bg-[#C44341] text-white" : "border-white/30"
-                  }`}>
-                  {furing === "pakai" ? "✓" : ""}
-                </span>
-              </div>
-              <span className="text-[11px] text-gray-400 mt-1">
-                ⭐ Direkomendasikan. Nyaman di kulit, lebih rapi & kokoh.
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setFuring("tanpa")}
-              className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${furing === "tanpa"
-                ? "bg-[#C44341]/15 border-[#C44341] text-white ring-1 ring-[#C44341]"
-                : "bg-black/50 border-white/10 text-gray-400 hover:border-white/30"
-                }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold font-mono">Tanpa Furing</span>
-                <span className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] ${furing === "tanpa" ? "border-[#C44341] bg-[#C44341] text-white" : "border-white/30"
-                  }`}>
-                  {furing === "tanpa" ? "✓" : ""}
-                </span>
-              </div>
-              <span className="text-[11px] text-gray-400 mt-1">
-                Versi 1 lapis American Drill murni tanpa pelapis dalam.
-              </span>
-            </button>
+        {/* Spesifikasi Standar Rompi (Fixed All-in) */}
+        <div className="p-4 rounded-xl bg-black/60 border border-white/10 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-gray-300 flex items-center gap-1.5">
+              <span>📋</span> Spesifikasi Rompi (All-in)
+            </span>
+            <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+              ✓ Standar Produksi
+            </span>
           </div>
-        </div>
 
-        {/* Pilihan Desain Belakang: Sablon vs Bordir (+20k) */}
-        <div className="space-y-2">
-          <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-300 block">
-            Desain Tulisan Belakang (Punggung) *
-          </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => setDesainBelakang("sablon")}
-              className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${desainBelakang === "sablon"
-                ? "bg-[#C44341]/15 border-[#C44341] text-white ring-1 ring-[#C44341]"
-                : "bg-black/50 border-white/10 text-gray-400 hover:border-white/30"
-                }`}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-xs font-bold font-mono block">Sablon Grafis</span>
-                  <span className="text-xs font-black text-[#C44341]">Rp 185.000</span>
-                </div>
-                <span className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] ${desainBelakang === "sablon" ? "border-[#C44341] bg-[#C44341] text-white" : "border-white/30"
-                  }`}>
-                  {desainBelakang === "sablon" ? "✓" : ""}
-                </span>
+          <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-white/5 border border-white/5">
+              <span className="text-base shrink-0">🧵</span>
+              <div className="min-w-0">
+                <span className="text-[10px] text-gray-400 block leading-tight">Bahan</span>
+                <span className="text-white font-bold truncate block">Ripstop Premium</span>
               </div>
-              <span className="text-[11px] text-gray-400 mt-1">
-                Sablon karet premium awet & lentur. Harga standar.
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setDesainBelakang("bordir")}
-              className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${desainBelakang === "bordir"
-                ? "bg-[#C44341]/15 border-[#C44341] text-white ring-1 ring-[#C44341]"
-                : "bg-black/50 border-white/10 text-gray-400 hover:border-white/30"
-                }`}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-xs font-bold font-mono block">Bordir Komputer</span>
-                  <span className="text-xs font-black text-amber-400">Rp 205.000 (+20k)</span>
-                </div>
-                <span className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] ${desainBelakang === "bordir" ? "border-[#C44341] bg-[#C44341] text-white" : "border-white/30"
-                  }`}>
-                  {desainBelakang === "bordir" ? "✓" : ""}
-                </span>
+            </div>
+            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-white/5 border border-white/5">
+              <span className="text-base shrink-0">🛡️</span>
+              <div className="min-w-0">
+                <span className="text-[10px] text-gray-400 block leading-tight">Lapisan</span>
+                <span className="text-white font-bold truncate block">Pakai Furing Dalam</span>
               </div>
-              <span className="text-[11px] text-gray-400 mt-1">
-                Bordir benang timbul bertekstur mewah & tahan lama.
-              </span>
-            </button>
+            </div>
+            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-white/5 border border-white/5">
+              <span className="text-base shrink-0">🪡</span>
+              <div className="min-w-0">
+                <span className="text-[10px] text-gray-400 block leading-tight">Tulisan Belakang</span>
+                <span className="text-amber-400 font-bold truncate block">Bordir Komputer</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-white/5 border border-white/5">
+              <span className="text-base shrink-0">🎨</span>
+              <div className="min-w-0">
+                <span className="text-[10px] text-gray-400 block leading-tight">Logo Depan</span>
+                <span className="text-[#C44341] font-bold truncate block">Sablon DTF Presisi</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -315,18 +254,18 @@ export default function MerchandiseForm() {
         {/* Summary Box */}
         <div className="p-4 rounded-xl bg-black/70 border border-white/10 space-y-2 font-mono">
           <div className="flex items-center justify-between text-xs text-gray-300">
-            <span>Harga Satuan ({desainBelakang === "bordir" ? "Versi Bordir" : "Versi Sablon"}):</span>
+            <span>Harga Satuan (Fix):</span>
             <span className="font-bold text-white">{formatCurrency(hargaSatuan)}</span>
           </div>
           <div className="flex items-center justify-between text-xs text-gray-300">
-            <span>Lapisan Furing:</span>
-            <span className="text-[#C44341] font-semibold">
-              {furing === "pakai" ? "Sudah termasuk (Pakai Furing)" : "Tanpa Furing"}
+            <span>Spesifikasi:</span>
+            <span className="text-emerald-400 font-semibold text-[11px]">
+              Ripstop • Furing • Bordir Belakang • DTF Depan
             </span>
           </div>
           <div className="flex items-center justify-between text-xs text-gray-300">
             <span>Ukuran & Jumlah:</span>
-            <span>Size {ukuran} x {qty} pcs</span>
+            <span className="text-white font-bold">Size {ukuran} x {qty} pcs</span>
           </div>
           <div className="pt-2 border-t border-white/10 flex items-center justify-between text-sm sm:text-base font-bold text-white">
             <span>Total Estimasi:</span>
@@ -388,18 +327,16 @@ export default function MerchandiseForm() {
                 <span className="text-white font-bold">#{createdOrderId}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Pilihan:</span>
-                <span className="text-white">
-                  Size {ukuran} • {furing === "pakai" ? "Pakai Furing" : "Tanpa Furing"}
-                </span>
+                <span className="text-gray-400">Ukuran:</span>
+                <span className="text-white font-bold">Size {ukuran}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Desain Belakang:</span>
-                <span className="text-amber-400 font-bold uppercase">{desainBelakang}</span>
+                <span className="text-gray-400">Spesifikasi:</span>
+                <span className="text-emerald-400 font-semibold text-[11px]">Bahan Ripstop • Furing • Bordir • DTF</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Jumlah:</span>
-                <span className="text-white font-bold">{qty} pcs</span>
+                <span className="text-white font-bold">{qty} pcs ({formatCurrency(hargaSatuan)} / pcs)</span>
               </div>
               <div className="flex justify-between pt-2 border-t border-white/10 text-sm font-bold">
                 <span>Total:</span>

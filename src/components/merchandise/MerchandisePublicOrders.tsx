@@ -132,8 +132,6 @@ export default function MerchandisePublicOrders() {
                 <th className="py-3 px-4 text-center w-12">#</th>
                 <th className="py-3 px-4">Nama Pemesan</th>
                 <th className="py-3 px-4 text-center">Ukuran</th>
-                <th className="py-3 px-4">Furing</th>
-                <th className="py-3 px-4">Desain Belakang</th>
                 <th className="py-3 px-4 text-center">Jumlah</th>
                 <th className="py-3 px-4">Tanggal</th>
                 <th className="py-3 px-4 text-center">Status</th>
@@ -153,20 +151,6 @@ export default function MerchandisePublicOrders() {
                     <span className="px-2 py-0.5 rounded-md bg-white/10 text-white font-bold">
                       {ord.ukuran}
                     </span>
-                  </td>
-                  <td className="py-3.5 px-4">
-                    {ord.furing === "pakai" ? (
-                      <span className="text-emerald-400">Pakai Furing</span>
-                    ) : (
-                      <span className="text-gray-400">Tanpa Furing</span>
-                    )}
-                  </td>
-                  <td className="py-3.5 px-4">
-                    {ord.desainBelakang === "bordir" ? (
-                      <span className="text-amber-400 font-semibold">Bordir (+20k)</span>
-                    ) : (
-                      <span className="text-gray-300">Sablon</span>
-                    )}
                   </td>
                   <td className="py-3.5 px-4 text-center font-bold text-white">
                     {ord.qty} pcs

@@ -10,40 +10,40 @@ export default function MerchandiseDetail({ onSelectOrder }: { onSelectOrder?: (
 
   const features = [
     {
-      title: "Bahan American Drill Premium",
-      desc: "Kain tebal, kokoh, tidak mudah kusut, adem dipakai di cuaca Bekasi dan tahan terpaan angin ringan saat gowes.",
+      title: "Bahan Ripstop Premium",
+      desc: "Kain ripstop dengan rajutan serat nilon pola kotak yang kuat, ringan, tahan sobek (tear-resistant), dan tahan terpaan angin saat melibas aspal gowes.",
       icon: "🧵",
       tag: "Material Utama",
     },
     {
-      title: "Sudah Termasuk Furing (Furring)",
-      desc: "Bagian dalam dilapisi furing lembut yang nyaman di kulit dan rapi saat melapisi jersey maupun kaos santai.",
+      title: "Lapisan Furing Dalam (Furring)",
+      desc: "Bagian dalam dilapisi furing lembut yang nyaman di kulit, menyerap keringat, dan membuat rompi lebih rapi serta kokoh saat melapisi jersey.",
       icon: "🛡️",
-      tag: "Included (Rp 185.000)",
+      tag: "Included (Fix)",
+    },
+    {
+      title: "Tulisan Belakang: Bordir Komputer",
+      desc: "Grafis ikonik TIBA-TIBA CYCLING di punggung diproduksi dengan bordir komputer benang timbul bertekstur mewah, rapi, presisi, dan sangat awet.",
+      icon: "🪡",
+      tag: "Bordir Komputer",
+    },
+    {
+      title: "Logo Depan: Sablon DTF Presisi",
+      desc: "Logo Tiba-Tiba Cycling di dada depan dicetak menggunakan sablon Direct Transfer Film (DTF) elastis dengan warna tajam, solid, dan tahan cuci.",
+      icon: "🎨",
+      tag: "Sablon DTF",
     },
     {
       title: "Reflektor Keselamatan (Safety Reflector)",
-      desc: "Strip scotchlite reflektif di kedua bahu depan dan belakang, memantulkan sinar lampu saat gowes subuh atau malam hari.",
+      desc: "Strip scotchlite reflektif di kedua bahu depan dan belakang, memantulkan sinar lampu saat gowes subuh atau malam hari demi keselamatan pesepeda.",
       icon: "✨",
       tag: "Fitur Keselamatan",
     },
     {
-      title: "Model Kantong & Warna Colorblock",
-      desc: "Warna dasar Navy maskulin dengan saku utilitas kontras merah, hijau, & kuning. Dilengkapi resleting metal kokoh.",
-      icon: "🎨",
-      tag: "Tactical Style",
-    },
-    {
-      title: "Ring D Depan (D-Ring Utility)",
-      desc: "Ring gantung di saku kanan atas untuk cantelan kacamata gowes, carabiner, kunci sepeda, atau aksesoris.",
+      title: "Model Kantong Colorblock & D-Ring",
+      desc: "Warna dasar Navy maskulin dengan saku utilitas kontras merah, hijau, & kuning. Dilengkapi resleting metal kokoh dan D-ring cantelan kacamata/kunci.",
       icon: "🔘",
-      tag: "Fungsional",
-    },
-    {
-      title: "Desain Belakang: Sablon / Bordir (+20k)",
-      desc: "Grafis ikonik TIBA-TIBA CYCLING di punggung. Tersedia versi sablon berkualitas (include) atau bordir komputer timbul (+Rp 20.000).",
-      icon: "🪡",
-      tag: "Pilihan Custom",
+      tag: "Tactical & Fungsional",
     },
   ];
 
@@ -141,16 +141,16 @@ export default function MerchandiseDetail({ onSelectOrder }: { onSelectOrder?: (
           </div>
           <div className="text-left sm:text-right sm:shrink-0 flex flex-col sm:items-end">
             <span className="text-[10px] font-mono uppercase text-gray-400 block text-left sm:text-right">
-              Harga Pre-Order
+              Harga Pre-Order (All-in)
             </span>
             <span
               className="text-3xl sm:text-4xl font-black text-[#C44341] block text-left sm:text-right leading-tight"
               style={{ fontFamily: "var(--font-display)" }}
             >
-              Rp 185.000
+              Rp 190.000
             </span>
-            <span className="text-[11px] font-mono text-gray-400 block text-left sm:text-right mt-0.5">
-              *Versi bordir belakang: Rp 205.000 (+20k)
+            <span className="text-[11px] font-mono text-emerald-400 block text-left sm:text-right mt-0.5 font-bold">
+              ✓ Termasuk Furing, Bordir & DTF
             </span>
           </div>
         </div>

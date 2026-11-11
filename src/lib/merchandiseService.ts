@@ -115,8 +115,8 @@ export async function deleteMerchandiseOrder(orderId: string): Promise<void> {
 export function formatWhatsAppOrderMessage(order: {
   nama: string;
   whatsapp: string;
-  furing: "pakai" | "tanpa";
-  desainBelakang: "sablon" | "bordir";
+  furing?: "pakai" | "tanpa";
+  desainBelakang?: "sablon" | "bordir";
   ukuran: string;
   qty: number;
   hargaSatuan: number;
@@ -124,8 +124,6 @@ export function formatWhatsAppOrderMessage(order: {
   catatan?: string;
   orderId?: string;
 }): string {
-  const furingLabel = order.furing === "pakai" ? "Ya (Pakai Furing)" : "Tidak (Tanpa Furing)";
-  const desainLabel = order.desainBelakang === "bordir" ? "Bordir Komputer (+Rp 20.000)" : "Sablon (Standar)";
   const formattedTotal = new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
@@ -146,8 +144,7 @@ export function formatWhatsAppOrderMessage(order: {
   message += `👤 *Nama Pemesan:* ${order.nama}\n`;
   message += `📱 *No. WhatsApp:* ${order.whatsapp}\n`;
   message += `📏 *Ukuran (Size):* ${order.ukuran}\n`;
-  message += `🛡️ *Furing:* ${furingLabel}\n`;
-  message += `✨ *Desain Belakang:* ${desainLabel}\n`;
+  message += `🧵 *Spesifikasi:* Bahan Ripstop • Pakai Furing • Bordir Belakang • Sablon DTF Depan\n`;
   message += `📦 *Jumlah:* ${order.qty} pcs (${formattedSatuan} / pcs)\n`;
   message += `💰 *Estimasi Total:* *${formattedTotal}*\n`;
 

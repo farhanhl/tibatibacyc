@@ -13,11 +13,11 @@ const profile = profileData as ProfileData;
 export const metadata: Metadata = {
   title: `Pre-Order Official Tactical Vest — ${profile.site.name} Bekasi`,
   description:
-    "Pre-Order rompi resmi Tiba-Tiba Cycling Bekasi. Dibuat dengan bahan American Drill, lapisan furing nyaman, reflektor keselamatan depan-belakang, saku colorblock tactical, dan ring gantung utilitas.",
+    "Pre-Order rompi resmi Tiba-Tiba Cycling Bekasi. Dibuat dengan bahan Ripstop premium, lapisan furing nyaman, tulisan bordir punggung, logo sablon DTF, reflektor keselamatan, saku colorblock tactical, dan ring gantung utilitas.",
   openGraph: {
     title: `Pre-Order Official Tactical Vest — ${profile.site.name}`,
     description:
-      "Rompi sepeda tactical eksklusif Tiba-Tiba Cycling Bekasi. Bahan American Drill, furing dalam, reflektor keselamatan, saku utilitas colorblock. Pre-order sekarang!",
+      "Rompi sepeda tactical eksklusif Tiba-Tiba Cycling Bekasi. Bahan Ripstop, furing dalam, tulisan bordir komputer, logo sablon DTF, reflektor keselamatan, saku utilitas colorblock. Pre-order sekarang!",
     images: [
       {
         url: "/images/merch/merch.jpeg",
@@ -93,7 +93,7 @@ export default function MerchandisePage() {
             <span className="block text-[#C44341]">Tiba-Tiba Cycling</span>
           </h1>
           <p className="text-base sm:text-lg text-gray-300 leading-relaxed font-medium">
-            Wujud identitas dan kekompakan aspal Bekasi. Rompi sepeda multifungsi dengan bahan American Drill, reflektor keselamatan, saku utilitas colorblock, dan kenyamanan furing dalam.
+            Wujud identitas dan kekompakan aspal Bekasi. Rompi sepeda multifungsi dengan bahan Ripstop premium, lapisan furing nyaman, tulisan bordir punggung, logo sablon DTF, dan reflektor keselamatan.
           </p>
         </div>
 
@@ -129,7 +129,7 @@ export default function MerchandisePage() {
               <span className="text-xl">1️⃣</span>
               <h4 className="text-sm font-bold text-white">Isi Form Pemesanan</h4>
               <p className="text-xs text-gray-400 leading-relaxed">
-                Pilih ukuran, furing, dan desain belakang. Begitu formulir dikirim, pesanan langsung tersimpan ke sistem database pre-order.
+                Pilih ukuran rompi. Begitu formulir dikirim, pesanan langsung tersimpan ke sistem database pre-order.
               </p>
             </div>
 

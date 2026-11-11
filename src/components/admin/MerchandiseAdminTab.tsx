@@ -147,6 +147,7 @@ export default function MerchandiseAdminTab({
 
   const handleCopyVendorSummary = () => {
     let text = `REKAP PRODUKSI ROMPI TIBA-TIBA CYCLING\n`;
+    text += `Spesifikasi: Bahan Ripstop • Pakai Furing • Bordir Belakang • Sablon DTF Depan (Harga Fix: Rp 190.000)\n`;
     text += `Total Pesanan: ${totalOrders} Orang (${totalPcs} Pcs)\n`;
     text += `Estimasi Total: ${formatCurrency(totalNominal)}\n\n`;
     text += `BREAKDOWN UKURAN:\n`;
