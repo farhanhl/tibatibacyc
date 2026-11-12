@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import Image from "next/image";
+import React, { useEffect } from "react";
 import { SizeChartItem } from "@/types/merchandise";
 
 export const SIZE_CHART: SizeChartItem[] = [
@@ -28,8 +27,6 @@ export default function SizeChartModal({
   selectedSize,
   onSelectSize,
 }: SizeChartModalProps) {
-  const [activeTab, setActiveTab] = useState<"table" | "image">("table");
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -62,7 +59,7 @@ export default function SizeChartModal({
               <span className="px-2.5 py-0.5 rounded-full bg-[#C44341]/20 border border-[#C44341]/50 text-[#C44341] text-[10px] font-mono font-bold uppercase tracking-wider">
                 Panduan Ukuran
               </span>
-              <span className="text-gray-400 text-xs font-mono">Good Think Studio</span>
+              <span className="text-gray-400 text-xs font-mono">Official Tactical Vest</span>
             </div>
             <h3
               className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white"
@@ -77,269 +74,222 @@ export default function SizeChartModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors text-base shrink-0"
+            className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors text-base shrink-0 cursor-pointer"
             aria-label="Tutup Panduan"
           >
             ✕
           </button>
         </div>
 
-        {/* View Switcher Tabs */}
-        <div className="flex items-center gap-2 bg-black/50 p-1 rounded-xl border border-white/10 text-xs font-mono">
-          <button
-            type="button"
-            onClick={() => setActiveTab("table")}
-            className={`flex-1 py-2 px-3 rounded-lg font-bold transition-all cursor-pointer ${
-              activeTab === "table"
-                ? "bg-[#C44341] text-white shadow-md shadow-[#C44341]/30"
-                : "text-gray-400 hover:text-white"
-            }`}
-          >
-            📊 Tabel Ukuran & Skema
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("image")}
-            className={`flex-1 py-2 px-3 rounded-lg font-bold transition-all cursor-pointer ${
-              activeTab === "image"
-                ? "bg-[#C44341] text-white shadow-md shadow-[#C44341]/30"
-                : "text-gray-400 hover:text-white"
-            }`}
-          >
-            🖼️ Foto Asli Vendor (Good Think)
-          </button>
+        {/* Visual Vest Illustration & Measurement Arrows */}
+        <div className="grid grid-cols-1 sm:grid-cols-12 gap-5 items-center bg-black/40 rounded-xl p-4 border border-white/10">
+          {/* Vest Graphic */}
+          <div className="sm:col-span-5 flex flex-col items-center justify-center">
+            <div className="relative w-44 h-48 flex items-center justify-center">
+              {/* Vest SVG Outline */}
+              <svg
+                viewBox="0 0 200 230"
+                className="w-full h-full drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {/* Vest Body */}
+                <path
+                  d="M50 25 C65 25 75 40 75 55 C75 75 100 85 100 85 C100 85 125 75 125 55 C125 40 135 25 150 25 L175 35 L160 90 C150 90 152 110 155 120 L155 210 L45 210 L45 120 C48 110 50 90 40 90 L25 35 Z"
+                  fill="#1C2430"
+                  stroke="#3A4659"
+                  strokeWidth="2.5"
+                />
+                {/* Zipper Center */}
+                <line
+                  x1="100"
+                  y1="85"
+                  x2="100"
+                  y2="210"
+                  stroke="#606B7D"
+                  strokeWidth="2.5"
+                  strokeDasharray="2 2"
+                />
+                {/* Collar */}
+                <path
+                  d="M75 55 C85 70 100 85 100 85 C100 85 115 70 125 55"
+                  stroke="#C44341"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+
+                {/* Arrow LENGTH (Vertical) */}
+                <g>
+                  <line
+                    x1="65"
+                    y1="30"
+                    x2="65"
+                    y2="205"
+                    stroke="#EF4444"
+                    strokeWidth="2.5"
+                  />
+                  <polygon points="65,24 60,33 70,33" fill="#EF4444" />
+                  <polygon points="65,211 60,202 70,202" fill="#EF4444" />
+                  <rect
+                    x="53"
+                    y="108"
+                    width="24"
+                    height="18"
+                    rx="4"
+                    fill="#12141A"
+                    stroke="#EF4444"
+                    strokeWidth="1.2"
+                  />
+                  <text
+                    x="65"
+                    y="121"
+                    fill="#EF4444"
+                    fontSize="10"
+                    fontWeight="bold"
+                    textAnchor="middle"
+                    fontFamily="monospace"
+                  >
+                    P
+                  </text>
+                </g>
+
+                {/* Arrow WIDTH (Horizontal) */}
+                <g>
+                  <line
+                    x1="38"
+                    y1="140"
+                    x2="162"
+                    y2="140"
+                    stroke="#EF4444"
+                    strokeWidth="2.5"
+                  />
+                  <polygon points="32,140 41,135 41,145" fill="#EF4444" />
+                  <polygon points="168,140 159,135 159,145" fill="#EF4444" />
+                  <rect
+                    x="108"
+                    y="131"
+                    width="24"
+                    height="18"
+                    rx="4"
+                    fill="#12141A"
+                    stroke="#EF4444"
+                    strokeWidth="1.2"
+                  />
+                  <text
+                    x="120"
+                    y="144"
+                    fill="#EF4444"
+                    fontSize="10"
+                    fontWeight="bold"
+                    textAnchor="middle"
+                    fontFamily="monospace"
+                  >
+                    L
+                  </text>
+                </g>
+              </svg>
+            </div>
+            {/* Legend */}
+            <div className="flex items-center gap-3 mt-1 text-[11px] font-mono">
+              <span className="text-red-400 font-bold flex items-center gap-1">
+                <span>↕</span> Length (Panjang)
+              </span>
+              <span className="text-red-400 font-bold flex items-center gap-1">
+                <span>↔</span> Width (Lebar)
+              </span>
+            </div>
+          </div>
+
+          {/* Quick Guide Points */}
+          <div className="sm:col-span-7 space-y-2.5 text-xs text-gray-300">
+            <div className="p-2.5 rounded-lg bg-white/5 border border-white/10 space-y-1">
+              <span className="font-bold text-white block">Cara Pengukuran Rompi:</span>
+              <p className="text-gray-300 leading-relaxed text-[11px]">
+                <strong className="text-white">Width (Lebar):</strong> Diukur mendatar dari bawah ketiak kiri ke ketiak kanan.
+                <br />
+                <strong className="text-white">Length (Panjang):</strong> Diukur tegak lurus dari titik pundak tertinggi sampai ujung bawah rompi.
+              </p>
+            </div>
+
+            {/* Toleransi Ukuran Note */}
+            <div className="p-2.5 rounded-lg bg-black/60 border border-[#C44341]/40 text-center">
+              <span className="text-[11px] font-mono font-bold text-white block">
+                *Toleransi ukuran 1-2 cm
+              </span>
+              <span className="text-[10px] text-gray-400">
+                Wajar pada proses pemotongan kain & penjahitan rompi
+              </span>
+            </div>
+          </div>
         </div>
 
-        {activeTab === "table" ? (
-          <>
-            {/* Visual Vest Illustration & Measurement Arrows */}
-            <div className="grid grid-cols-1 sm:grid-cols-12 gap-5 items-center bg-black/40 rounded-xl p-4 border border-white/10">
-              {/* Vest Graphic */}
-              <div className="sm:col-span-5 flex flex-col items-center justify-center">
-                <div className="relative w-44 h-48 flex items-center justify-center">
-                  {/* Vest SVG Outline */}
-                  <svg
-                    viewBox="0 0 200 230"
-                    className="w-full h-full drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
+        {/* Size Table */}
+        <div className="overflow-x-auto rounded-xl border border-white/15 shadow-inner">
+          <table className="w-full text-xs font-mono text-left">
+            <thead className="bg-[#C44341] text-white uppercase font-black tracking-wider">
+              <tr>
+                <th className="py-2.5 px-4">SIZE</th>
+                <th className="py-2.5 px-4 text-center">WIDTH / LEBAR</th>
+                <th className="py-2.5 px-4 text-center">LENGTH / PANJANG</th>
+                <th className="py-2.5 px-4 text-center">LINGKAR DADA</th>
+                {onSelectSize && <th className="py-2.5 px-4 text-center">AKSI</th>}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5 bg-black/60 text-gray-200">
+              {SIZE_CHART.map((sc) => {
+                const isSelected = selectedSize === sc.size;
+                return (
+                  <tr
+                    key={sc.size}
+                    className={`transition-colors ${
+                      isSelected
+                        ? "bg-[#C44341]/20 font-bold"
+                        : "hover:bg-white/5"
+                    }`}
                   >
-                    {/* Vest Body */}
-                    <path
-                      d="M50 25 C65 25 75 40 75 55 C75 75 100 85 100 85 C100 85 125 75 125 55 C125 40 135 25 150 25 L175 35 L160 90 C150 90 152 110 155 120 L155 210 L45 210 L45 120 C48 110 50 90 40 90 L25 35 Z"
-                      fill="#1C2430"
-                      stroke="#3A4659"
-                      strokeWidth="2.5"
-                    />
-                    {/* Zipper Center */}
-                    <line
-                      x1="100"
-                      y1="85"
-                      x2="100"
-                      y2="210"
-                      stroke="#606B7D"
-                      strokeWidth="2.5"
-                      strokeDasharray="2 2"
-                    />
-                    {/* Collar */}
-                    <path
-                      d="M75 55 C85 70 100 85 100 85 C100 85 115 70 125 55"
-                      stroke="#C44341"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-
-                    {/* Arrow LENGTH (Vertical) */}
-                    <g>
-                      <line
-                        x1="65"
-                        y1="30"
-                        x2="65"
-                        y2="205"
-                        stroke="#EF4444"
-                        strokeWidth="2.5"
-                      />
-                      <polygon points="65,24 60,33 70,33" fill="#EF4444" />
-                      <polygon points="65,211 60,202 70,202" fill="#EF4444" />
-                      <rect
-                        x="53"
-                        y="108"
-                        width="24"
-                        height="18"
-                        rx="4"
-                        fill="#12141A"
-                        stroke="#EF4444"
-                        strokeWidth="1.2"
-                      />
-                      <text
-                        x="65"
-                        y="121"
-                        fill="#EF4444"
-                        fontSize="10"
-                        fontWeight="bold"
-                        textAnchor="middle"
-                        fontFamily="monospace"
-                      >
-                        P
-                      </text>
-                    </g>
-
-                    {/* Arrow WIDTH (Horizontal) */}
-                    <g>
-                      <line
-                        x1="38"
-                        y1="140"
-                        x2="162"
-                        y2="140"
-                        stroke="#EF4444"
-                        strokeWidth="2.5"
-                      />
-                      <polygon points="32,140 41,135 41,145" fill="#EF4444" />
-                      <polygon points="168,140 159,135 159,145" fill="#EF4444" />
-                      <rect
-                        x="108"
-                        y="131"
-                        width="24"
-                        height="18"
-                        rx="4"
-                        fill="#12141A"
-                        stroke="#EF4444"
-                        strokeWidth="1.2"
-                      />
-                      <text
-                        x="120"
-                        y="144"
-                        fill="#EF4444"
-                        fontSize="10"
-                        fontWeight="bold"
-                        textAnchor="middle"
-                        fontFamily="monospace"
-                      >
-                        L
-                      </text>
-                    </g>
-                  </svg>
-                </div>
-                {/* Legend */}
-                <div className="flex items-center gap-3 mt-1 text-[11px] font-mono">
-                  <span className="text-red-400 font-bold flex items-center gap-1">
-                    <span>↕</span> Length (Panjang)
-                  </span>
-                  <span className="text-red-400 font-bold flex items-center gap-1">
-                    <span>↔</span> Width (Lebar)
-                  </span>
-                </div>
-              </div>
-
-              {/* Quick Guide Points */}
-              <div className="sm:col-span-7 space-y-2.5 text-xs text-gray-300">
-                <div className="p-2.5 rounded-lg bg-white/5 border border-white/10 space-y-1">
-                  <span className="font-bold text-white block">Cara Pengukuran Rompi:</span>
-                  <p className="text-gray-300 leading-relaxed text-[11px]">
-                    <strong className="text-white">Width (Lebar):</strong> Diukur mendatar dari bawah ketiak kiri ke ketiak kanan.
-                    <br />
-                    <strong className="text-white">Length (Panjang):</strong> Diukur tegak lurus dari titik pundak tertinggi sampai ujung bawah rompi.
-                  </p>
-                </div>
-
-                {/* Toleransi Ukuran Note */}
-                <div className="p-2.5 rounded-lg bg-black/60 border border-[#C44341]/40 text-center">
-                  <span className="text-[11px] font-mono font-bold text-white block">
-                    *Toleransi ukuran 1-2 cm
-                  </span>
-                  <span className="text-[10px] text-gray-400">
-                    Wajar pada proses pemotongan kain & penjahitan rompi
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Size Table matching image */}
-            <div className="overflow-x-auto rounded-xl border border-white/15 shadow-inner">
-              <table className="w-full text-xs font-mono text-left">
-                <thead className="bg-[#C44341] text-white uppercase font-black tracking-wider">
-                  <tr>
-                    <th className="py-2.5 px-4">SIZE</th>
-                    <th className="py-2.5 px-4 text-center">WIDTH / LEBAR</th>
-                    <th className="py-2.5 px-4 text-center">LENGTH / PANJANG</th>
-                    <th className="py-2.5 px-4 text-center">LINGKAR DADA</th>
-                    {onSelectSize && <th className="py-2.5 px-4 text-center">AKSI</th>}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5 bg-black/60 text-gray-200">
-                  {SIZE_CHART.map((sc) => {
-                    const isSelected = selectedSize === sc.size;
-                    return (
-                      <tr
-                        key={sc.size}
-                        className={`transition-colors ${
-                          isSelected
-                            ? "bg-[#C44341]/20 font-bold"
-                            : "hover:bg-white/5"
-                        }`}
-                      >
-                        <td className="py-2.5 px-4 font-black text-white text-sm">
-                          <span className="inline-flex items-center gap-1.5">
-                            <span className="text-[#C44341]">{sc.size}</span>
-                            {isSelected && (
-                              <span className="text-[10px] px-1.5 py-0.2 bg-[#C44341] text-white rounded">
-                                Dipilih
-                              </span>
-                            )}
+                    <td className="py-2.5 px-4 font-black text-white text-sm">
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="text-[#C44341]">{sc.size}</span>
+                        {isSelected && (
+                          <span className="text-[10px] px-1.5 py-0.2 bg-[#C44341] text-white rounded">
+                            Dipilih
                           </span>
-                        </td>
-                        <td className="py-2.5 px-4 text-center font-bold text-gray-100">
-                          {sc.lebar} cm
-                        </td>
-                        <td className="py-2.5 px-4 text-center font-bold text-gray-100">
-                          {sc.panjang} cm
-                        </td>
-                        <td className="py-2.5 px-4 text-center text-gray-400">
-                          ~{sc.lingkarDada} cm
-                        </td>
-                        {onSelectSize && (
-                          <td className="py-2.5 px-4 text-center">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                onSelectSize(sc.size);
-                                onClose();
-                              }}
-                              className={`px-3 py-1 rounded-lg text-[11px] font-bold uppercase transition-all ${
-                                isSelected
-                                  ? "bg-white text-black font-black"
-                                  : "bg-[#C44341] hover:bg-[#A93434] text-white"
-                              }`}
-                            >
-                              {isSelected ? "Terpilih" : "Pilih"}
-                            </button>
-                          </td>
                         )}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </>
-        ) : (
-          /* Vendor Image Tab */
-          <div className="space-y-3 bg-black/40 rounded-xl p-4 border border-white/10 flex flex-col items-center">
-            <div className="relative w-full max-w-sm aspect-[9/16] rounded-xl overflow-hidden border border-white/10 shadow-2xl bg-white">
-              <Image
-                src="/images/merch/size-chart.jpg"
-                alt="Size Chart Dewasa Good Think Studio"
-                fill
-                sizes="(max-width: 640px) 100vw, 400px"
-                className="object-contain"
-                priority
-              />
-            </div>
-            <p className="text-center text-xs font-mono text-gray-400">
-              *Toleransi ukuran 1-2 cm • Size 3XL s/d 5XL naik +2 cm tiap ukuran (Lebar & Panjang)
-            </p>
-          </div>
-        )}
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-4 text-center font-bold text-gray-100">
+                      {sc.lebar} cm
+                    </td>
+                    <td className="py-2.5 px-4 text-center font-bold text-gray-100">
+                      {sc.panjang} cm
+                    </td>
+                    <td className="py-2.5 px-4 text-center text-gray-400">
+                      ~{sc.lingkarDada} cm
+                    </td>
+                    {onSelectSize && (
+                      <td className="py-2.5 px-4 text-center">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onSelectSize(sc.size);
+                            onClose();
+                          }}
+                          className={`px-3 py-1 rounded-lg text-[11px] font-bold uppercase transition-all cursor-pointer ${
+                            isSelected
+                              ? "bg-white text-black font-black"
+                              : "bg-[#C44341] hover:bg-[#A93434] text-white"
+                          }`}
+                        >
+                          {isSelected ? "Terpilih" : "Pilih"}
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
 
         {/* Footer info & Close */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
