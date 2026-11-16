@@ -26,8 +26,13 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.includes("localhost")
+    ? process.env.NEXT_PUBLIC_SITE_URL
+    : "https://www.tibatibacyc.my.id";
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://www.tibatibacyc.my.id"),
+  metadataBase: new URL(SITE_URL),
   title: `${profile.site.name} — Komunitas Sepeda di Bekasi`,
   description: `${profile.site.description} Berdiri sejak ${profile.site.founded}. ${profile.brand.tagline}`,
   keywords: [

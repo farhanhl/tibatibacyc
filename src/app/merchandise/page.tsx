@@ -9,23 +9,44 @@ import MerchandiseForm from "@/components/merchandise/MerchandiseForm";
 import MerchandisePublicOrders from "@/components/merchandise/MerchandisePublicOrders";
 
 const profile = profileData as ProfileData;
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.includes("localhost")
+    ? process.env.NEXT_PUBLIC_SITE_URL
+    : "https://www.tibatibacyc.my.id";
 
 export const metadata: Metadata = {
-  title: `Pre-Order Official Tactical Vest — ${profile.site.name} Bekasi`,
+  metadataBase: new URL(SITE_URL),
+  title: `🦺 Pre-Order Official Tactical Vest — ${profile.site.name} Bekasi`,
   description:
-    "Pre-Order rompi resmi Tiba-Tiba Cycling Bekasi. Dibuat dengan bahan Ripstop premium, lapisan furing nyaman, tulisan bordir punggung, logo sablon DTF, reflektor keselamatan, saku colorblock tactical, dan ring gantung utilitas.",
+    "Pre-Order rompi sepeda resmi Tiba-Tiba Cycling Bekasi (Rp 190.000). Bahan Ripstop premium + lapisan furing dalam, tulisan bordir komputer punggung, logo sablon DTF, reflektor keselamatan, dan saku utilitas. Tersedia ukuran S sampai 5XL!",
   openGraph: {
-    title: `Pre-Order Official Tactical Vest — ${profile.site.name}`,
+    type: "website",
+    locale: "id_ID",
+    url: `${SITE_URL}/merchandise`,
+    siteName: `${profile.site.name} Bekasi`,
+    title: `🦺 Pre-Order Official Tactical Vest — ${profile.site.name} Bekasi`,
     description:
-      "Rompi sepeda tactical eksklusif Tiba-Tiba Cycling Bekasi. Bahan Ripstop, furing dalam, tulisan bordir komputer, logo sablon DTF, reflektor keselamatan, saku utilitas colorblock. Pre-order sekarang!",
+      "Rompi sepeda tactical eksklusif Tiba-Tiba Cycling Bekasi (Rp 190.000). Bahan Ripstop premium + furing dalam, bordir punggung, reflektor keselamatan & saku utilitas. Pre-order Batch #1 dibuka!",
     images: [
       {
-        url: "/images/merch/merch.jpeg",
-        width: 1024,
-        height: 683,
-        alt: "Tactical Riding Vest Tiba-Tiba Cycling Bekasi",
+        url: `${SITE_URL}/images/og-merchandise.jpg`,
+        secureUrl: `${SITE_URL}/images/og-merchandise.jpg`,
+        width: 1200,
+        height: 630,
+        type: "image/jpeg",
+        alt: `Pre-Order Official Tactical Vest ${profile.site.name} Bekasi`,
       },
     ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `🦺 Pre-Order Official Tactical Vest — ${profile.site.name} Bekasi`,
+    description:
+      "Rompi sepeda tactical eksklusif Tiba-Tiba Cycling Bekasi (Rp 190.000). Bahan Ripstop premium + furing dalam, bordir punggung & reflektor. Pre-order Batch #1 sekarang!",
+    images: [`${SITE_URL}/images/og-merchandise.jpg`],
+  },
+  alternates: {
+    canonical: `${SITE_URL}/merchandise`,
   },
 };
 
