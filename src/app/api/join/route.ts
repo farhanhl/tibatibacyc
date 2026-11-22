@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getJakartaDateInfo, incrementDailyJoin } from "@/lib/visitorCount";
-import { db } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 export const dynamic = "force-dynamic";
 
@@ -74,24 +72,7 @@ export async function POST(req: NextRequest) {
     const { formattedDate, dateKey } = getJakartaDateInfo();
     const joinTodayCount = await incrementDailyJoin(dateKey);
 
-    // 4. Simpan data calon member ke Firestore jika disediakan
-    if (nama || phone) {
-      try {
-        await addDoc(collection(db, "join_members"), {
-          nama,
-          domisili,
-          phone,
-          location,
-          createdAt: new Date().toISOString(),
-          timestamp: serverTimestamp(),
-          dateKey,
-        });
-      } catch (dbErr) {
-        console.warn("[Join API] Gagal menyimpan data join ke Firestore:", dbErr);
-      }
-    }
-
-    // 5. Susun pesan Telegram
+    // 4. Susun pesan Telegram
     const hasMemberData = Boolean(nama || domisili || phone);
 
     // Format nomor WhatsApp untuk direct chat link
