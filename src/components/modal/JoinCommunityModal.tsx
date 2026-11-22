@@ -122,18 +122,12 @@ export default function JoinCommunityModal({
           {/* Header */}
           <div className="flex items-start justify-between border-b border-white/10 pb-4">
             <div className="space-y-1">
-              <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-[#C44341]/20 border border-[#C44341]/50 text-[#C44341] text-[11px] font-mono font-bold uppercase tracking-wider">
-                <span>🚴 Form Pendaftaran Member</span>
-              </div>
               <h3
                 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white mt-1"
                 style={{ fontFamily: "var(--font-display)" }}
               >
                 GABUNG <span className="text-[#C44341]">TIBA-TIBA CYCLING</span>
               </h3>
-              <p className="text-xs text-gray-400 font-mono">
-                Lengkapi data diri kamu sebelum masuk ke grup WhatsApp resmi kami.
-              </p>
             </div>
 
             <button
