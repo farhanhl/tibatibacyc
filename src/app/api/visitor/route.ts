@@ -3,8 +3,12 @@ import { getJakartaDateInfo, incrementDailyVisitor } from "@/lib/visitorCount";
 
 export const dynamic = "force-dynamic";
 
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+const rawBotToken =
+  process.env.TELEGRAM_BOT_TOKEN || "9160478407:AAHo87hopnsXFsJ60EbV5b6IUOPk3sESgYw";
+const rawChatId = process.env.TELEGRAM_CHAT_ID || "7101696494";
+
+const TELEGRAM_BOT_TOKEN = rawBotToken;
+const TELEGRAM_CHAT_ID = rawChatId === "7181896494" ? "7101696494" : rawChatId;
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.tibatibacyc.my.id";
 const TELEGRAM_API_URL = process.env.TELEGRAM_API_URL || "https://api.telegram.org";
 

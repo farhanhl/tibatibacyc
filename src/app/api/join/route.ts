@@ -5,8 +5,13 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 export const dynamic = "force-dynamic";
 
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+const rawBotToken =
+  process.env.TELEGRAM_BOT_TOKEN || "9160478407:AAHo87hopnsXFsJ60EbV5b6IUOPk3sESgYw";
+const rawChatId = process.env.TELEGRAM_CHAT_ID || "7101696494";
+
+// Pastikan chat ID valid (koreksi otomatis jika typo 7181896494 -> 7101696494)
+const TELEGRAM_BOT_TOKEN = rawBotToken;
+const TELEGRAM_CHAT_ID = rawChatId === "7181896494" ? "7101696494" : rawChatId;
 const TELEGRAM_API_URL = process.env.TELEGRAM_API_URL || "https://api.telegram.org";
 
 function escapeHtml(text: string): string {
@@ -89,11 +94,23 @@ export async function POST(req: NextRequest) {
     // 5. Susun pesan Telegram
     const hasMemberData = Boolean(nama || domisili || phone);
 
+    // Format nomor WhatsApp untuk direct chat link
+    const phoneDigits = phone.replace(/\D/g, "");
+    const waNumber = phoneDigits.startsWith("0")
+      ? "62" + phoneDigits.slice(1)
+      : phoneDigits.startsWith("62")
+      ? phoneDigits
+      : "62" + phoneDigits;
+
+    const phoneLink = phoneDigits
+      ? `<a href="https://wa.me/${waNumber}">${escapeHtml(phone)}</a>`
+      : escapeHtml(phone || "-");
+
     const messageText = hasMemberData
       ? `🚴 <b>Calon Member Baru Ingin Bergabung!</b>\n\n` +
         `👤 <b>Nama:</b> ${escapeHtml(nama || "-")}\n` +
         `📍 <b>Domisili:</b> ${escapeHtml(domisili || "-")}\n` +
-        `📱 <b>No. HP/WA:</b> ${escapeHtml(phone || "-")}\n` +
+        `📱 <b>No. HP/WA:</b> ${phoneLink}\n` +
         `🌐 <b>Lokasi IP:</b> ${escapeHtml(location)}\n` +
         `📊 <b>Total Join Hari Ini:</b> ${joinTodayCount}\n` +
         `📅 <b>Tanggal:</b> ${formattedDate}`

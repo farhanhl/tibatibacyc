@@ -80,6 +80,7 @@ export default function JoinCommunityModal({
           domisili: trimmedDomisili,
           phone: cleanPhone,
         }),
+        keepalive: true,
       });
     } catch (err) {
       console.warn("[JoinModal] Gagal mengirim data ke API:", err);
