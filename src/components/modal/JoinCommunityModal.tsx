@@ -112,7 +112,7 @@ export default function JoinCommunityModal({
       }}
     >
       <div
-        className="relative w-full max-w-lg bg-[#12141A] border border-white/20 rounded-2xl shadow-2xl overflow-hidden text-white z-10 animate-in zoom-in-95 fade-in duration-300 my-auto"
+        className="relative w-full max-w-lg bg-[#12141A] border border-white/20 rounded-2xl shadow-2xl overflow-hidden text-white z-10 animate-in fade-in duration-200 my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Accent Gradient Bar */}
@@ -173,12 +173,11 @@ export default function JoinCommunityModal({
                   id="join-nama"
                   type="text"
                   required
-                  autoFocus
                   placeholder="Contoh: Fai"
                   value={nama}
                   onChange={(e) => setNama(e.target.value)}
                   disabled={isSubmitting}
-                  className="w-full pl-10 pr-4 py-3 bg-black/50 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#C44341] focus:ring-1 focus:ring-[#C44341] transition-all text-sm font-sans disabled:opacity-50"
+                  className="w-full pl-10 pr-4 py-3 bg-black/50 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#C44341] focus:ring-1 focus:ring-[#C44341] transition-all text-base sm:text-sm font-sans disabled:opacity-50"
                 />
               </div>
             </div>
@@ -203,7 +202,7 @@ export default function JoinCommunityModal({
                   value={domisili}
                   onChange={(e) => setDomisili(e.target.value)}
                   disabled={isSubmitting}
-                  className="w-full pl-10 pr-4 py-3 bg-black/50 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#C44341] focus:ring-1 focus:ring-[#C44341] transition-all text-sm font-sans disabled:opacity-50"
+                  className="w-full pl-10 pr-4 py-3 bg-black/50 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#C44341] focus:ring-1 focus:ring-[#C44341] transition-all text-base sm:text-sm font-sans disabled:opacity-50"
                 />
               </div>
             </div>
@@ -228,7 +227,7 @@ export default function JoinCommunityModal({
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   disabled={isSubmitting}
-                  className="w-full pl-10 pr-4 py-3 bg-black/50 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#C44341] focus:ring-1 focus:ring-[#C44341] transition-all text-sm font-sans disabled:opacity-50"
+                  className="w-full pl-10 pr-4 py-3 bg-black/50 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#C44341] focus:ring-1 focus:ring-[#C44341] transition-all text-base sm:text-sm font-sans disabled:opacity-50"
                 />
               </div>
             </div>
