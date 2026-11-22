@@ -237,14 +237,47 @@ export default function JoinCommunityModal({
 
             {/* Field: Konfirmasi Titik Kumpul */}
             <div className="space-y-1.5">
-              <label
-                htmlFor="join-titikkumpul"
-                className="block text-xs font-mono font-bold uppercase tracking-wider text-gray-300"
-              >
-                Titik Kumpul (Tol Bekasi Timur) <span className="text-[#C44341]">*</span>
-              </label>
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor="join-titikkumpul"
+                  className="block text-xs font-mono font-bold uppercase tracking-wider text-gray-300"
+                >
+                  Titik Kumpul (Tol Bekasi Timur) <span className="text-[#C44341]">*</span>
+                </label>
+                <a
+                  href="https://maps.app.goo.gl/VimjXSCktSr1d2vh8"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[11px] font-mono text-[#E15A58] hover:text-[#C44341] hover:underline flex items-center gap-1 transition-colors"
+                >
+                  <span>Buka Maps</span>
+                  <span>↗</span>
+                </a>
+              </div>
               <p className="text-[11px] text-gray-400 leading-normal">
-                Titik kumpul kita biasanya di <strong>Alfamidi depan Tol Bekasi Timur</strong>. Apakah terlalu jauh dari lokasimu dan apakah kamu keberatan?
+                Titik kumpul kita biasanya di{" "}
+                <a
+                  href="https://maps.app.goo.gl/VimjXSCktSr1d2vh8"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#E15A58] hover:text-[#C44341] font-semibold underline underline-offset-2 inline-flex items-center gap-1 transition-colors"
+                >
+                  <span>Alfamidi depan Tol Bekasi Timur</span>
+                  <svg
+                    className="w-3 h-3 inline-block shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    />
+                  </svg>
+                </a>
+                . Apakah terlalu jauh dari lokasimu dan apakah kamu keberatan?
               </p>
               <div className="relative">
                 <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">

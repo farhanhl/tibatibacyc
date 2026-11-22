@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
       `👤 <b>Nama:</b> ${escapeHtml(nama || "-")}\n` +
       `📍 <b>Domisili:</b> ${escapeHtml(domisili || "-")}\n` +
       `📱 <b>No. HP/WA:</b> ${phoneLink}\n` +
-      `🚲 <b>Titik Kumpul (Tol Tim):</b> ${escapeHtml(titikKumpul || "-")}\n` +
+      `🚲 <b>Titik Kumpul (Tol Tim):</b> ${escapeHtml(titikKumpul || "-")} (<a href="https://maps.app.goo.gl/VimjXSCktSr1d2vh8">Maps</a>)\n` +
       `🌐 <b>Lokasi IP:</b> ${escapeHtml(location)}\n` +
       `📊 <b>Total Join Hari Ini:</b> ${joinTodayCount}\n` +
       `📅 <b>Tanggal:</b> ${formattedDate}`

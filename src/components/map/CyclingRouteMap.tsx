@@ -301,7 +301,8 @@ export default function CyclingRouteMap({
         <div style="color:#222;font-size:12px;padding:2px;">
           <strong style="color:#059669;font-size:12px;">🚩 Titik Kumpul Utama</strong><br/>
           <b>Alfamidi Depan Tol Bekasi Timur</b><br/>
-          <span style="color:#666;font-size:11px;">Jam Kumpul: 05:30 WIB</span>
+          <span style="color:#666;font-size:11px;">Jam Kumpul: 05:30 WIB</span><br/>
+          <a href="https://maps.app.goo.gl/VimjXSCktSr1d2vh8" target="_blank" rel="noopener noreferrer" style="color:#2563eb;font-size:11px;text-decoration:underline;display:inline-block;margin-top:2px;">Buka Google Maps ↗</a>
         </div>
       `);
 
