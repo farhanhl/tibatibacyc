@@ -119,11 +119,6 @@ export default function JoinSection({ community, brand }: JoinSectionProps) {
                 </li>
               ))}
             </ul>
-
-            <div className="pt-3 border-t border-white/15 flex items-center gap-2 text-xs text-[#EAE6DD] font-mono">
-              <span className="text-base">🚲</span>
-              <span className="leading-tight">{brand.bikePolicy}</span>
-            </div>
           </div>
         </div>
       </div>
