@@ -233,12 +233,6 @@ export default function JoinCommunityModal({
               </div>
             </div>
 
-            {/* Info Security Badge */}
-            <p className="text-[11px] font-mono text-gray-400 flex items-center gap-1.5 pt-1">
-              <span>🔒</span>
-              <span>Data hanya digunakan untuk verifikasi anggota Tiba-Tiba Cycling.</span>
-            </p>
-
             {/* Action Buttons */}
             <div className="pt-2 flex flex-col sm:flex-row gap-3">
               <button
