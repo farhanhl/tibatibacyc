@@ -36,7 +36,7 @@ export default function GallerySection({
             number="03"
             tag="Dokumentasi & Momen"
             title="Galeri Gowes"
-            subtitle="Potret kebersamaan, jalanan pagi Bekasi, dan momen seru peloton Tiba-Tiba Cycling."
+            subtitle="Dokumentasi foto dari rute gowes dan tempat kumpul akhir pekan kami."
             theme="dark"
             className="mb-0"
           />

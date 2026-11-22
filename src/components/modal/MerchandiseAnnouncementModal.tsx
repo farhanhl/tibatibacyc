@@ -121,7 +121,7 @@ export default function MerchandiseAnnouncementModal() {
 
               {/* Brief Information */}
               <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-                Tiba-Tiba Cycling sedang membuka pre-order <strong className="text-white">Tactical Riding Vest</strong> resmi! Dibuat dengan bahan Ripstop premium, lapisan furing dalam, tulisan bordir punggung, & logo sablon DTF.
+                Tiba-Tiba Cycling sedang membuka pre-order <strong className="text-white">Tactical Riding Vest</strong> resmi. Dibuat dengan bahan ripstop, furing dalam, tulisan bordir punggung, dan logo sablon DTF.
               </p>
 
               {/* Action Buttons */}

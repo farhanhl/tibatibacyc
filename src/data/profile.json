@@ -14,15 +14,15 @@
     "tagline": "Tiba-Tiba Gowes, Tiba-Tiba Ngopi.",
     "heroTitle": "TIBA-TIBA CYCLING",
     "heroSubtitle": "Komunitas sepeda di Bekasi.",
-    "heroDescription": "Wadah bagi pesepeda di Bekasi untuk menikmati jalanan pagi di akhir pekan. Santai, seru, dan terbuka untuk semua jenis sepeda.",
+    "heroDescription": "Tempat kumpul pesepeda di Bekasi buat gowes pagi tiap akhir pekan. Santai, seru, dan terbuka untuk semua jenis sepeda.",
     "quote": "Gowes bareng, ketemu orang baru, lalu kadang... tiba-tiba ngopi.",
     "bikePolicy": "Semua jenis sepeda boleh ikut."
   },
   "about": {
     "title": "Tentang Tiba-Tiba Cycling",
     "lead": "Komunitas sepeda di Bekasi yang berdiri pada Juli 2026.",
-    "description": "Tiba Tiba Cycling adalah komunitas sepeda di Bekasi yang berdiri pada Juli 2026. Komunitas ini menjadi wadah bagi berbagai jenis pesepeda untuk menikmati kegiatan bersepeda bersama, terutama pada akhir pekan. Anggota Tiba Tiba Cycling berasal dari berbagai wilayah di Bekasi, termasuk Bekasi Timur, Bekasi Barat, dan Bekasi Selatan.",
-    "extended": "Bagi kami, bersepeda bukan sekadar kayuhan pedal dan jarak tempuh, tapi juga tentang kebersamaan di aspal pagi Bekasi, obrolan santai di lampu merah, dan istirahat hangat di kedai kopi favorit seusai gowes.",
+    "description": "Tiba Tiba Cycling adalah komunitas pesepeda di Bekasi yang berdiri pada Juli 2026. Kami rutin gowes bareng keliling Bekasi di akhir pekan. Anggota kami berasal dari berbagai wilayah, mulai dari Bekasi Timur, Bekasi Barat, sampai Bekasi Selatan.",
+    "extended": "Kami gowes santai keliling jalanan Bekasi, ngobrol santai di perjalanan, lalu mampir ngopi bareng sehabis putaran.",
     "pillars": [
       {
         "title": "Semua Sepeda Boleh Ikut",
@@ -30,7 +30,7 @@
       },
       {
         "title": "Eksplor Bersama",
-        "description": "Menjelajahi rute-rute ramah pesepeda di Bekasi sampai keluar kota."
+        "description": "Menyusuri rute-rute gowes di Bekasi sampai ke luar kota."
       },
       {
         "title": "Weekend Rides & Ngopi",
@@ -58,7 +58,7 @@
       "Gunakan helm dan perlengkapan keselamatan standar.",
       "Patuhi rambu lalu lintas dan hormati sesama pengguna jalan.",
       "Jaga ritme dan keselamatan barisan (group ride safety).",
-      "Semua jenis sepeda dan tingkat kebugaran diterima dengan hangat."
+      "Semua jenis sepeda dan semua pace boleh ikut, santai dan saling tunggu."
     ]
   }
 }

@@ -74,7 +74,7 @@ export default function EventsSection({
             number="03"
             tag="Aktivitas & Gowes"
             title="Kegiatan Tiba-Tiba Cycling"
-            subtitle="Jadwal gowes akhir pekan dan dokumentasi ride seru melintasi rute-rute terbaik di Bekasi."
+            subtitle="Jadwal gowes akhir pekan dan dokumentasi kegiatan di berbagai rute Bekasi."
             theme="dark"
             subtitleClassName="text-white font-medium"
             className="mb-0"

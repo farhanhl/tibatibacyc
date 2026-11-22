@@ -114,7 +114,7 @@ export default function MerchandisePage() {
             <span className="block text-[#C44341]">Tiba-Tiba Cycling</span>
           </h1>
           <p className="text-base sm:text-lg text-gray-300 leading-relaxed font-medium">
-            Wujud identitas dan kekompakan aspal Bekasi. Rompi sepeda multifungsi dengan bahan Ripstop premium, lapisan furing nyaman, tulisan bordir punggung, logo sablon DTF, dan reflektor keselamatan.
+            Rompi resmi Tiba-Tiba Cycling untuk gowes harian dan akhir pekan. Bahan ripstop tahan angin, furing dalam, bordir punggung, dan strip reflektor keselamatan.
           </p>
         </div>
 

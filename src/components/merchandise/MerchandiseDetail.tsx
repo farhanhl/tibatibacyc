@@ -10,8 +10,8 @@ export default function MerchandiseDetail({ onSelectOrder }: { onSelectOrder?: (
 
   const features = [
     {
-      title: "Bahan Ripstop Premium",
-      desc: "Kain ripstop dengan rajutan serat nilon pola kotak yang kuat, ringan, tahan sobek (tear-resistant), dan tahan terpaan angin saat melibas aspal gowes.",
+      title: "Bahan Ripstop",
+      desc: "Kain ripstop dengan rajutan serat nilon pola kotak yang kuat, ringan, tahan sobek, dan menahan terpaan angin saat gowes di jalan raya.",
       icon: "🧵",
       tag: "Material Utama",
     },
@@ -156,7 +156,7 @@ export default function MerchandiseDetail({ onSelectOrder }: { onSelectOrder?: (
         </div>
 
         <p className="text-sm text-[#EAE6DD] leading-relaxed">
-          Rompi sepeda eksklusif bernuansa tactical utilitarian yang dirancang khusus untuk anggota dan kawan-kawan Tiba-Tiba Cycling Bekasi. Nyaman dipakai saat melibas aspal akhir pekan, tahan terpaan angin, saku banyak untuk bawa HP & toolkit, dan tetap kece saat mampir ngopi santai.
+          Rompi sepeda dengan banyak saku fungsional untuk membawa ponsel dan toolkit. Nyaman dipakai saat gowes pagi akhir pekan dan tetap santai saat nongkrong di kedai kopi seusai ride.
         </p>
 
         {onSelectOrder && (

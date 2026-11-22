@@ -175,7 +175,7 @@ export default function RootLayout({
             "name": "Apa itu Tiba-Tiba Cycling?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Tiba-Tiba Cycling adalah komunitas pesepeda di Bekasi yang berdiri sejak Juli 2026. Komunitas ini mewadahi berbagai pesepeda untuk menikmati kegiatan gowes bersama di akhir pekan dengan prinsip santai, seru, dan terbuka untuk semua jenis sepeda."
+              "text": "Tiba-Tiba Cycling adalah komunitas pesepeda di Bekasi yang berdiri sejak Juli 2026. Kami rutin gowes bareng keliling Bekasi di akhir pekan. Santai, seru, dan terbuka untuk semua jenis sepeda."
             }
           },
           {
