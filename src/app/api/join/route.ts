@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getJakartaDateInfo, incrementDailyJoin } from "@/lib/visitorCount";
+import { db } from "@/lib/firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 export const dynamic = "force-dynamic";
 
@@ -7,11 +9,20 @@ const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 const TELEGRAM_API_URL = process.env.TELEGRAM_API_URL || "https://api.telegram.org";
 
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 export async function POST(req: NextRequest) {
   try {
     let location = "Lokasi tidak diketahui";
 
-    // 1. Read location from client body if provided
+    // 1. Read body data
     let body: any = {};
     try {
       const text = await req.text();
@@ -21,6 +32,10 @@ export async function POST(req: NextRequest) {
     } catch {
       body = {};
     }
+
+    const nama = typeof body.nama === "string" ? body.nama.trim() : "";
+    const domisili = typeof body.domisili === "string" ? body.domisili.trim() : "";
+    const phone = typeof body.phone === "string" ? body.phone.trim() : "";
 
     if (body.location && typeof body.location === "string" && body.location.trim().length > 0) {
       location = body.location.trim();
@@ -54,9 +69,37 @@ export async function POST(req: NextRequest) {
     const { formattedDate, dateKey } = getJakartaDateInfo();
     const joinTodayCount = await incrementDailyJoin(dateKey);
 
-    const messageText = `🤝 Ada yang mau join nih dari ${location}, total yang mau join hari ini: ${joinTodayCount}`;
+    // 4. Simpan data calon member ke Firestore jika disediakan
+    if (nama || phone) {
+      try {
+        await addDoc(collection(db, "join_members"), {
+          nama,
+          domisili,
+          phone,
+          location,
+          createdAt: new Date().toISOString(),
+          timestamp: serverTimestamp(),
+          dateKey,
+        });
+      } catch (dbErr) {
+        console.warn("[Join API] Gagal menyimpan data join ke Firestore:", dbErr);
+      }
+    }
 
-    // 4. Send Telegram Notification
+    // 5. Susun pesan Telegram
+    const hasMemberData = Boolean(nama || domisili || phone);
+
+    const messageText = hasMemberData
+      ? `🚴 <b>Calon Member Baru Ingin Bergabung!</b>\n\n` +
+        `👤 <b>Nama:</b> ${escapeHtml(nama || "-")}\n` +
+        `📍 <b>Domisili:</b> ${escapeHtml(domisili || "-")}\n` +
+        `📱 <b>No. HP/WA:</b> ${escapeHtml(phone || "-")}\n` +
+        `🌐 <b>Lokasi IP:</b> ${escapeHtml(location)}\n` +
+        `📊 <b>Total Join Hari Ini:</b> ${joinTodayCount}\n` +
+        `📅 <b>Tanggal:</b> ${formattedDate}`
+      : `🤝 Ada yang mau join nih dari ${escapeHtml(location)}, total yang mau join hari ini: ${joinTodayCount}`;
+
+    // 6. Send Telegram Notification
     if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
       return NextResponse.json({
         success: true,
@@ -80,6 +123,7 @@ export async function POST(req: NextRequest) {
           body: JSON.stringify({
             chat_id: TELEGRAM_CHAT_ID,
             text: messageText,
+            parse_mode: "HTML",
           }),
           signal: AbortSignal.timeout(5000),
         }
