@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
     const nama = typeof body.nama === "string" ? body.nama.trim() : "";
     const domisili = typeof body.domisili === "string" ? body.domisili.trim() : "";
     const phone = typeof body.phone === "string" ? body.phone.trim() : "";
+    const titikKumpul = typeof body.titikKumpul === "string" ? body.titikKumpul.trim() : "";
 
     if (body.location && typeof body.location === "string" && body.location.trim().length > 0) {
       location = body.location.trim();
@@ -73,7 +74,7 @@ export async function POST(req: NextRequest) {
     const joinTodayCount = await incrementDailyJoin(dateKey);
 
     // 4. Susun pesan Telegram
-    const hasMemberData = Boolean(nama || domisili || phone);
+    const hasMemberData = Boolean(nama || domisili || phone || titikKumpul);
 
     // Format nomor WhatsApp untuk direct chat link
     const phoneDigits = phone.replace(/\D/g, "");
@@ -92,6 +93,7 @@ export async function POST(req: NextRequest) {
       `👤 <b>Nama:</b> ${escapeHtml(nama || "-")}\n` +
       `📍 <b>Domisili:</b> ${escapeHtml(domisili || "-")}\n` +
       `📱 <b>No. HP/WA:</b> ${phoneLink}\n` +
+      `🚲 <b>Titik Kumpul (Tol Tim):</b> ${escapeHtml(titikKumpul || "-")}\n` +
       `🌐 <b>Lokasi IP:</b> ${escapeHtml(location)}\n` +
       `📊 <b>Total Join Hari Ini:</b> ${joinTodayCount}\n` +
       `📅 <b>Tanggal:</b> ${formattedDate}`

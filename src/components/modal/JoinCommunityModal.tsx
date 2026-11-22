@@ -16,6 +16,7 @@ export default function JoinCommunityModal({
   const [nama, setNama] = useState("");
   const [domisili, setDomisili] = useState("");
   const [phone, setPhone] = useState("");
+  const [titikKumpul, setTitikKumpul] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,6 +49,7 @@ export default function JoinCommunityModal({
     const trimmedNama = nama.trim();
     const trimmedDomisili = domisili.trim();
     const trimmedPhone = phone.trim();
+    const trimmedTitikKumpul = titikKumpul.trim();
 
     // Validasi input
     if (!trimmedNama || trimmedNama.length < 2) {
@@ -66,6 +68,11 @@ export default function JoinCommunityModal({
       return;
     }
 
+    if (!trimmedTitikKumpul || trimmedTitikKumpul.length < 2) {
+      setError("Mohon jawab konfirmasi mengenai titik kumpul.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -79,6 +86,7 @@ export default function JoinCommunityModal({
           nama: trimmedNama,
           domisili: trimmedDomisili,
           phone: cleanPhone,
+          titikKumpul: trimmedTitikKumpul,
         }),
         keepalive: true,
       });
@@ -99,6 +107,7 @@ export default function JoinCommunityModal({
       setNama("");
       setDomisili("");
       setPhone("");
+      setTitikKumpul("");
       setError(null);
       onClose();
     }
@@ -223,6 +232,54 @@ export default function JoinCommunityModal({
                   disabled={isSubmitting}
                   className="w-full pl-10 pr-4 py-3 bg-black/50 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#C44341] focus:ring-1 focus:ring-[#C44341] transition-all text-base sm:text-sm font-sans disabled:opacity-50"
                 />
+              </div>
+            </div>
+
+            {/* Field: Konfirmasi Titik Kumpul */}
+            <div className="space-y-1.5">
+              <label
+                htmlFor="join-titikkumpul"
+                className="block text-xs font-mono font-bold uppercase tracking-wider text-gray-300"
+              >
+                Titik Kumpul (Tol Bekasi Timur) <span className="text-[#C44341]">*</span>
+              </label>
+              <p className="text-[11px] text-gray-400 leading-normal">
+                Titik kumpul kita biasanya di <strong>Alfamidi depan Tol Bekasi Timur</strong>. Apakah terlalu jauh dari lokasimu dan apakah kamu keberatan?
+              </p>
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+                  🚲
+                </span>
+                <input
+                  id="join-titikkumpul"
+                  type="text"
+                  required
+                  placeholder="Contoh: Aman tidak keberatan / Masih dekat"
+                  value={titikKumpul}
+                  onChange={(e) => setTitikKumpul(e.target.value)}
+                  disabled={isSubmitting}
+                  className="w-full pl-10 pr-4 py-3 bg-black/50 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#C44341] focus:ring-1 focus:ring-[#C44341] transition-all text-base sm:text-sm font-sans disabled:opacity-50"
+                />
+              </div>
+              <div className="flex flex-wrap gap-1.5 pt-0.5">
+                {[
+                  "Aman, tidak keberatan",
+                  "Dekat, siap kumpul",
+                  "Agak jauh tapi tetap ikut",
+                ].map((opsi) => (
+                  <button
+                    key={opsi}
+                    type="button"
+                    onClick={() => setTitikKumpul(opsi)}
+                    className={`text-[11px] px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                      titikKumpul === opsi
+                        ? "bg-[#C44341] border-[#C44341] text-white"
+                        : "bg-white/5 border-white/10 text-gray-400 hover:text-white hover:border-white/30"
+                    }`}
+                  >
+                    {opsi}
+                  </button>
+                ))}
               </div>
             </div>
 
