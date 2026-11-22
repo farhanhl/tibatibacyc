@@ -299,6 +299,7 @@ export default function JoinCommunityModal({
                   "Aman, tidak keberatan",
                   "Dekat, siap kumpul",
                   "Agak jauh tapi tetap ikut",
+                  "Terlalu jauh",
                 ].map((opsi) => (
                   <button
                     key={opsi}
