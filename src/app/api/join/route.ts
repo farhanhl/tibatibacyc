@@ -4,13 +4,13 @@ import { getJakartaDateInfo, incrementDailyJoin } from "@/lib/visitorCount";
 export const dynamic = "force-dynamic";
 
 const rawBotToken =
-  process.env.TELEGRAM_BOT_TOKEN || "9160478407:AAHo87hopnsXFsJ60EbV5b6IUOPk3sESgYw";
-const rawChatId = process.env.TELEGRAM_CHAT_ID || "7101696494";
+  process.env.TELEGRAM_BOT_TOKEN;
+const rawChatId = process.env.TELEGRAM_CHAT_ID;
 
 // Pastikan chat ID valid (koreksi otomatis jika typo 7181896494 -> 7101696494)
 const TELEGRAM_BOT_TOKEN = rawBotToken;
-const TELEGRAM_CHAT_ID = rawChatId === "7181896494" ? "7101696494" : rawChatId;
-const TELEGRAM_API_URL = process.env.TELEGRAM_API_URL || "https://api.telegram.org";
+const TELEGRAM_CHAT_ID = rawChatId;
+const TELEGRAM_API_URL = "https://api.telegram.org";
 
 function escapeHtml(text: string): string {
   return text
@@ -80,8 +80,8 @@ export async function POST(req: NextRequest) {
     const waNumber = phoneDigits.startsWith("0")
       ? "62" + phoneDigits.slice(1)
       : phoneDigits.startsWith("62")
-      ? phoneDigits
-      : "62" + phoneDigits;
+        ? phoneDigits
+        : "62" + phoneDigits;
 
     const phoneLink = phoneDigits
       ? `<a href="https://wa.me/${waNumber}">${escapeHtml(phone)}</a>`
@@ -89,12 +89,12 @@ export async function POST(req: NextRequest) {
 
     const messageText = hasMemberData
       ? `🚴 <b>Calon Member Baru Ingin Bergabung!</b>\n\n` +
-        `👤 <b>Nama:</b> ${escapeHtml(nama || "-")}\n` +
-        `📍 <b>Domisili:</b> ${escapeHtml(domisili || "-")}\n` +
-        `📱 <b>No. HP/WA:</b> ${phoneLink}\n` +
-        `🌐 <b>Lokasi IP:</b> ${escapeHtml(location)}\n` +
-        `📊 <b>Total Join Hari Ini:</b> ${joinTodayCount}\n` +
-        `📅 <b>Tanggal:</b> ${formattedDate}`
+      `👤 <b>Nama:</b> ${escapeHtml(nama || "-")}\n` +
+      `📍 <b>Domisili:</b> ${escapeHtml(domisili || "-")}\n` +
+      `📱 <b>No. HP/WA:</b> ${phoneLink}\n` +
+      `🌐 <b>Lokasi IP:</b> ${escapeHtml(location)}\n` +
+      `📊 <b>Total Join Hari Ini:</b> ${joinTodayCount}\n` +
+      `📅 <b>Tanggal:</b> ${formattedDate}`
       : `🤝 Ada yang mau join nih dari ${escapeHtml(location)}, total yang mau join hari ini: ${joinTodayCount}`;
 
     // 6. Send Telegram Notification
