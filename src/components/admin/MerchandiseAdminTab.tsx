@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
-import { MerchandiseOrder } from "@/types/merchandise";
+import React, { useState, useEffect } from "react";
+import { MerchandiseOrder, MerchandiseSize } from "@/types/merchandise";
 import {
   updateMerchandiseOrderStatus,
+  updateMerchandiseOrder,
   deleteMerchandiseOrder,
 } from "@/lib/merchandiseService";
 
@@ -11,6 +12,17 @@ interface MerchandiseAdminTabProps {
   orders: MerchandiseOrder[];
   onRefresh: () => Promise<void> | void;
 }
+
+const AVAILABLE_SIZES: MerchandiseSize[] = [
+  "S",
+  "M",
+  "L",
+  "XL",
+  "2XL",
+  "3XL",
+  "4XL",
+  "5XL",
+];
 
 export default function MerchandiseAdminTab({
   orders,
@@ -22,6 +34,46 @@ export default function MerchandiseAdminTab({
   >("all");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [copiedSummary, setCopiedSummary] = useState(false);
+  const [notification, setNotification] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
+  // Edit Modal State
+  const [editingOrder, setEditingOrder] = useState<MerchandiseOrder | null>(null);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+
+  const [editForm, setEditForm] = useState<{
+    nama: string;
+    whatsapp: string;
+    ukuran: MerchandiseSize;
+    qty: number;
+    hargaSatuan: number;
+    totalHarga: number;
+    status: MerchandiseOrder["status"];
+    catatan: string;
+  }>({
+    nama: "",
+    whatsapp: "",
+    ukuran: "L",
+    qty: 1,
+    hargaSatuan: 190000,
+    totalHarga: 190000,
+    status: "pending",
+    catatan: "",
+  });
+
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && editingOrder && !isSavingEdit) {
+        setEditingOrder(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [editingOrder, isSavingEdit]);
 
   // Perhitungan Statistik
   const totalOrders = orders.length;
@@ -100,6 +152,11 @@ export default function MerchandiseAdminTab({
     try {
       await updateMerchandiseOrderStatus(orderId, newStatus);
       await onRefresh();
+      setNotification({
+        type: "success",
+        text: `Status pesanan berhasil diperbarui menjadi "${newStatus}".`,
+      });
+      setTimeout(() => setNotification(null), 3000);
     } catch (err) {
       console.error(err);
       alert("Gagal mengubah status pesanan.");
@@ -122,11 +179,114 @@ export default function MerchandiseAdminTab({
     try {
       await deleteMerchandiseOrder(order.id);
       await onRefresh();
+      setNotification({
+        type: "success",
+        text: `Pesanan atas nama "${order.nama}" berhasil dihapus.`,
+      });
+      setTimeout(() => setNotification(null), 3000);
     } catch (err) {
       console.error(err);
       alert("Gagal menghapus pesanan.");
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const handleOpenEdit = (order: MerchandiseOrder) => {
+    setEditingOrder(order);
+    const safeSize = (order.ukuran === "XXL" ? "2XL" : order.ukuran) || "L";
+    const qty = order.qty || 1;
+    const hargaSatuan = order.hargaSatuan || 190000;
+    const totalHarga = order.totalHarga || qty * hargaSatuan;
+
+    setEditForm({
+      nama: order.nama || "",
+      whatsapp: order.whatsapp || "",
+      ukuran: safeSize as MerchandiseSize,
+      qty,
+      hargaSatuan,
+      totalHarga,
+      status: order.status || "pending",
+      catatan: order.catatan || "",
+    });
+    setEditError(null);
+  };
+
+  const handleCloseEdit = () => {
+    if (isSavingEdit) return;
+    setEditingOrder(null);
+    setEditError(null);
+  };
+
+  const handleQtyChange = (val: number) => {
+    const qty = Math.max(1, Math.floor(val) || 1);
+    setEditForm((prev) => ({
+      ...prev,
+      qty,
+      totalHarga: qty * prev.hargaSatuan,
+    }));
+  };
+
+  const handleHargaSatuanChange = (val: number) => {
+    const hargaSatuan = Math.max(0, Math.floor(val) || 0);
+    setEditForm((prev) => ({
+      ...prev,
+      hargaSatuan,
+      totalHarga: prev.qty * hargaSatuan,
+    }));
+  };
+
+  const handleRecalculateTotal = () => {
+    setEditForm((prev) => ({
+      ...prev,
+      totalHarga: prev.qty * prev.hargaSatuan,
+    }));
+  };
+
+  const handleSaveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingOrder || !editingOrder.id) return;
+
+    if (!editForm.nama.trim()) {
+      setEditError("Nama pemesan wajib diisi.");
+      return;
+    }
+
+    if (!editForm.whatsapp.trim()) {
+      setEditError("Nomor WhatsApp pemesan wajib diisi.");
+      return;
+    }
+
+    setIsSavingEdit(true);
+    setEditError(null);
+
+    try {
+      await updateMerchandiseOrder(editingOrder.id, {
+        nama: editForm.nama.trim(),
+        whatsapp: editForm.whatsapp.trim(),
+        ukuran: editForm.ukuran,
+        qty: Number(editForm.qty),
+        hargaSatuan: Number(editForm.hargaSatuan),
+        totalHarga: Number(editForm.totalHarga),
+        status: editForm.status,
+        catatan: editForm.catatan.trim() || "",
+      });
+
+      setNotification({
+        type: "success",
+        text: `Pesanan atas nama "${editForm.nama.trim()}" berhasil diperbarui!`,
+      });
+      setTimeout(() => setNotification(null), 4000);
+
+      setEditingOrder(null);
+      await onRefresh();
+    } catch (err: unknown) {
+      console.error("Gagal mengupdate pesanan:", err);
+      const message =
+        err instanceof Error ? err.message : "Gagal menyimpan perubahan pesanan.";
+      setEditError(message);
+    } finally {
+      setIsSavingEdit(false);
     }
   };
 
@@ -159,6 +319,29 @@ export default function MerchandiseAdminTab({
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
+      {/* Notification Toast/Banner */}
+      {notification && (
+        <div
+          className={`p-4 rounded-xl text-xs font-mono flex items-center justify-between border transition-all ${
+            notification.type === "success"
+              ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"
+              : "bg-red-500/15 border-red-500/40 text-red-300"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <span>{notification.type === "success" ? "✅" : "⚠️"}</span>
+            <span>{notification.text}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setNotification(null)}
+            className="text-gray-400 hover:text-white text-sm"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* 4 Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Total Pemesan */}
@@ -229,14 +412,14 @@ export default function MerchandiseAdminTab({
 
       {/* Breakdown Ukuran Rompi */}
       <div className="p-5 rounded-2xl bg-black/55 border border-white/15 space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <span className="text-xs font-mono text-gray-400 uppercase font-bold">
             Breakdown Ukuran Rompi (Pcs):
           </span>
           <button
             type="button"
             onClick={handleCopyVendorSummary}
-            className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-[#C44341] text-white text-xs font-mono font-bold transition-colors flex items-center gap-1.5"
+            className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-[#C44341] text-white text-xs font-mono font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
           >
             <span>📋</span>
             <span>{copiedSummary ? "Tersalin ke Clipboard!" : "Salin Rekap untuk Vendor"}</span>
@@ -372,7 +555,7 @@ export default function MerchandiseAdminTab({
                         </div>
                         {ord.catatan && (
                           <div className="text-[10px] text-amber-300/80 pt-1 italic">
-                            💬 "{ord.catatan}"
+                            💬 &quot;{ord.catatan}&quot;
                           </div>
                         )}
                       </td>
@@ -420,17 +603,28 @@ export default function MerchandiseAdminTab({
                         </select>
                       </td>
 
-                      {/* Aksi Hapus */}
+                      {/* Aksi: Edit & Hapus */}
                       <td className="py-3 px-4 text-center">
-                        <button
-                          type="button"
-                          disabled={updatingId === ord.id}
-                          onClick={() => handleDelete(ord)}
-                          className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/30 text-red-400 hover:text-white transition-colors cursor-pointer text-xs"
-                          title="Hapus Pesanan"
-                        >
-                          🗑️
-                        </button>
+                        <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEdit(ord)}
+                            className="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/30 text-amber-300 hover:text-white transition-all cursor-pointer text-xs flex items-center gap-1 font-bold border border-amber-500/30"
+                            title="Edit Data Pesanan"
+                          >
+                            <span>✏️</span>
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            type="button"
+                            disabled={updatingId === ord.id}
+                            onClick={() => handleDelete(ord)}
+                            className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/30 text-red-400 hover:text-white transition-colors cursor-pointer text-xs border border-red-500/20"
+                            title="Hapus Pesanan"
+                          >
+                            🗑️
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -440,6 +634,281 @@ export default function MerchandiseAdminTab({
           </div>
         )}
       </div>
+
+      {/* Edit Order Modal */}
+      {editingOrder && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200"
+          onClick={handleCloseEdit}
+        >
+          <div
+            className="relative w-full max-w-xl bg-[#0c0d0e] border border-white/20 rounded-2xl shadow-2xl overflow-hidden my-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Top Red Gradient Accent Bar */}
+            <div className="h-1.5 w-full bg-gradient-to-r from-[#E03A3E] via-[#C44341] to-[#8E1B1D]" />
+
+            {/* Modal Header */}
+            <div className="p-5 sm:p-6 border-b border-white/10 flex items-start justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">✏️</span>
+                  <h3
+                    className="text-xl sm:text-2xl font-black uppercase text-white tracking-tight"
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    Edit Data Pesanan
+                  </h3>
+                </div>
+                <div className="flex items-center gap-2 pt-1">
+                  <span className="text-xs font-mono text-gray-400">
+                    ID Pesanan:
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-white/10 text-white font-mono text-xs font-bold">
+                    #{editingOrder.id}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleCloseEdit}
+                disabled={isSavingEdit}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer text-sm"
+                aria-label="Tutup"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form onSubmit={handleSaveEdit} className="p-5 sm:p-6 space-y-4 font-mono">
+              {/* Error Alert */}
+              {editError && (
+                <div className="p-3.5 rounded-xl bg-red-500/15 border border-red-500/40 text-red-300 text-xs flex items-center gap-2">
+                  <span>⚠️</span>
+                  <span>{editError}</span>
+                </div>
+              )}
+
+              {/* Form Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Field 1: Nama Pemesan */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-300 block">
+                    Nama Pemesan <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editForm.nama}
+                    onChange={(e) =>
+                      setEditForm((prev) => ({ ...prev, nama: e.target.value }))
+                    }
+                    placeholder="Nama Lengkap..."
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-[#C44341] text-white text-xs outline-none transition-colors"
+                  />
+                </div>
+
+                {/* Field 2: No. WhatsApp */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-300 block">
+                    Nomor WhatsApp <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    value={editForm.whatsapp}
+                    onChange={(e) =>
+                      setEditForm((prev) => ({
+                        ...prev,
+                        whatsapp: e.target.value,
+                      }))
+                    }
+                    placeholder="Contoh: 08123456789"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-[#C44341] text-white text-xs outline-none transition-colors"
+                  />
+                </div>
+
+                {/* Field 3: Ukuran Rompi */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-300 block">
+                    Ukuran Rompi (Size) <span className="text-red-400">*</span>
+                  </label>
+                  <select
+                    value={editForm.ukuran}
+                    onChange={(e) =>
+                      setEditForm((prev) => ({
+                        ...prev,
+                        ukuran: e.target.value as MerchandiseSize,
+                      }))
+                    }
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-[#C44341] text-white text-xs outline-none cursor-pointer transition-colors"
+                  >
+                    {AVAILABLE_SIZES.map((size) => (
+                      <option key={size} value={size}>
+                        Size {size}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Field 4: Jumlah (Qty) */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-300 block">
+                    Jumlah (Pcs) <span className="text-red-400">*</span>
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleQtyChange(editForm.qty - 1)}
+                      className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-base flex items-center justify-center shrink-0 cursor-pointer"
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      min={1}
+                      value={editForm.qty}
+                      onChange={(e) => handleQtyChange(Number(e.target.value))}
+                      className="w-full px-3 py-2 text-center rounded-xl bg-black/60 border border-white/15 focus:border-[#C44341] text-white text-xs font-bold outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleQtyChange(editForm.qty + 1)}
+                      className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-base flex items-center justify-center shrink-0 cursor-pointer"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* Field 5: Harga Satuan */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-300 block">
+                    Harga Satuan (Rp)
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    step={1000}
+                    value={editForm.hargaSatuan}
+                    onChange={(e) =>
+                      handleHargaSatuanChange(Number(e.target.value))
+                    }
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-[#C44341] text-white text-xs outline-none transition-colors"
+                  />
+                  <span className="text-[10px] text-gray-400 block">
+                    {formatCurrency(editForm.hargaSatuan)} / pcs
+                  </span>
+                </div>
+
+                {/* Field 6: Total Biaya */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-gray-300 block">
+                      Total Biaya (Rp)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleRecalculateTotal}
+                      className="text-[10px] text-[#C44341] hover:underline cursor-pointer"
+                      title="Hitung ulang otomatis: Qty x Harga Satuan"
+                    >
+                      Hitung Ulang
+                    </button>
+                  </div>
+                  <input
+                    type="number"
+                    min={0}
+                    step={1000}
+                    value={editForm.totalHarga}
+                    onChange={(e) =>
+                      setEditForm((prev) => ({
+                        ...prev,
+                        totalHarga: Math.max(0, Number(e.target.value) || 0),
+                      }))
+                    }
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-[#C44341]/40 focus:border-[#C44341] text-emerald-400 font-bold text-xs outline-none transition-colors"
+                  />
+                  <span className="text-[10px] text-emerald-400 font-bold block">
+                    {formatCurrency(editForm.totalHarga)}
+                  </span>
+                </div>
+
+                {/* Field 7: Status Pesanan */}
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label className="text-xs font-bold text-gray-300 block">
+                    Status Pemesanan <span className="text-red-400">*</span>
+                  </label>
+                  <select
+                    value={editForm.status}
+                    onChange={(e) =>
+                      setEditForm((prev) => ({
+                        ...prev,
+                        status: e.target.value as MerchandiseOrder["status"],
+                      }))
+                    }
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-[#C44341] text-white text-xs outline-none cursor-pointer transition-colors"
+                  >
+                    <option value="pending">⏳ Pending (Menunggu Verifikasi Pembayaran)</option>
+                    <option value="confirmed">✅ Terkonfirmasi (Lunas / Masuk Produksi)</option>
+                    <option value="completed">🎉 Selesai (Barang Telah Diserahkan / Terkirim)</option>
+                    <option value="cancelled">❌ Batal (Pesanan Dibatalkan)</option>
+                  </select>
+                </div>
+
+                {/* Field 8: Catatan Tambahan */}
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label className="text-xs font-bold text-gray-300 block">
+                    Catatan Tambahan (Opsional)
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={editForm.catatan}
+                    onChange={(e) =>
+                      setEditForm((prev) => ({
+                        ...prev,
+                        catatan: e.target.value,
+                      }))
+                    }
+                    placeholder="Contoh: Titip di sekretariat gowes, lunas transfer BCA, dll..."
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-[#C44341] text-white text-xs outline-none transition-colors resize-none"
+                  />
+                </div>
+              </div>
+
+              {/* Modal Buttons */}
+              <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={handleCloseEdit}
+                  disabled={isSavingEdit}
+                  className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white text-xs font-bold transition-colors cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingEdit}
+                  className="px-5 py-2.5 rounded-xl bg-[#C44341] hover:bg-[#A93434] text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shadow-lg shadow-[#C44341]/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSavingEdit ? (
+                    <>
+                      <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Menyimpan...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>💾</span>
+                      <span>Simpan Perubahan</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

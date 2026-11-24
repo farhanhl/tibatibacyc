@@ -20,6 +20,7 @@ export interface MerchandiseOrder {
   catatan?: string;
   status: "pending" | "confirmed" | "completed" | "cancelled";
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface SizeChartItem {

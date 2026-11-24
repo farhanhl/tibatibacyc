@@ -102,6 +102,20 @@ export async function updateMerchandiseOrderStatus(
 }
 
 /**
+ * Memperbarui data pesanan merchandise secara lengkap oleh admin
+ */
+export async function updateMerchandiseOrder(
+  orderId: string,
+  data: Partial<Omit<MerchandiseOrder, "id">>
+): Promise<void> {
+  const docRef = doc(db, MERCHANDISE_ORDERS_COLLECTION, orderId);
+  await updateDoc(docRef, {
+    ...data,
+    updatedAt: new Date().toISOString(),
+  });
+}
+
+/**
  * Menghapus pesanan merchandise
  */
 export async function deleteMerchandiseOrder(orderId: string): Promise<void> {
