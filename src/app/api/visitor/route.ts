@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     const visitorTodayCount = await incrementDailyVisitor(dateKey);
 
     const messageText =
-      `🚲 Ada yang mampir ke ${BASE_URL} dari ${location}\n\n` +
+      `🚲 Ada yang mampir dari ${location}\n\n` +
       `📊 Jumlah pengunjung tanggal ${formattedDate} : ${visitorTodayCount} Pengunjung`;
 
     // 4. Send Telegram Notification
