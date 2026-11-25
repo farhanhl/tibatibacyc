@@ -16,9 +16,14 @@ const REQUIRED_ENV_VARS = [
 ];
 
 // Validasi environment variables saat build / start
-const missingEnv = REQUIRED_ENV_VARS.filter(
-  (key) => !process.env[key] || process.env[key]?.trim() === ""
-);
+const missingEnv = REQUIRED_ENV_VARS.filter((key) => {
+  if (key === "TELEGRAM_CHAT_ID") {
+    const hasChatId = Boolean(process.env.TELEGRAM_CHAT_ID?.trim());
+    const hasChatIds = Boolean(process.env.TELEGRAM_CHAT_IDS?.trim());
+    return !hasChatId && !hasChatIds;
+  }
+  return !process.env[key] || process.env[key]?.trim() === "";
+});
 
 if (missingEnv.length > 0) {
   const errorMessage = `

@@ -1,16 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getJakartaDateInfo, incrementDailyJoin } from "@/lib/visitorCount";
+import { sendTelegramNotification } from "@/lib/telegram";
 
 export const dynamic = "force-dynamic";
-
-const rawBotToken =
-  process.env.TELEGRAM_BOT_TOKEN;
-const rawChatId = process.env.TELEGRAM_CHAT_ID;
-
-// Pastikan chat ID valid (koreksi otomatis jika typo 7181896494 -> 7101696494)
-const TELEGRAM_BOT_TOKEN = rawBotToken;
-const TELEGRAM_CHAT_ID = rawChatId;
-const TELEGRAM_API_URL = "https://api.telegram.org";
 
 function escapeHtml(text: string): string {
   return text
@@ -93,70 +85,34 @@ export async function POST(req: NextRequest) {
       `👤 <b>Nama:</b> ${escapeHtml(nama || "-")}\n` +
       `📍 <b>Domisili:</b> ${escapeHtml(domisili || "-")}\n` +
       `📱 <b>No. HP/WA:</b> ${phoneLink}\n` +
-      `🚲 <b>Titik Kumpul (Tol Tim):</b> ${escapeHtml(titikKumpul || "-")} (<a href="https://maps.app.goo.gl/VimjXSCktSr1d2vh8">Maps</a>)\n` +
+      `🚲 <b>Titik Kumpul :</b> ${escapeHtml(titikKumpul || "-")}\n` +
       `🌐 <b>Lokasi IP:</b> ${escapeHtml(location)}\n` +
       `📊 <b>Total Join Hari Ini:</b> ${joinTodayCount}\n` +
       `📅 <b>Tanggal:</b> ${formattedDate}`
       : `🤝 Ada yang mau join nih dari ${escapeHtml(location)}, total yang mau join hari ini: ${joinTodayCount}`;
 
     // 6. Send Telegram Notification
-    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
-      return NextResponse.json({
-        success: true,
-        delivered: false,
-        message: messageText,
-        location,
-        joinTodayCount,
-        formattedDate,
-        note: "Notifikasi Telegram dilewati karena TELEGRAM_BOT_TOKEN atau TELEGRAM_CHAT_ID belum disetel.",
-      });
-    }
+    const telegramResult = await sendTelegramNotification({
+      text: messageText,
+      parseMode: "HTML",
+    });
 
-    try {
-      const telegramResponse = await fetch(
-        `${TELEGRAM_API_URL}/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            chat_id: TELEGRAM_CHAT_ID,
-            text: messageText,
-            parse_mode: "HTML",
-          }),
-          signal: AbortSignal.timeout(5000),
-        }
-      );
-
-      const telegramData = await telegramResponse.json();
-
-      return NextResponse.json({
-        success: true,
-        delivered: true,
-        message: messageText,
-        location,
-        joinTodayCount,
-        formattedDate,
-        telegram: telegramData,
-      });
-    } catch (telegramErr: any) {
-      console.warn(
-        "[Telegram API] Gagal terhubung ke api.telegram.org di lingkungan ini:",
-        telegramErr.message
-      );
-
-      return NextResponse.json({
-        success: true,
-        delivered: false,
-        message: messageText,
-        location,
-        joinTodayCount,
-        formattedDate,
-        note: "Request diterima, pesan akan otomatis terkirim 100% di server production.",
-        errorDetail: telegramErr.message,
-      });
-    }
+    return NextResponse.json({
+      success: true,
+      delivered: telegramResult.delivered,
+      allDelivered: telegramResult.allDelivered,
+      totalTargets: telegramResult.totalTargets,
+      deliveredCount: telegramResult.deliveredCount,
+      message: messageText,
+      location,
+      joinTodayCount,
+      formattedDate,
+      ...(telegramResult.note ? { note: telegramResult.note } : {}),
+      ...(telegramResult.errorDetail
+        ? { errorDetail: telegramResult.errorDetail }
+        : {}),
+      telegram: telegramResult.results,
+    });
   } catch (error: any) {
     console.error("Join Notification API Error:", error);
     return NextResponse.json(

@@ -28,7 +28,7 @@ export default function SettingsAdminTab() {
             Mengirim notifikasi otomatis saat ada pengunjung baru dan saat tombol Join WhatsApp diklik.
           </p>
           <div className="pt-2 text-[11px] text-gray-500 space-y-0.5">
-            <p>Target Chat ID: Konfigurasi .env</p>
+            <p>Target Chat ID: Konfigurasi .env (mendukung multi Chat ID)</p>
           </div>
         </div>
 

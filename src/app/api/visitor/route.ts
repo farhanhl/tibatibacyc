@@ -1,16 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getJakartaDateInfo, incrementDailyVisitor } from "@/lib/visitorCount";
+import { sendTelegramNotification } from "@/lib/telegram";
 
 export const dynamic = "force-dynamic";
 
-const rawBotToken =
-  process.env.TELEGRAM_BOT_TOKEN || "9160478407:AAHo87hopnsXFsJ60EbV5b6IUOPk3sESgYw";
-const rawChatId = process.env.TELEGRAM_CHAT_ID || "7101696494";
-
-const TELEGRAM_BOT_TOKEN = rawBotToken;
-const TELEGRAM_CHAT_ID = rawChatId === "7181896494" ? "7101696494" : rawChatId;
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.tibatibacyc.my.id";
-const TELEGRAM_API_URL = process.env.TELEGRAM_API_URL || "https://api.telegram.org";
 
 export async function POST(req: NextRequest) {
   try {
@@ -64,63 +58,26 @@ export async function POST(req: NextRequest) {
       `📊 Jumlah pengunjung tanggal ${formattedDate} : ${visitorTodayCount} Pengunjung`;
 
     // 4. Send Telegram Notification
-    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
-      return NextResponse.json({
-        success: true,
-        delivered: false,
-        message: messageText,
-        location,
-        visitorTodayCount,
-        formattedDate,
-        note: "Notifikasi Telegram dilewati karena TELEGRAM_BOT_TOKEN atau TELEGRAM_CHAT_ID belum disetel.",
-      });
-    }
+    const telegramResult = await sendTelegramNotification({
+      text: messageText,
+    });
 
-    try {
-      const telegramResponse = await fetch(
-        `${TELEGRAM_API_URL}/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            chat_id: TELEGRAM_CHAT_ID,
-            text: messageText,
-          }),
-          signal: AbortSignal.timeout(5000),
-        }
-      );
-
-      const telegramData = await telegramResponse.json();
-
-      return NextResponse.json({
-        success: true,
-        delivered: true,
-        message: messageText,
-        location,
-        visitorTodayCount,
-        formattedDate,
-        telegram: telegramData,
-      });
-    } catch (telegramErr: any) {
-      console.warn(
-        "[Telegram API] Gagal terhubung ke api.telegram.org di lingkungan ini (kemungkinan blokir DNS ISP di localhost):",
-        telegramErr.message
-      );
-
-      // Return success with note so API doesn't fail with 500 when testing locally
-      return NextResponse.json({
-        success: true,
-        delivered: false,
-        message: messageText,
-        location,
-        visitorTodayCount,
-        formattedDate,
-        note: "Request diterima, namun koneksi lokal (localhost) ke api.telegram.org dibatasi oleh DNS ISP lokal. Di server hosting / production (Vercel/Cloud), pesan akan otomatis terkirim 100%.",
-        errorDetail: telegramErr.message,
-      });
-    }
+    return NextResponse.json({
+      success: true,
+      delivered: telegramResult.delivered,
+      allDelivered: telegramResult.allDelivered,
+      totalTargets: telegramResult.totalTargets,
+      deliveredCount: telegramResult.deliveredCount,
+      message: messageText,
+      location,
+      visitorTodayCount,
+      formattedDate,
+      ...(telegramResult.note ? { note: telegramResult.note } : {}),
+      ...(telegramResult.errorDetail
+        ? { errorDetail: telegramResult.errorDetail }
+        : {}),
+      telegram: telegramResult.results,
+    });
   } catch (error: any) {
     console.error("Visitor Notification API Error:", error);
     return NextResponse.json(
