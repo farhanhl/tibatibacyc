@@ -198,7 +198,7 @@ export default function RootLayout({
             "name": "Di mana saja rute dan titik kumpul gowes Tiba-Tiba Cycling?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Rute gowes mencakup wilayah Bekasi Timur, Bekasi Barat, dan Bekasi Selatan dengan titik kumpul populer di Summarecon Bekasi (SMB), Grand Galaxy City, dan Bulak Kapal."
+              "text": "Rute gowes mencakup seluruh wilayah Bekasi dengan titik kumpul populer seperti Summarecon Bekasi (SMB), Grand Galaxy City, dan Bulak Kapal."
             }
           }
         ]

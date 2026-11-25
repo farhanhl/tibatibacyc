@@ -31,7 +31,7 @@ export default function AboutSection({ profile }: AboutSectionProps) {
         </svg>
       ),
       badge: "BEKASI URBAN ROUTES",
-      highlight: "Timur • Barat • Selatan",
+      highlight: "Seluruh Wilayah Bekasi",
     },
     {
       icon: (
@@ -177,10 +177,10 @@ export default function AboutSection({ profile }: AboutSectionProps) {
                 <div>
                   <span className="text-[11px] font-mono uppercase text-[#868B96] block">Coverage</span>
                   <span
-                    className="text-2xl sm:text-3xl font-black text-[#C44341] tracking-tight"
+                    className="text-xl sm:text-2xl lg:text-3xl font-black text-[#C44341] tracking-tight block leading-tight"
                     style={{ fontFamily: "var(--font-display)" }}
                   >
-                    3 Wilayah
+                    Seluruh Bekasi
                   </span>
                 </div>
                 <div className="col-span-2 sm:col-span-1">
