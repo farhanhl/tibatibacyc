@@ -25,6 +25,9 @@ export async function saveMerchandiseOrder(
     const ordersRef = collection(db, MERCHANDISE_ORDERS_COLLECTION);
     const docRef = await addDoc(ordersRef, {
       ...order,
+      statusPelajar: order.statusPelajar || (order.isPelajar ? "pelajar" : "bukan_pelajar"),
+      isPelajar: order.statusPelajar === "pelajar" || order.isPelajar === true,
+      pelajar: order.statusPelajar === "pelajar" ? "pelajar" : "bukan pelajar",
       status: "pending",
       createdAt: new Date().toISOString(),
       timestamp: serverTimestamp(),
@@ -135,6 +138,8 @@ export function formatWhatsAppOrderMessage(order: {
   totalHarga: number;
   catatan?: string;
   orderId?: string;
+  statusPelajar?: string;
+  isPelajar?: boolean;
 }): string {
   const formattedTotal = new Intl.NumberFormat("id-ID", {
     style: "currency",
@@ -148,6 +153,8 @@ export function formatWhatsAppOrderMessage(order: {
     maximumFractionDigits: 0,
   }).format(order.hargaSatuan);
 
+  const isPelajar = order.statusPelajar === "pelajar" || order.isPelajar === true;
+
   let message = `*HALO ADMIN TIBA-TIBA CYCLING*\n`;
   message += `Saya ingin konfirmasi pemesanan *Tactical Riding Vest Tiba-Tiba Cycling*:\n\n`;
   if (order.orderId) {
@@ -155,6 +162,7 @@ export function formatWhatsAppOrderMessage(order: {
   }
   message += `👤 *Nama Pemesan:* ${order.nama}\n`;
   message += `📱 *No. WhatsApp:* ${order.whatsapp}\n`;
+  message += `🎓 *Kategori:* ${isPelajar ? "Pelajar / Mahasiswa" : "Bukan Pelajar / Umum"}\n`;
   message += `📏 *Ukuran (Size):* ${order.ukuran}\n`;
   message += `🧵 *Spesifikasi:* Bahan Ripstop • Pakai Furing • Bordir Belakang • Sablon DTF Depan\n`;
   message += `📦 *Jumlah:* ${order.qty} pcs (${formattedSatuan} / pcs)\n`;

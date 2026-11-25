@@ -10,6 +10,7 @@ const SIZES: MerchandiseSize[] = ["S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL
 export default function MerchandiseForm() {
   const [nama, setNama] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [statusPelajar, setStatusPelajar] = useState<"bukan_pelajar" | "pelajar">("bukan_pelajar");
   const [ukuran, setUkuran] = useState<MerchandiseSize>("L");
   const [qty, setQty] = useState(1);
   const [catatan, setCatatan] = useState("");
@@ -49,6 +50,8 @@ export default function MerchandiseForm() {
       const orderId = await saveMerchandiseOrder({
         nama: nama.trim(),
         whatsapp: whatsapp.trim(),
+        statusPelajar,
+        isPelajar: statusPelajar === "pelajar",
         ukuran,
         qty,
         hargaSatuan,
@@ -69,6 +72,7 @@ export default function MerchandiseForm() {
   const handleResetForm = () => {
     setNama("");
     setWhatsapp("");
+    setStatusPelajar("bukan_pelajar");
     setCatatan("");
     setQty(1);
     setSubmitSuccess(false);
@@ -124,6 +128,45 @@ export default function MerchandiseForm() {
             placeholder="Contoh: 081234567890"
             className="w-full px-4 py-3 rounded-xl bg-black/60 border border-white/15 focus:border-[#C44341] focus:ring-1 focus:ring-[#C44341] text-white text-sm placeholder:text-gray-600 outline-none transition-all"
           />
+        </div>
+
+        {/* Status Pelajar atau Bukan */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-300 flex items-center justify-between">
+            <span>Kategori Pemesan (Pelajar / Bukan) *</span>
+          </label>
+          <div className="grid grid-cols-2 gap-2.5">
+            <button
+              type="button"
+              onClick={() => setStatusPelajar("bukan_pelajar")}
+              className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-3 ${
+                statusPelajar === "bukan_pelajar"
+                  ? "bg-[#C44341]/20 border-[#C44341] text-white shadow-md shadow-[#C44341]/20"
+                  : "bg-black/50 border-white/10 text-gray-400 hover:border-white/30"
+              }`}
+            >
+              <span className="text-xl">💼</span>
+              <div>
+                <span className="text-xs font-mono font-bold block text-white">Bukan Pelajar</span>
+                <span className="text-[10px] text-gray-400 block font-mono">Umum / Pekerja</span>
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setStatusPelajar("pelajar")}
+              className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-3 ${
+                statusPelajar === "pelajar"
+                  ? "bg-[#C44341]/20 border-[#C44341] text-white shadow-md shadow-[#C44341]/20"
+                  : "bg-black/50 border-white/10 text-gray-400 hover:border-white/30"
+              }`}
+            >
+              <span className="text-xl">🎒</span>
+              <div>
+                <span className="text-xs font-mono font-bold block text-white">Pelajar</span>
+                <span className="text-[10px] text-gray-400 block font-mono">Pelajar / Mahasiswa</span>
+              </div>
+            </button>
+          </div>
         </div>
 
         {/* Spesifikasi Standar Rompi (Fixed All-in) */}
@@ -254,6 +297,12 @@ export default function MerchandiseForm() {
             <span className="font-bold text-white">{formatCurrency(hargaSatuan)}</span>
           </div>
           <div className="flex items-center justify-between text-xs text-gray-300">
+            <span>Kategori Pemesan:</span>
+            <span className="font-bold text-white">
+              {statusPelajar === "pelajar" ? "🎒 Pelajar / Mahasiswa" : "💼 Bukan Pelajar (Umum)"}
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-xs text-gray-300">
             <span>Spesifikasi:</span>
             <span className="text-emerald-400 font-semibold text-[11px]">
               Ripstop • Furing • Bordir Belakang • DTF Depan
@@ -321,6 +370,12 @@ export default function MerchandiseForm() {
               <div className="flex justify-between text-gray-400 border-b border-white/10 pb-2">
                 <span>No. Pesanan:</span>
                 <span className="text-white font-bold">#{createdOrderId}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Kategori:</span>
+                <span className="text-white font-bold">
+                  {statusPelajar === "pelajar" ? "🎒 Pelajar / Mahasiswa" : "💼 Bukan Pelajar (Umum)"}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Ukuran:</span>

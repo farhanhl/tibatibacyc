@@ -18,6 +18,9 @@ export interface MerchandiseOrder {
   hargaSatuan: number;
   totalHarga: number;
   catatan?: string;
+  statusPelajar?: "pelajar" | "bukan_pelajar" | string;
+  isPelajar?: boolean;
+  pelajar?: string;
   status: "pending" | "confirmed" | "completed" | "cancelled";
   createdAt: string;
   updatedAt?: string;

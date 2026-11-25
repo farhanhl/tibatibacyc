@@ -131,6 +131,7 @@ export default function MerchandisePublicOrders() {
               <tr>
                 <th className="py-3 px-4 text-center w-12">#</th>
                 <th className="py-3 px-4">Nama Pemesan</th>
+                <th className="py-3 px-3 text-center">Pelajar / Bukan</th>
                 <th className="py-3 px-4 text-center">Ukuran</th>
                 <th className="py-3 px-4 text-center">Jumlah</th>
                 <th className="py-3 px-4">Tanggal</th>
@@ -146,6 +147,17 @@ export default function MerchandisePublicOrders() {
                       {ord.nama ? ord.nama.charAt(0).toUpperCase() : "🚴"}
                     </span>
                     <span>{ord.nama}</span>
+                  </td>
+                  <td className="py-3.5 px-3 text-center">
+                    {ord.statusPelajar === "pelajar" || ord.isPelajar === true ? (
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-blue-500/15 border border-blue-500/40 text-blue-400 whitespace-nowrap">
+                        🎒 Pelajar
+                      </span>
+                    ) : (
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/10 border border-white/15 text-gray-300 whitespace-nowrap">
+                        Bukan Pelajar
+                      </span>
+                    )}
                   </td>
                   <td className="py-3.5 px-4 text-center">
                     <span className="px-2 py-0.5 rounded-md bg-white/10 text-white font-bold">

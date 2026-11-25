@@ -47,6 +47,7 @@ export default function MerchandiseAdminTab({
   const [editForm, setEditForm] = useState<{
     nama: string;
     whatsapp: string;
+    statusPelajar: "bukan_pelajar" | "pelajar";
     ukuran: MerchandiseSize;
     qty: number;
     hargaSatuan: number;
@@ -56,6 +57,7 @@ export default function MerchandiseAdminTab({
   }>({
     nama: "",
     whatsapp: "",
+    statusPelajar: "bukan_pelajar",
     ukuran: "L",
     qty: 1,
     hargaSatuan: 190000,
@@ -198,10 +200,15 @@ export default function MerchandiseAdminTab({
     const qty = order.qty || 1;
     const hargaSatuan = order.hargaSatuan || 190000;
     const totalHarga = order.totalHarga || qty * hargaSatuan;
+    const statusPelajar: "bukan_pelajar" | "pelajar" =
+      order.statusPelajar === "pelajar" || order.isPelajar === true
+        ? "pelajar"
+        : "bukan_pelajar";
 
     setEditForm({
       nama: order.nama || "",
       whatsapp: order.whatsapp || "",
+      statusPelajar,
       ukuran: safeSize as MerchandiseSize,
       qty,
       hargaSatuan,
@@ -264,6 +271,9 @@ export default function MerchandiseAdminTab({
       await updateMerchandiseOrder(editingOrder.id, {
         nama: editForm.nama.trim(),
         whatsapp: editForm.whatsapp.trim(),
+        statusPelajar: editForm.statusPelajar,
+        isPelajar: editForm.statusPelajar === "pelajar",
+        pelajar: editForm.statusPelajar === "pelajar" ? "pelajar" : "bukan pelajar",
         ukuran: editForm.ukuran,
         qty: Number(editForm.qty),
         hargaSatuan: Number(editForm.hargaSatuan),
@@ -299,9 +309,13 @@ export default function MerchandiseAdminTab({
   };
 
   const handleCopyVendorSummary = () => {
+    const totalPelajar = orders.filter((o) => o.statusPelajar === "pelajar" || o.isPelajar === true).length;
+    const totalBukanPelajar = orders.length - totalPelajar;
+
     let text = `REKAP PRODUKSI ROMPI TIBA-TIBA CYCLING\n`;
     text += `Spesifikasi: Bahan Ripstop • Pakai Furing • Bordir Belakang • Sablon DTF Depan (Harga Fix: Rp 190.000)\n`;
     text += `Total Pesanan: ${totalOrders} Orang (${totalPcs} Pcs)\n`;
+    text += `Kategori: ${totalPelajar} Pelajar • ${totalBukanPelajar} Bukan Pelajar (Umum)\n`;
     text += `Estimasi Total: ${formatCurrency(totalNominal)}\n\n`;
     text += `BREAKDOWN UKURAN:\n`;
     Object.entries(sizeBreakdown).forEach(([sz, count]) => {
@@ -309,7 +323,8 @@ export default function MerchandiseAdminTab({
     });
     text += `\nDAFTAR PEMESAN:\n`;
     orders.forEach((o, i) => {
-      text += `${i + 1}. ${o.nama} (${o.whatsapp}) - Size ${o.ukuran} x${o.qty}\n`;
+      const kat = o.statusPelajar === "pelajar" || o.isPelajar === true ? "Pelajar" : "Bukan Pelajar";
+      text += `${i + 1}. ${o.nama} [${kat}] (${o.whatsapp}) - Size ${o.ukuran} x${o.qty}\n`;
     });
 
     navigator.clipboard.writeText(text);
@@ -510,6 +525,7 @@ export default function MerchandiseAdminTab({
                 <tr>
                   <th className="py-3 px-3 text-center w-10">#</th>
                   <th className="py-3 px-4">Nama & WhatsApp</th>
+                  <th className="py-3 px-3 text-center">Pelajar / Bukan</th>
                   <th className="py-3 px-3 text-center">Ukuran</th>
                   <th className="py-3 px-3 text-center">Qty</th>
                   <th className="py-3 px-4">Total Biaya</th>
@@ -557,6 +573,19 @@ export default function MerchandiseAdminTab({
                           <div className="text-[10px] text-amber-300/80 pt-1 italic">
                             💬 &quot;{ord.catatan}&quot;
                           </div>
+                        )}
+                      </td>
+
+                      {/* Pelajar / Bukan */}
+                      <td className="py-3 px-3 text-center">
+                        {ord.statusPelajar === "pelajar" || ord.isPelajar === true ? (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-blue-500/20 border border-blue-500/40 text-blue-300 whitespace-nowrap">
+                            🎒 Pelajar
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/10 border border-white/15 text-gray-400 text-[10px] whitespace-nowrap">
+                            Bukan Pelajar
+                          </span>
                         )}
                       </td>
 
@@ -729,7 +758,27 @@ export default function MerchandiseAdminTab({
                   />
                 </div>
 
-                {/* Field 3: Ukuran Rompi */}
+                {/* Field 3: Status Pelajar */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-300 block">
+                    Kategori (Pelajar / Bukan) <span className="text-red-400">*</span>
+                  </label>
+                  <select
+                    value={editForm.statusPelajar}
+                    onChange={(e) =>
+                      setEditForm((prev) => ({
+                        ...prev,
+                        statusPelajar: e.target.value as "bukan_pelajar" | "pelajar",
+                      }))
+                    }
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-[#C44341] text-white text-xs outline-none cursor-pointer transition-colors"
+                  >
+                    <option value="bukan_pelajar">Bukan Pelajar / Umum</option>
+                    <option value="pelajar">🎒 Pelajar / Mahasiswa</option>
+                  </select>
+                </div>
+
+                {/* Field 4: Ukuran Rompi */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-gray-300 block">
                     Ukuran Rompi (Size) <span className="text-red-400">*</span>
