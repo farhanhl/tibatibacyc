@@ -1,420 +1,94 @@
 "use client";
 
 import React, { useState } from "react";
-import { saveMerchandiseOrder } from "@/lib/merchandiseService";
-import { MerchandiseSize } from "@/types/merchandise";
+import Link from "next/link";
+import profileData from "@/data/profile.json";
+import { ProfileData } from "@/types/profile";
 import SizeChartModal from "@/components/merchandise/SizeChartModal";
 
-const SIZES: MerchandiseSize[] = ["S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL"];
+const profile = profileData as ProfileData;
 
 export default function MerchandiseForm() {
-  const [nama, setNama] = useState("");
-  const [whatsapp, setWhatsapp] = useState("");
-  const [statusPelajar, setStatusPelajar] = useState<"bukan_pelajar" | "pelajar">("bukan_pelajar");
-  const [ukuran, setUkuran] = useState<MerchandiseSize>("L");
-  const [qty, setQty] = useState(1);
-  const [catatan, setCatatan] = useState("");
   const [showSizeModal, setShowSizeModal] = useState(false);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [createdOrderId, setCreatedOrderId] = useState<string>("");
-
-  // Spesifikasi Fixed & Harga Fix Rp 190.000 (Ripstop, Pakai Furing, Bordir Belakang, Sablon DTF Depan)
-  const hargaSatuan = 190000;
-  const totalHarga = hargaSatuan * qty;
-
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      maximumFractionDigits: 0,
-    }).format(val);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!nama.trim()) {
-      alert("Mohon masukkan nama lengkap pemesan.");
-      return;
-    }
-    if (!whatsapp.trim() || whatsapp.trim().length < 8) {
-      alert("Mohon masukkan nomor WhatsApp yang valid.");
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      const orderId = await saveMerchandiseOrder({
-        nama: nama.trim(),
-        whatsapp: whatsapp.trim(),
-        statusPelajar,
-        isPelajar: statusPelajar === "pelajar",
-        ukuran,
-        qty,
-        hargaSatuan,
-        totalHarga,
-        catatan: catatan.trim(),
-      });
-
-      setCreatedOrderId(orderId);
-      setSubmitSuccess(true);
-    } catch (err) {
-      console.error(err);
-      alert("Terjadi kendala saat menyimpan data pesanan. Silakan coba lagi.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleResetForm = () => {
-    setNama("");
-    setWhatsapp("");
-    setStatusPelajar("bukan_pelajar");
-    setCatatan("");
-    setQty(1);
-    setSubmitSuccess(false);
-  };
-
   return (
-    <div id="order-form" className="relative p-6 sm:p-8 rounded-2xl bg-[#12141A] border border-white/20 shadow-2xl space-y-6">
+    <div
+      id="order-form"
+      className="relative p-6 sm:p-8 rounded-2xl bg-[#12141A] border border-white/20 shadow-2xl space-y-6"
+    >
       {/* Top Header */}
       <div className="space-y-1 border-b border-white/10 pb-4">
         <div className="flex items-center justify-between">
-          <span className="px-2.5 py-0.5 rounded-full bg-[#C44341]/20 border border-[#C44341]/50 text-[#C44341] text-[11px] font-mono font-bold uppercase tracking-wider">
-            Pre-Order Form
+          <span className="px-2.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-gray-300 text-[11px] font-mono font-bold uppercase tracking-wider">
+            Pre-Order Closed
           </span>
-          <span className="text-xs font-mono text-gray-400">Tahap 1</span>
+          <span className="text-xs font-mono text-gray-400">Batch #1</span>
         </div>
         <h3
           className="text-2xl sm:text-3xl font-black uppercase text-white tracking-tight"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          Form Pemesanan Rompi
+          Pre-Order Ditutup
         </h3>
-        <p className="text-xs text-gray-400">
-          Silakan lengkapi data pemesanan di bawah. Data kamu akan dicatat dalam list produksi rompi Tiba-Tiba Cycling.
-        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Nama Pemesan */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-300 flex items-center justify-between">
-            <span>Nama Lengkap / Panggilan Gowes *</span>
-          </label>
-          <input
-            type="text"
-            required
-            value={nama}
-            onChange={(e) => setNama(e.target.value)}
-            placeholder="Contoh: Farhan / Om Ryan"
-            className="w-full px-4 py-3 rounded-xl bg-black/60 border border-white/15 focus:border-[#C44341] focus:ring-1 focus:ring-[#C44341] text-white text-sm placeholder:text-gray-600 outline-none transition-all"
-          />
+      {/* Closed Notice Box */}
+      <div className="p-6 rounded-xl bg-black/60 border border-[#C44341]/40 text-center space-y-4">
+        <div className="w-14 h-14 mx-auto rounded-full bg-[#C44341]/15 border border-[#C44341]/40 flex items-center justify-center text-2xl">
+          🔒
         </div>
 
-        {/* Nomor WhatsApp */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-300 flex items-center justify-between">
-            <span>Nomor WhatsApp / HP Aktif *</span>
-          </label>
-          <input
-            type="tel"
-            required
-            value={whatsapp}
-            onChange={(e) => setWhatsapp(e.target.value)}
-            placeholder="Contoh: 081234567890"
-            className="w-full px-4 py-3 rounded-xl bg-black/60 border border-white/15 focus:border-[#C44341] focus:ring-1 focus:ring-[#C44341] text-white text-sm placeholder:text-gray-600 outline-none transition-all"
-          />
-        </div>
-
-        {/* Status Pelajar atau Bukan */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-300 flex items-center justify-between">
-            <span>Kategori Pemesan (Pelajar / Bukan) *</span>
-          </label>
-          <div className="grid grid-cols-2 gap-2.5">
-            <button
-              type="button"
-              onClick={() => setStatusPelajar("bukan_pelajar")}
-              className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-3 ${
-                statusPelajar === "bukan_pelajar"
-                  ? "bg-[#C44341]/20 border-[#C44341] text-white shadow-md shadow-[#C44341]/20"
-                  : "bg-black/50 border-white/10 text-gray-400 hover:border-white/30"
-              }`}
-            >
-              <span className="text-xl">💼</span>
-              <div>
-                <span className="text-xs font-mono font-bold block text-white">Bukan Pelajar</span>
-                <span className="text-[10px] text-gray-400 block font-mono">Umum / Pekerja</span>
-              </div>
-            </button>
-            <button
-              type="button"
-              onClick={() => setStatusPelajar("pelajar")}
-              className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-3 ${
-                statusPelajar === "pelajar"
-                  ? "bg-[#C44341]/20 border-[#C44341] text-white shadow-md shadow-[#C44341]/20"
-                  : "bg-black/50 border-white/10 text-gray-400 hover:border-white/30"
-              }`}
-            >
-              <span className="text-xl">🎒</span>
-              <div>
-                <span className="text-xs font-mono font-bold block text-white">Pelajar</span>
-                <span className="text-[10px] text-gray-400 block font-mono">Pelajar / Mahasiswa</span>
-              </div>
-            </button>
-          </div>
-        </div>
-
-        {/* Spesifikasi Standar Rompi (Fixed All-in) */}
-        <div className="p-4 rounded-xl bg-black/60 border border-white/10 space-y-2.5">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-gray-300 flex items-center gap-1.5">
-              <span>📋</span> Spesifikasi Rompi (All-in)
-            </span>
-            <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-              ✓ Standar Produksi
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-white/5 border border-white/5">
-              <span className="text-base shrink-0">🧵</span>
-              <div className="min-w-0">
-                <span className="text-[10px] text-gray-400 block leading-tight">Bahan</span>
-                <span className="text-white font-bold truncate block">Ripstop Premium</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-white/5 border border-white/5">
-              <span className="text-base shrink-0">🛡️</span>
-              <div className="min-w-0">
-                <span className="text-[10px] text-gray-400 block leading-tight">Lapisan</span>
-                <span className="text-white font-bold truncate block">Pakai Furing Dalam</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-white/5 border border-white/5">
-              <span className="text-base shrink-0">🪡</span>
-              <div className="min-w-0">
-                <span className="text-[10px] text-gray-400 block leading-tight">Tulisan Belakang</span>
-                <span className="text-amber-400 font-bold truncate block">Bordir Komputer</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-white/5 border border-white/5">
-              <span className="text-base shrink-0">🎨</span>
-              <div className="min-w-0">
-                <span className="text-[10px] text-gray-400 block leading-tight">Logo Depan</span>
-                <span className="text-[#C44341] font-bold truncate block">Sablon DTF Presisi</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Pilihan Ukuran (Size) */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-300 block">
-              Pilih Ukuran (Size) *
-            </label>
-            <button
-              type="button"
-              onClick={() => setShowSizeModal(true)}
-              className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-[#C44341] hover:text-white transition-colors"
-            >
-              <span>📏 Panduan Ukuran</span>
-              <span>→</span>
-            </button>
-          </div>
-          <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
-            {SIZES.map((sz) => (
-              <button
-                key={sz}
-                type="button"
-                onClick={() => setUkuran(sz)}
-                className={`py-2.5 rounded-xl border font-mono font-bold text-xs transition-all cursor-pointer ${ukuran === sz
-                  ? "bg-[#C44341] border-[#C44341] text-white shadow-md shadow-[#C44341]/30"
-                  : "bg-black/50 border-white/10 text-gray-300 hover:border-white/30"
-                  }`}
-              >
-                {sz}
-              </button>
-            ))}
-          </div>
+          <p
+            className="text-xl sm:text-2xl font-black uppercase text-white tracking-tight leading-snug"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            Sampai bertemu di pre order selanjutnya
+          </p>
+          <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
+            Pemesanan Pre-Order Tactical Riding Vest Batch #1 telah resmi ditutup. Terima kasih banyak untuk teman-teman yang sudah berpartisipasi!
+          </p>
         </div>
 
-        {/* Jumlah Pesanan (Qty Stepper) */}
-        <div className="space-y-2">
-          <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-300 block">
-            Jumlah Pesanan (Qty)
-          </label>
-          <div className="flex items-center gap-3">
-            <div className="inline-flex items-center rounded-xl border border-white/20 bg-black/50 overflow-hidden">
-              <button
-                type="button"
-                onClick={() => setQty(Math.max(1, qty - 1))}
-                className="w-10 h-10 flex items-center justify-center text-lg font-bold text-gray-300 hover:bg-white/10 transition-colors"
-              >
-                -
-              </button>
-              <span className="w-12 text-center text-sm font-bold font-mono text-white">
-                {qty}
-              </span>
-              <button
-                type="button"
-                onClick={() => setQty(qty + 1)}
-                className="w-10 h-10 flex items-center justify-center text-lg font-bold text-gray-300 hover:bg-white/10 transition-colors"
-              >
-                +
-              </button>
-            </div>
-            <span className="text-xs text-gray-400 font-mono">
-              = {qty} pcs Rompi
-            </span>
-          </div>
+        <div className="pt-2 border-t border-white/10 text-[11px] font-mono text-gray-400">
+          Sudah melakukan pemesanan? Cek status pesanan kamu pada daftar pesanan di bawah.
         </div>
+      </div>
 
-        {/* Catatan Tambahan */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-300 flex items-center justify-between">
-            <span>Catatan Khusus (Opsional)</span>
-            <span className="text-[10px] text-gray-500 font-normal">Misal: request ukuran khusus</span>
-          </label>
-          <textarea
-            rows={2}
-            value={catatan}
-            onChange={(e) => setCatatan(e.target.value)}
-            placeholder="Tulis catatan jika ada permintaan khusus..."
-            className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-[#C44341] focus:ring-1 focus:ring-[#C44341] text-white text-sm placeholder:text-gray-600 outline-none transition-all resize-none"
-          />
-        </div>
-
-        {/* Summary Box */}
-        <div className="p-4 rounded-xl bg-black/70 border border-white/10 space-y-2 font-mono">
-          <div className="flex items-center justify-between text-xs text-gray-300">
-            <span>Harga Satuan (Fix):</span>
-            <span className="font-bold text-white">{formatCurrency(hargaSatuan)}</span>
-          </div>
-          <div className="flex items-center justify-between text-xs text-gray-300">
-            <span>Kategori Pemesan:</span>
-            <span className="font-bold text-white">
-              {statusPelajar === "pelajar" ? "🎒 Pelajar / Mahasiswa" : "💼 Bukan Pelajar (Umum)"}
-            </span>
-          </div>
-          <div className="flex items-center justify-between text-xs text-gray-300">
-            <span>Spesifikasi:</span>
-            <span className="text-emerald-400 font-semibold text-[11px]">
-              Ripstop • Furing • Bordir Belakang • DTF Depan
-            </span>
-          </div>
-          <div className="flex items-center justify-between text-xs text-gray-300">
-            <span>Ukuran & Jumlah:</span>
-            <span className="text-white font-bold">Size {ukuran} x {qty} pcs</span>
-          </div>
-          <div className="pt-2 border-t border-white/10 flex items-center justify-between text-sm sm:text-base font-bold text-white">
-            <span>Total Estimasi:</span>
-            <span className="text-xl sm:text-2xl text-[#C44341]" style={{ fontFamily: "var(--font-display)" }}>
-              {formatCurrency(totalHarga)}
-            </span>
-          </div>
-        </div>
-
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full py-4 px-6 bg-[#C44341] hover:bg-[#A93434] text-white font-black uppercase text-sm sm:text-base tracking-wider rounded-xl transition-all shadow-xl hover:shadow-[#C44341]/50 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+      {/* Helpful Links / Actions */}
+      <div className="space-y-3">
+        <a
+          href={profile.community.joinUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full py-3.5 px-5 bg-[#C44341] hover:bg-[#A93434] text-white font-black uppercase text-xs sm:text-sm tracking-wider rounded-xl transition-all shadow-lg hover:shadow-[#C44341]/40 flex items-center justify-center gap-2"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          {isSubmitting ? (
-            <>
-              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              <span>Memproses Pesanan...</span>
-            </>
-          ) : (
-            <>
-              <span>🚴 Konfirmasi & Kirim Pesanan</span>
-              <span>→</span>
-            </>
-          )}
-        </button>
-      </form>
+          <span>💬 Gabung Grup WhatsApp untuk Info Batch Selanjutnya</span>
+          <span>→</span>
+        </a>
 
-      {/* Success Modal */}
-      {submitSuccess && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="relative max-w-md w-full bg-[#12141A] rounded-2xl border border-white/20 p-6 sm:p-8 space-y-5 text-white shadow-2xl">
-            {/* Top Badge */}
-            <div className="w-14 h-14 mx-auto rounded-full bg-emerald-500/20 border border-emerald-500 flex items-center justify-center text-3xl">
-              ✅
-            </div>
-
-            <div className="text-center space-y-1">
-              <span className="text-xs font-mono text-emerald-400 font-bold uppercase tracking-wider">
-                Pesanan Berhasil Disimpan!
-              </span>
-              <h4
-                className="text-2xl sm:text-3xl font-black uppercase tracking-tight"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                Terima Kasih, {nama}!
-              </h4>
-              <p className="text-xs text-gray-300 leading-relaxed pt-1">
-                Data pre-order rompi kamu telah berhasil tersimpan di sistem kami. Kamu bisa mengecek status pesanan pada tabel pemesan di bawah.
-              </p>
-            </div>
-
-            {/* Order Card Recap */}
-            <div className="p-4 rounded-xl bg-black/60 border border-white/10 space-y-2 text-xs font-mono">
-              <div className="flex justify-between text-gray-400 border-b border-white/10 pb-2">
-                <span>No. Pesanan:</span>
-                <span className="text-white font-bold">#{createdOrderId}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Kategori:</span>
-                <span className="text-white font-bold">
-                  {statusPelajar === "pelajar" ? "🎒 Pelajar / Mahasiswa" : "💼 Bukan Pelajar (Umum)"}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Ukuran:</span>
-                <span className="text-white font-bold">Size {ukuran}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Spesifikasi:</span>
-                <span className="text-emerald-400 font-semibold text-[11px]">Bahan Ripstop • Furing • Bordir • DTF</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Jumlah:</span>
-                <span className="text-white font-bold">{qty} pcs ({formatCurrency(hargaSatuan)} / pcs)</span>
-              </div>
-              <div className="flex justify-between pt-2 border-t border-white/10 text-sm font-bold">
-                <span>Total:</span>
-                <span className="text-[#C44341]">{formatCurrency(totalHarga)}</span>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="pt-2">
-              <button
-                type="button"
-                onClick={handleResetForm}
-                className="w-full py-3.5 px-4 bg-[#C44341] hover:bg-[#A93434] text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>✓ Selesai & Tutup</span>
-              </button>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <button
+            type="button"
+            onClick={() => setShowSizeModal(true)}
+            className="w-full py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/15 text-gray-200 hover:text-white font-mono font-bold text-xs rounded-xl transition-colors cursor-pointer"
+          >
+            📏 Lihat Size Chart
+          </button>
+          <Link
+            href="/"
+            className="w-full py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/15 text-gray-200 hover:text-white font-mono font-bold text-xs rounded-xl transition-colors text-center"
+          >
+            ← Kembali ke Beranda
+          </Link>
         </div>
-      )}
+      </div>
 
       {/* Size Chart Modal */}
       <SizeChartModal
         isOpen={showSizeModal}
         onClose={() => setShowSizeModal(false)}
-        selectedSize={ukuran}
-        onSelectSize={(sz) => setUkuran(sz as MerchandiseSize)}
       />
     </div>
   );

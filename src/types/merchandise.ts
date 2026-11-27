@@ -17,6 +17,7 @@ export interface MerchandiseOrder {
   qty: number;
   hargaSatuan: number;
   totalHarga: number;
+  sudahBayar?: number;
   catatan?: string;
   statusPelajar?: "pelajar" | "bukan_pelajar" | string;
   isPelajar?: boolean;

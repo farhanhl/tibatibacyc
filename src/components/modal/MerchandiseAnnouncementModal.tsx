@@ -20,7 +20,10 @@ export default function MerchandiseAnnouncementModal() {
         }, 1200);
         return () => clearTimeout(timer);
       } else {
-        setIsDismissed(true);
+        const timer = setTimeout(() => {
+          setIsDismissed(true);
+        }, 0);
+        return () => clearTimeout(timer);
       }
     } catch {
       // Abaikan jika sessionStorage tidak diizinkan
@@ -79,8 +82,8 @@ export default function MerchandiseAnnouncementModal() {
             <div className="p-5 sm:p-7 space-y-4">
               {/* Header: Tag & Close */}
               <div className="flex items-center justify-between">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C44341]/20 border border-[#C44341]/50 text-[#C44341] text-xs font-mono font-bold uppercase tracking-wider">
-                  <span>👕 Official Merchandise</span>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-gray-300 text-xs font-mono font-bold uppercase tracking-wider">
+                  <span>🔒 Pre-Order Ditutup</span>
                 </div>
                 <button
                   type="button"
@@ -121,7 +124,7 @@ export default function MerchandiseAnnouncementModal() {
 
               {/* Brief Information */}
               <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-                Tiba-Tiba Cycling sedang membuka pre-order <strong className="text-white">Tactical Riding Vest</strong> resmi. Dibuat dengan bahan ripstop, furing dalam, tulisan bordir punggung, dan logo sablon DTF.
+                Pre-order Batch #1 <strong className="text-white">Tactical Riding Vest</strong> resmi Tiba-Tiba Cycling telah ditutup. Sampai bertemu di pre order selanjutnya!
               </p>
 
               {/* Action Buttons */}

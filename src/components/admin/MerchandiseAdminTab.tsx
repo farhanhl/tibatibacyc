@@ -52,6 +52,7 @@ export default function MerchandiseAdminTab({
     qty: number;
     hargaSatuan: number;
     totalHarga: number;
+    sudahBayar: number;
     status: MerchandiseOrder["status"];
     catatan: string;
   }>({
@@ -62,6 +63,7 @@ export default function MerchandiseAdminTab({
     qty: 1,
     hargaSatuan: 190000,
     totalHarga: 190000,
+    sudahBayar: 0,
     status: "pending",
     catatan: "",
   });
@@ -81,6 +83,7 @@ export default function MerchandiseAdminTab({
   const totalOrders = orders.length;
   const totalPcs = orders.reduce((sum, o) => sum + (o.qty || 1), 0);
   const totalNominal = orders.reduce((sum, o) => sum + (o.totalHarga || 0), 0);
+  const totalPaid = orders.reduce((sum, o) => sum + (o.sudahBayar || 0), 0);
 
   const totalConfirmed = orders
     .filter((o) => o.status === "confirmed" || o.status === "completed")
@@ -213,6 +216,7 @@ export default function MerchandiseAdminTab({
       qty,
       hargaSatuan,
       totalHarga,
+      sudahBayar: order.sudahBayar ?? 0,
       status: order.status || "pending",
       catatan: order.catatan || "",
     });
@@ -278,6 +282,7 @@ export default function MerchandiseAdminTab({
         qty: Number(editForm.qty),
         hargaSatuan: Number(editForm.hargaSatuan),
         totalHarga: Number(editForm.totalHarga),
+        sudahBayar: Math.max(0, Number(editForm.sudahBayar) || 0),
         status: editForm.status,
         catatan: editForm.catatan.trim() || "",
       });
@@ -419,8 +424,8 @@ export default function MerchandiseAdminTab({
           >
             {formatCurrency(totalNominal)}
           </div>
-          <p className="text-[11px] text-gray-400">
-            Total akumulasi nilai pre-order
+          <p className="text-[11px] text-gray-400 font-mono">
+            Masuk: <span className="text-emerald-400 font-bold">{formatCurrency(totalPaid)}</span> • Sisa: {formatCurrency(Math.max(0, totalNominal - totalPaid))}
           </p>
         </div>
       </div>
@@ -529,6 +534,7 @@ export default function MerchandiseAdminTab({
                   <th className="py-3 px-3 text-center">Ukuran</th>
                   <th className="py-3 px-3 text-center">Qty</th>
                   <th className="py-3 px-4">Total Biaya</th>
+                  <th className="py-3 px-4">Sudah Bayar</th>
                   <th className="py-3 px-3">Waktu</th>
                   <th className="py-3 px-3 text-center">Status</th>
                   <th className="py-3 px-4 text-center">Aksi</th>
@@ -604,6 +610,35 @@ export default function MerchandiseAdminTab({
                       {/* Total Biaya */}
                       <td className="py-3 px-4 font-bold text-[#C44341]">
                         {formatCurrency(ord.totalHarga)}
+                      </td>
+
+                      {/* Sudah Bayar */}
+                      <td className="py-3 px-4">
+                        {(() => {
+                          const paid = ord.sudahBayar ?? 0;
+                          const remaining = Math.max(0, (ord.totalHarga || 0) - paid);
+                          const isPaidOff = paid >= (ord.totalHarga || 0) && (ord.totalHarga || 0) > 0;
+                          return (
+                            <div className="space-y-0.5">
+                              <span
+                                className={`font-bold block ${
+                                  isPaidOff
+                                    ? "text-emerald-400"
+                                    : paid > 0
+                                    ? "text-amber-300"
+                                    : "text-gray-400"
+                                }`}
+                              >
+                                {formatCurrency(paid)}
+                              </span>
+                              <span className="text-[10px] block text-gray-400">
+                                {isPaidOff
+                                  ? "✓ Lunas"
+                                  : `Sisa ${formatCurrency(remaining)}`}
+                              </span>
+                            </div>
+                          );
+                        })()}
                       </td>
 
                       {/* Tanggal */}
@@ -884,7 +919,59 @@ export default function MerchandiseAdminTab({
                   </span>
                 </div>
 
-                {/* Field 7: Status Pesanan */}
+                {/* Field 7: Sudah Bayar */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-gray-300 block">
+                      Sudah Bayar (Rp)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setEditForm((prev) => ({
+                          ...prev,
+                          sudahBayar: prev.totalHarga,
+                        }))
+                      }
+                      className="text-[10px] text-emerald-400 hover:underline cursor-pointer"
+                      title="Isi otomatis sesuai Total Biaya (Lunas)"
+                    >
+                      Set Lunas
+                    </button>
+                  </div>
+                  <input
+                    type="number"
+                    min={0}
+                    step={1000}
+                    value={editForm.sudahBayar}
+                    onChange={(e) =>
+                      setEditForm((prev) => ({
+                        ...prev,
+                        sudahBayar: Math.max(0, Number(e.target.value) || 0),
+                      }))
+                    }
+                    placeholder="0"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-emerald-500/30 focus:border-emerald-400 text-white font-bold text-xs outline-none transition-colors"
+                  />
+                  <span className="text-[10px] text-gray-400 block">
+                    {formatCurrency(editForm.sudahBayar)}
+                    {editForm.totalHarga > 0 && (
+                      <>
+                        {" "}
+                        •{" "}
+                        {editForm.sudahBayar >= editForm.totalHarga ? (
+                          <span className="text-emerald-400 font-bold">Lunas</span>
+                        ) : (
+                          <span className="text-amber-300">
+                            Kurang {formatCurrency(editForm.totalHarga - editForm.sudahBayar)}
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </span>
+                </div>
+
+                {/* Field 8: Status Pesanan */}
                 <div className="space-y-1.5 sm:col-span-2">
                   <label className="text-xs font-bold text-gray-300 block">
                     Status Pemesanan <span className="text-red-400">*</span>

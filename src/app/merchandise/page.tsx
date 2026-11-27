@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     siteName: `${profile.site.name} Bekasi`,
     title: `🦺 Pre-Order Official Tactical Vest — ${profile.site.name} Bekasi`,
     description:
-      "Rompi sepeda tactical eksklusif Tiba-Tiba Cycling Bekasi (Rp 190.000). Bahan Ripstop premium + furing dalam, bordir punggung, reflektor keselamatan & saku utilitas. Pre-order Batch #1 dibuka!",
+      "Rompi sepeda tactical eksklusif Tiba-Tiba Cycling Bekasi (Rp 190.000). Pre-order Batch #1 telah ditutup. Sampai bertemu di pre order selanjutnya!",
     images: [
       {
         url: `${SITE_URL}/images/og-merchandise.jpg`,
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `🦺 Pre-Order Official Tactical Vest — ${profile.site.name} Bekasi`,
     description:
-      "Rompi sepeda tactical eksklusif Tiba-Tiba Cycling Bekasi (Rp 190.000). Bahan Ripstop premium + furing dalam, bordir punggung & reflektor. Pre-order Batch #1 sekarang!",
+      "Rompi sepeda tactical eksklusif Tiba-Tiba Cycling Bekasi (Rp 190.000). Pre-order Batch #1 telah ditutup. Sampai bertemu di pre order selanjutnya!",
     images: [`${SITE_URL}/images/og-merchandise.jpg`],
   },
   alternates: {
@@ -89,9 +89,9 @@ export default function MerchandisePage() {
 
           {/* Right Status Badge */}
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C44341]/15 border border-[#C44341]/40 text-[#C44341] text-xs font-mono font-bold uppercase tracking-wider">
-              <span className="w-2 h-2 rounded-full bg-[#C44341] animate-ping" />
-              Pre-Order Open
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-gray-300 text-xs font-mono font-bold uppercase tracking-wider">
+              <span className="w-2 h-2 rounded-full bg-gray-400" />
+              Pre-Order Closed
             </span>
           </div>
         </div>

@@ -121,7 +121,7 @@ export default function MerchandisePublicOrders() {
             Belum Ada Pesanan yang Tercatat
           </h4>
           <p className="text-xs text-gray-400 max-w-md mx-auto">
-            Jadilah yang pertama untuk ikut memesan Rompi Eksklusif Tiba-Tiba Cycling Batch #1! Isi formulir di atas sekarang.
+            Belum ada pesanan yang tercatat untuk Batch #1. Sampai bertemu di pre order selanjutnya!
           </p>
         </div>
       ) : (
