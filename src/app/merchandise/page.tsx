@@ -6,6 +6,7 @@ import profileData from "@/data/profile.json";
 import { ProfileData } from "@/types/profile";
 import MerchandiseDetail from "@/components/merchandise/MerchandiseDetail";
 import MerchandiseForm from "@/components/merchandise/MerchandiseForm";
+import MerchandisePaymentQris from "@/components/merchandise/MerchandisePaymentQris";
 import MerchandisePublicOrders from "@/components/merchandise/MerchandisePublicOrders";
 
 const profile = profileData as ProfileData;
@@ -131,6 +132,9 @@ export default function MerchandisePage() {
           </div>
         </div>
 
+        {/* QRIS Payment Section */}
+        <MerchandisePaymentQris />
+
         {/* Bottom Information / FAQ Card */}
         <div className="p-6 sm:p-8 rounded-2xl bg-[#12141A] border border-white/15 space-y-6 mt-12">
           <div className="space-y-1">
@@ -158,7 +162,7 @@ export default function MerchandisePage() {
               <span className="text-xl">2️⃣</span>
               <h4 className="text-sm font-bold text-white">Pembayaran & Produksi</h4>
               <p className="text-xs text-gray-400 leading-relaxed">
-                Pembayaran dilakukan via transfer bank. Begitu kuota minimal tercapai, proses potong kain & produksi rompi segera berjalan.
+                Pembayaran dilakukan via QRIS atau transfer bank. Begitu kuota minimal tercapai, proses potong kain & produksi rompi segera berjalan.
               </p>
             </div>
 

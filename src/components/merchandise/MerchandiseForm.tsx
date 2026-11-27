@@ -50,8 +50,17 @@ export default function MerchandiseForm() {
           </p>
         </div>
 
-        <div className="pt-2 border-t border-white/10 text-[11px] font-mono text-gray-400">
-          Sudah melakukan pemesanan? Cek status pesanan kamu pada daftar pesanan di bawah.
+        <div className="pt-2 border-t border-white/10 text-[11px] font-mono text-gray-400 space-y-2">
+          <p>
+            Sudah melakukan pemesanan? Cek status pesanan kamu pada daftar pesanan atau lakukan pembayaran via QRIS di bawah.
+          </p>
+          <a
+            href="#payment-qris"
+            className="inline-flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 font-bold underline underline-offset-4"
+          >
+            <span>💳 Lihat QRIS Pembayaran</span>
+            <span>↓</span>
+          </a>
         </div>
       </div>
 
