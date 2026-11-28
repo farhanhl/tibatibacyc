@@ -17,6 +17,8 @@ export default function JoinCommunityModal({
   const [domisili, setDomisili] = useState("");
   const [phone, setPhone] = useState("");
   const [titikKumpul, setTitikKumpul] = useState("");
+  const [statusPelajar, setStatusPelajar] = useState("");
+  const [sumberInfo, setSumberInfo] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,6 +52,8 @@ export default function JoinCommunityModal({
     const trimmedDomisili = domisili.trim();
     const trimmedPhone = phone.trim();
     const trimmedTitikKumpul = titikKumpul.trim();
+    const trimmedStatusPelajar = statusPelajar.trim();
+    const trimmedSumberInfo = sumberInfo.trim();
 
     // Validasi input
     if (!trimmedNama || trimmedNama.length < 2) {
@@ -73,6 +77,16 @@ export default function JoinCommunityModal({
       return;
     }
 
+    if (!trimmedStatusPelajar) {
+      setError("Mohon pilih apakah Anda pelajar atau bukan.");
+      return;
+    }
+
+    if (!trimmedSumberInfo || trimmedSumberInfo.length < 2) {
+      setError("Mohon isi dari mana Anda mengetahui Tiba-Tiba Cycling.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -87,6 +101,8 @@ export default function JoinCommunityModal({
           domisili: trimmedDomisili,
           phone: cleanPhone,
           titikKumpul: trimmedTitikKumpul,
+          statusPelajar: trimmedStatusPelajar,
+          sumberInfo: trimmedSumberInfo,
         }),
         keepalive: true,
       });
@@ -108,6 +124,8 @@ export default function JoinCommunityModal({
       setDomisili("");
       setPhone("");
       setTitikKumpul("");
+      setStatusPelajar("");
+      setSumberInfo("");
       setError(null);
       onClose();
     }
@@ -115,19 +133,19 @@ export default function JoinCommunityModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 overflow-y-auto"
       onClick={() => {
         if (!isSubmitting) onClose();
       }}
     >
       <div
-        className="relative w-full max-w-lg bg-[#12141A] border border-white/20 rounded-2xl shadow-2xl overflow-hidden text-white z-10 animate-in fade-in duration-200 my-auto"
+        className="relative w-full max-w-lg bg-[#12141A] border border-white/20 rounded-2xl shadow-2xl overflow-hidden text-white z-10 animate-in fade-in duration-200 my-auto max-h-[92vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Accent Gradient Bar */}
-        <div className="h-1.5 w-full bg-gradient-to-r from-[#C44341] via-[#E15A58] to-black" />
+        <div className="h-1.5 w-full bg-gradient-to-r from-[#C44341] via-[#E15A58] to-black shrink-0" />
 
-        <div className="p-5 sm:p-7 space-y-5">
+        <div className="p-5 sm:p-7 space-y-5 overflow-y-auto overscroll-contain">
           {/* Header */}
           <div className="flex items-start justify-between border-b border-white/10 pb-4">
             <div className="space-y-1">
@@ -307,6 +325,83 @@ export default function JoinCommunityModal({
                     onClick={() => setTitikKumpul(opsi)}
                     className={`text-[11px] px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
                       titikKumpul === opsi
+                        ? "bg-[#C44341] border-[#C44341] text-white"
+                        : "bg-white/5 border-white/10 text-gray-400 hover:text-white hover:border-white/30"
+                    }`}
+                  >
+                    {opsi}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Field: Status Pelajar */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-gray-300">
+                Status <span className="text-[#C44341]">*</span>
+              </label>
+              <p className="text-[11px] text-gray-400 leading-normal">
+                Apakah kamu saat ini pelajar / mahasiswa atau bukan?
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { label: "Pelajar / Mahasiswa", icon: "🎓" },
+                  { label: "Bukan Pelajar", icon: "💼" },
+                ].map((item) => (
+                  <button
+                    key={item.label}
+                    type="button"
+                    onClick={() => setStatusPelajar(item.label)}
+                    disabled={isSubmitting}
+                    className={`py-2.5 px-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 ${
+                      statusPelajar === item.label
+                        ? "bg-[#C44341] border-[#C44341] text-white shadow-lg shadow-[#C44341]/30 font-bold"
+                        : "bg-black/50 border-white/20 text-gray-300 hover:text-white hover:border-white/40"
+                    }`}
+                  >
+                    <span>{item.icon}</span>
+                    <span className="truncate">{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Field: Tau Tiba-Tiba Cycling Dari Mana */}
+            <div className="space-y-1.5">
+              <label
+                htmlFor="join-sumber"
+                className="block text-xs font-mono font-bold uppercase tracking-wider text-gray-300"
+              >
+                Tau Tiba-Tiba Cycling Dari Mana? <span className="text-[#C44341]">*</span>
+              </label>
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+                  📣
+                </span>
+                <input
+                  id="join-sumber"
+                  type="text"
+                  required
+                  placeholder="Contoh: Instagram / TikTok / Teman"
+                  value={sumberInfo}
+                  onChange={(e) => setSumberInfo(e.target.value)}
+                  disabled={isSubmitting}
+                  className="w-full pl-10 pr-4 py-3 bg-black/50 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#C44341] focus:ring-1 focus:ring-[#C44341] transition-all text-base sm:text-sm font-sans disabled:opacity-50"
+                />
+              </div>
+              <div className="flex flex-wrap gap-1.5 pt-0.5">
+                {[
+                  "Instagram",
+                  "TikTok",
+                  "Teman / Rekan Gowes",
+                  "Ketemu di Jalan",
+                ].map((opsi) => (
+                  <button
+                    key={opsi}
+                    type="button"
+                    onClick={() => setSumberInfo(opsi)}
+                    className={`text-[11px] px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                      sumberInfo === opsi
                         ? "bg-[#C44341] border-[#C44341] text-white"
                         : "bg-white/5 border-white/10 text-gray-400 hover:text-white hover:border-white/30"
                     }`}
